@@ -22,61 +22,8 @@
 #include <iostream>
 #include "data_loaders/CameraDataLoader.h"
 #include "Topics.h"
+#include "data_loaders/DataLoaderController.h"
 
-void createCameraDataLoaders(const rclcpp::NodeOptions &nodeOptions,
-                             rclcpp::executors::MultiThreadedExecutor &executor,
-                             const std::string &datasetPath) {
-
-    auto rgbCameraLSDataLoader = std::make_shared<AtlasFusion::DataLoader::CameraDataLoader>(
-            "CameraLeftSideDataLoader",
-            datasetPath,
-            AtlasFusion::DataLoader::CameraIdentifier::kCameraLeftSide,
-            AtlasFusion::Topics::kCameraLeftSide,
-            AtlasFusion::Topics::kDataLoaderSynchronization,
-            nodeOptions
-    );
-    executor.add_node(rgbCameraLSDataLoader);
-
-    auto rgbCameraLFDataLoader = std::make_shared<AtlasFusion::DataLoader::CameraDataLoader>(
-            "CameraLeftFrontDataLoader",
-            datasetPath,
-            AtlasFusion::DataLoader::CameraIdentifier::kCameraLeftFront,
-            AtlasFusion::Topics::kCameraLeftFront,
-            AtlasFusion::Topics::kDataLoaderSynchronization,
-            nodeOptions
-    );
-    executor.add_node(rgbCameraLFDataLoader);
-
-    auto rgbCameraRFDataLoader = std::make_shared<AtlasFusion::DataLoader::CameraDataLoader>(
-            "CameraRightFrontDataLoader",
-            datasetPath,
-            AtlasFusion::DataLoader::CameraIdentifier::kCameraRightFront,
-            AtlasFusion::Topics::kCameraRightFront,
-            AtlasFusion::Topics::kDataLoaderSynchronization,
-            nodeOptions
-    );
-    executor.add_node(rgbCameraRFDataLoader);
-
-    auto rgbCameraRSDataLoader = std::make_shared<AtlasFusion::DataLoader::CameraDataLoader>(
-            "CameraRightSideDataLoader",
-            datasetPath,
-            AtlasFusion::DataLoader::CameraIdentifier::kCameraRightSide,
-            AtlasFusion::Topics::kCameraRightSide,
-            AtlasFusion::Topics::kDataLoaderSynchronization,
-            nodeOptions
-    );
-    executor.add_node(rgbCameraRSDataLoader);
-
-    auto irCameraDataLoader = std::make_shared<AtlasFusion::DataLoader::CameraDataLoader>(
-            "CameraIRDataLoader",
-            datasetPath,
-            AtlasFusion::DataLoader::CameraIdentifier::kCameraIr,
-            AtlasFusion::Topics::kCameraIr,
-            AtlasFusion::Topics::kDataLoaderSynchronization,
-            nodeOptions
-    );
-    executor.add_node(irCameraDataLoader);
-}
 
 int main(int argc, char **argv) {
     std::cout << "Hello Atlas Fusion 2.0!" << std::endl;
@@ -88,7 +35,62 @@ int main(int argc, char **argv) {
     rclcpp::executors::MultiThreadedExecutor executor;
     rclcpp::NodeOptions nodeOptions = rclcpp::NodeOptions().use_intra_process_comms(true);
 
-    createCameraDataLoaders(nodeOptions, executor, datasetPath);
+    auto rgbCameraLSDataLoader = std::make_shared<AtlasFusion::DataLoader::CameraDataLoader>(
+            "CameraLeftSideDataLoader",
+            datasetPath,
+            AtlasFusion::DataLoader::CameraIdentifier::kCameraLeftSide,
+            AtlasFusion::Topics::kCameraLeftSideDataLoader,
+            AtlasFusion::Topics::kDataLoaderSynchronization,
+            nodeOptions
+    );
+    executor.add_node(rgbCameraLSDataLoader);
+
+    auto rgbCameraLFDataLoader = std::make_shared<AtlasFusion::DataLoader::CameraDataLoader>(
+            "CameraLeftFrontDataLoader",
+            datasetPath,
+            AtlasFusion::DataLoader::CameraIdentifier::kCameraLeftFront,
+            AtlasFusion::Topics::kCameraLeftFrontDataLoader,
+            AtlasFusion::Topics::kDataLoaderSynchronization,
+            nodeOptions
+    );
+    executor.add_node(rgbCameraLFDataLoader);
+
+    auto rgbCameraRFDataLoader = std::make_shared<AtlasFusion::DataLoader::CameraDataLoader>(
+            "CameraRightFrontDataLoader",
+            datasetPath,
+            AtlasFusion::DataLoader::CameraIdentifier::kCameraRightFront,
+            AtlasFusion::Topics::kCameraRightFrontDataLoader,
+            AtlasFusion::Topics::kDataLoaderSynchronization,
+            nodeOptions
+    );
+    executor.add_node(rgbCameraRFDataLoader);
+
+    auto rgbCameraRSDataLoader = std::make_shared<AtlasFusion::DataLoader::CameraDataLoader>(
+            "CameraRightSideDataLoader",
+            datasetPath,
+            AtlasFusion::DataLoader::CameraIdentifier::kCameraRightSide,
+            AtlasFusion::Topics::kCameraRightSideDataLoader,
+            AtlasFusion::Topics::kDataLoaderSynchronization,
+            nodeOptions
+    );
+    executor.add_node(rgbCameraRSDataLoader);
+
+    auto irCameraDataLoader = std::make_shared<AtlasFusion::DataLoader::CameraDataLoader>(
+            "CameraIRDataLoader",
+            datasetPath,
+            AtlasFusion::DataLoader::CameraIdentifier::kCameraIr,
+            AtlasFusion::Topics::kCameraIrDataLoader,
+            AtlasFusion::Topics::kDataLoaderSynchronization,
+            nodeOptions
+    );
+    executor.add_node(irCameraDataLoader);
+
+    auto dataLoaderController = std::make_shared<AtlasFusion::DataLoader::DataLoaderController>(
+            "DataLoaderController",
+            AtlasFusion::Topics::kDataLoaderSynchronization,
+            nodeOptions
+    );
+    executor.add_node(dataLoaderController);
 
     executor.spin();
     rclcpp::shutdown();

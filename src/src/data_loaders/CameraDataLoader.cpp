@@ -31,28 +31,28 @@ namespace AtlasFusion::DataLoader {
                                        const std::string &synchronizationTopic,
                                        const rclcpp::NodeOptions &options)
             : Node(name, options), datasetPath_{std::move(datasetPath)}, cameraIdentifier_{cameraIdentifier},
-              latestTimestampPublished_(0) {
+              latestTimestampPublished_(0), synchronizationTimestamp_(1) {
 
-        // Publisher that publishes Images
-        publisher_ = create_publisher<atlas_fusion_interfaces::msg::RGBCameraData>(topic, 1);
+        // Publisher that publishes CameraData
+        publisher_ = create_publisher<atlas_fusion_interfaces::msg::CameraData>(topic, 1);
 
         // Timestamp synchronization subscription to manage data loading speeds
         timestampSubscription_ = create_subscription<std_msgs::msg::UInt64>(
                 synchronizationTopic,
                 1,
-                std::bind(&CameraDataLoader::synchronization_callback, this, std::placeholders::_1)
+                std::bind(&CameraDataLoader::onSynchronizationTimestamp, this, std::placeholders::_1)
         );
 
         // Timer to control the polling frequency for publishing
         using namespace std::chrono_literals;
-        timer_ = create_wall_timer(10ms, std::bind(&CameraDataLoader::timer_callback, this));
+        timer_ = create_wall_timer(10ms, std::bind(&CameraDataLoader::onDataLoaderTimer, this));
 
         // Init camera additional data
         initialize();
     }
 
-    void CameraDataLoader::timer_callback() {
-        //if (latestTimestampPublished_ <= synchronizationTimestamp_) return;
+    void CameraDataLoader::onDataLoaderTimer() {
+        if (latestTimestampPublished_ > synchronizationTimestamp_) return;
 
         if (!isOnEnd()) {
             cv::Mat frame{};
@@ -62,20 +62,23 @@ namespace AtlasFusion::DataLoader {
             header.stamp = this->get_clock()->now();
             header.frame_id = dataIt_->frameId_;
 
-            atlas_fusion_interfaces::msg::RGBCameraData cameraData;
+            atlas_fusion_interfaces::msg::CameraData cameraData;
             cameraData.image = toCameraMsg(frame, header,
                                            cameraIdentifier_ == CameraIdentifier::kCameraIr ? "mono8" : "bgr8");
-            cameraData.camera_identifier = std::to_string((int) cameraIdentifier_);
+            cameraData.camera_identifier = static_cast<int8_t>(cameraIdentifier_);
             cameraData.timestamp = dataIt_->timestamp_;
             cameraData.inner_timestamp = dataIt_->innerTimestamp_;
+            cameraData.min_temperature = static_cast<float>(dataIt_->tempMin_);
+            cameraData.max_temperature = static_cast<float>(dataIt_->tempMax_);
             cameraData.yolo_detections = dataIt_->detections_;
 
             publisher_->publish(cameraData);
+            latestTimestampPublished_ = cameraData.timestamp;
             dataIt_ = std::next(dataIt_, 1);
         }
     }
 
-    void CameraDataLoader::synchronization_callback(const std_msgs::msg::UInt64 &msg) {
+    void CameraDataLoader::onSynchronizationTimestamp(const std_msgs::msg::UInt64 &msg) {
         synchronizationTimestamp_ = msg.data;
     }
 

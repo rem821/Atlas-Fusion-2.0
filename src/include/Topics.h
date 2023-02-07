@@ -24,6 +24,15 @@
 
 namespace AtlasFusion::Topics {
 
+        const std::string kCameraLeftFrontDataLoader = "/atlasfusion/data_loader/cameras/camera_left_front/camera";
+        const std::string kCameraLeftSideDataLoader = "/atlasfusion/data_loader/cameras/camera_left_side/camera";
+        const std::string kCameraRightFrontDataLoader = "/atlasfusion/data_loader/cameras/camera_right_front/camera";
+        const std::string kCameraRightSideDataLoader = "/atlasfusion/data_loader/cameras/camera_right_side/camera";
+        const std::string kCameraIrDataLoader = "/atlasfusion/local_map/data_loader/camera_ir/camera";
+
+        const std::string kDataLoaderSynchronization = "/atlasfusion/data_loading/synchronization";
+
+
         const std::string kSelfGlobal = "/atlasfusion/local_map/self/global";
         const std::string kSelfEgo = "/atlasfusion/local_map/self/ego";
 
@@ -39,7 +48,6 @@ namespace AtlasFusion::Topics {
         const std::string kImuTopic = "/atlasfusion/local_map/imu/imu";
         const std::string kImuAvgTopic = "/atlasfusion/local_map/imu/imu_avg";
         const std::string kGnssTopic = "/atlasfusion/local_map/gnss/pose_text";
-
 
         const std::string kCameraLeftFront = "/atlasfusion/local_map/cameras/camera_left_front/camera";
         const std::string kCameraLeftSide = "/atlasfusion/local_map/cameras/camera_left_side/camera";
@@ -90,5 +98,4 @@ namespace AtlasFusion::Topics {
         const std::string kSpeedTopic = "/atlasfusion/local_map/speed";
         const std::string kEnvironmentalModel = "/atlasfusion/local_map/environmental_model";
 
-        const std::string kDataLoaderSynchronization = "/atlasfusion/data_loading/synchronization";
     }

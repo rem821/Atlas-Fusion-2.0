@@ -22,7 +22,7 @@
 #pragma once
 
 #include <std_msgs/msg/u_int64.hpp>
-#include <atlas_fusion_interfaces/msg/rgb_camera_data.hpp>
+#include <atlas_fusion_interfaces/msg/camera_data.hpp>
 #include "rcpputils/endian.hpp"
 
 #include "data_loaders/DataLoaderIdentifiers.h"
@@ -66,9 +66,9 @@ namespace AtlasFusion::DataLoader {
                          const rclcpp::NodeOptions &options);
 
     private:
-        void timer_callback();
+        void onDataLoaderTimer();
 
-        void synchronization_callback(const std_msgs::msg::UInt64 &msg);
+        void onSynchronizationTimestamp(const std_msgs::msg::UInt64 &msg);
 
         void initialize();
 
@@ -76,17 +76,17 @@ namespace AtlasFusion::DataLoader {
 
         void clear();
 
-        void loadYoloDetections(const std::string& path);
+        void loadYoloDetections(const std::string &path);
 
         static sensor_msgs::msg::Image toCameraMsg(const cv::Mat &img,
-                                                              const std_msgs::msg::Header &header,
-                                                              const std::string &encoding);
+                                                   const std_msgs::msg::Header &header,
+                                                   const std::string &encoding);
 
         std::string datasetPath_;
         CameraIdentifier cameraIdentifier_;
 
         rclcpp::TimerBase::SharedPtr timer_;
-        rclcpp::Publisher<atlas_fusion_interfaces::msg::RGBCameraData>::SharedPtr publisher_;
+        rclcpp::Publisher<atlas_fusion_interfaces::msg::CameraData>::SharedPtr publisher_;
         rclcpp::Subscription<std_msgs::msg::UInt64>::SharedPtr timestampSubscription_;
         uint64_t latestTimestampPublished_;
         uint64_t synchronizationTimestamp_;
