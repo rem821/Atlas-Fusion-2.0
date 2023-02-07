@@ -57,7 +57,7 @@ namespace AtlasFusion::DataLoader {
             uint64_t innerTimestamp_;
             double tempMin_;
             double tempMax_;
-            std::vector<DataModels::YoloDetection> detections_{};
+            std::vector<atlas_fusion_interfaces::msg::YoloDetection> detections_{};
         };
 
     public:

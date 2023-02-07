@@ -56,10 +56,12 @@ add_definitions(${PCL_DEFINITIONS})
 set(HEADER_FILES include/precompiled_headers/PCH.h)
 
 set(DATA_LOADER_SRCS src/data_loaders/CameraDataLoader.cpp)
+set(DATA_MODEL_SRCS src/data_models/YoloDetectionClass.cpp)
+
 set(UTIL_SRCS src/util/CsvReader.cpp)
 
 
-add_executable(${PROJECT_NAME} src/main.cpp ${DATA_LOADER_SRCS} ${UTIL_SRCS})
+add_executable(${PROJECT_NAME} src/main.cpp ${DATA_LOADER_SRCS} ${DATA_MODEL_SRCS} ${UTIL_SRCS})
 target_precompile_headers(${PROJECT_NAME} PRIVATE ${HEADER_FILES})
 
 ament_target_dependencies(${PROJECT_NAME} rclcpp std_msgs sensor_msgs geometry_msgs visualization_msgs rviz_2d_overlay_msgs atlas_fusion_interfaces image_transport camera_info_manager tf2_ros)

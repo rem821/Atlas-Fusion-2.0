@@ -68,6 +68,7 @@ namespace AtlasFusion::DataLoader {
             cameraData.camera_identifier = std::to_string((int) cameraIdentifier_);
             cameraData.timestamp = dataIt_->timestamp_;
             cameraData.inner_timestamp = dataIt_->innerTimestamp_;
+            cameraData.yolo_detections = dataIt_->detections_;
 
             publisher_->publish(cameraData);
             dataIt_ = std::next(dataIt_, 1);
@@ -147,10 +148,8 @@ namespace AtlasFusion::DataLoader {
         auto height = static_cast<int>(video_.get(cv::CAP_PROP_FRAME_HEIGHT));
         imageWidthHeight_ = {width, height};
 
-        /*
         std::string yoloFile = folder.replace(folder.find('/'), std::string("/").length(), ".txt");
-        loadYoloDetections(datasetPath + Folders::kYoloFolder + yoloFile);
-        */
+        loadYoloDetections(datasetPath_ + Folders::kYoloFolder + yoloFile);
 
         dataIt_ = data_.begin();
         releaseIt_ = dataIt_;
@@ -180,11 +179,17 @@ namespace AtlasFusion::DataLoader {
                 auto cy = std::stod(detection[2]) * imageWidthHeight_.second;
                 auto w = std::stod(detection[3]) * imageWidthHeight_.first;
                 auto h = std::stod(detection[4]) * imageWidthHeight_.second;
+
+                atlas_fusion_interfaces::msg::YoloDetection det;
+                det.x1 = int(cx - w / 2);
+                det.y1 = int(cy - h / 2);
+                det.x2 = int(cx + w / 2);
+                det.y2 = int(cy + h / 2);
+                det.detection_confidence = std::stof(detection[5]);
+                det.detection_class = static_cast<int16_t>(std::stoi(detection[6]));
+
                 if (frame_id < data_.size()) {
-                    data_.at(frame_id).detections_.emplace_back(cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2,
-                                                                std::stof(detection[5]),
-                                                                static_cast<DataModels::YoloDetectionClass>(std::stoi(
-                                                                        detection[6])));
+                    data_.at(frame_id).detections_.emplace_back(det);
                 }
             }
         }
