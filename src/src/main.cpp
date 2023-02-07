@@ -23,16 +23,9 @@
 #include "data_loaders/CameraDataLoader.h"
 #include "Topics.h"
 
-int main(int argc, char **argv) {
-    std::cout << "Hello Atlas Fusion 2.0!" << std::endl;
-
-    //std::string datasetPath = "/media/standa/174A20FD45B9BA09/BUD/3_1_1_2/";
-    std::string datasetPath = "/home/standa/Desktop/BUD/3_1_3_3/";
-
-    rclcpp::NodeOptions nodeOptions = rclcpp::NodeOptions().use_intra_process_comms(true);
-
-    rclcpp::init(argc, argv);
-    rclcpp::executors::MultiThreadedExecutor executor;
+void createCameraDataLoaders(const rclcpp::NodeOptions &nodeOptions,
+                             rclcpp::executors::MultiThreadedExecutor &executor,
+                             const std::string &datasetPath) {
 
     auto rgbCameraLSDataLoader = std::make_shared<AtlasFusion::DataLoader::CameraDataLoader>(
             "CameraLeftSideDataLoader",
@@ -83,9 +76,21 @@ int main(int argc, char **argv) {
             nodeOptions
     );
     executor.add_node(irCameraDataLoader);
+}
+
+int main(int argc, char **argv) {
+    std::cout << "Hello Atlas Fusion 2.0!" << std::endl;
+
+    //std::string datasetPath = "/media/standa/174A20FD45B9BA09/BUD/3_1_1_2/";
+    std::string datasetPath = "/home/standa/Desktop/BUD/3_1_3_3/";
+
+    rclcpp::init(argc, argv);
+    rclcpp::executors::MultiThreadedExecutor executor;
+    rclcpp::NodeOptions nodeOptions = rclcpp::NodeOptions().use_intra_process_comms(true);
+
+    createCameraDataLoaders(nodeOptions, executor, datasetPath);
 
     executor.spin();
-
     rclcpp::shutdown();
 
     return 0;

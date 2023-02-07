@@ -25,12 +25,12 @@
 namespace AtlasFusion::DataLoader {
 
     CameraDataLoader::CameraDataLoader(const std::string &name,
-                                       const std::string &datasetPath,
+                                       std::string datasetPath,
                                        const CameraIdentifier &cameraIdentifier,
                                        const std::string &topic,
                                        const std::string &synchronizationTopic,
                                        const rclcpp::NodeOptions &options)
-            : Node(name, options), datasetPath_{datasetPath}, cameraIdentifier_{cameraIdentifier},
+            : Node(name, options), datasetPath_{std::move(datasetPath)}, cameraIdentifier_{cameraIdentifier},
               latestTimestampPublished_(0) {
 
         // Publisher that publishes Images

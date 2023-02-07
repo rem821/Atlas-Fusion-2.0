@@ -21,7 +21,6 @@
  */
 #pragma once
 
-#include <chrono>
 #include <std_msgs/msg/u_int64.hpp>
 #include <atlas_fusion_interfaces/msg/rgb_camera_data.hpp>
 #include "rcpputils/endian.hpp"
@@ -50,8 +49,6 @@ namespace AtlasFusion::DataLoader {
             CameraFrame(uint64_t ts, uint32_t fId, uint64_t iTs, double tempMin, double tempMax)
                     : timestamp_(ts), frameId_(fId), innerTimestamp_(iTs), tempMin_(tempMin), tempMax_(tempMax) {}
 
-            uint64_t getTimestamp() { return timestamp_; };
-
             uint64_t timestamp_;
             uint32_t frameId_;
             uint64_t innerTimestamp_;
@@ -62,7 +59,7 @@ namespace AtlasFusion::DataLoader {
 
     public:
         CameraDataLoader(const std::string &name,
-                         const std::string &datasetPath,
+                         std::string datasetPath,
                          const CameraIdentifier &cameraIdentifier,
                          const std::string &topic,
                          const std::string &synchronizationTopic,
@@ -81,7 +78,7 @@ namespace AtlasFusion::DataLoader {
 
         void loadYoloDetections(const std::string& path);
 
-        sensor_msgs::msg::Image toCameraMsg(const cv::Mat &img,
+        static sensor_msgs::msg::Image toCameraMsg(const cv::Mat &img,
                                                               const std_msgs::msg::Header &header,
                                                               const std::string &encoding);
 
