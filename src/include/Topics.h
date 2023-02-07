@@ -1,0 +1,94 @@
+/*
+ * Copyright 2023 Brno University of Technology
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom
+ * the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT
+ * OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+ * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+#pragma once
+
+namespace AtlasFusion::Topics {
+
+        const std::string kSelfGlobal = "/autodrive/local_map/self/global";
+        const std::string kSelfEgo = "/autodrive/local_map/self/ego";
+
+        const std::string kLidarLeft = "/autodrive/local_map/lidar_left/points";
+        const std::string kLidarRight = "/autodrive/local_map/lidar_right/points";
+        const std::string kLidarCenter = "/autodrive/local_map/lidar_center/points";
+        const std::string kLidarLeftStatus = "/autodrive/local_map/lidar_left/status";
+        const std::string kLidarRightStatus = "/autodrive/local_map/lidar_right/status";
+        const std::string kLidarCenterStatus = "/autodrive/local_map/lidar_center/status";
+        const std::string kLidarLeftStatusString = "/autodrive/local_map/lidar_left/string";
+        const std::string kLidarRightStatusString = "/autodrive/local_map/lidar_right/string";
+        const std::string kLidarCenterStatusString = "/autodrive/local_map/lidar_center/string";
+        const std::string kImuTopic = "/autodrive/local_map/imu/imu";
+        const std::string kImuAvgTopic = "/autodrive/local_map/imu/imu_avg";
+        const std::string kGnssTopic = "/autodrive/local_map/gnss/pose_text";
+
+
+        const std::string kCameraLeftFront = "/autodrive/local_map/cameras/camera_left_front/camera";
+        const std::string kCameraLeftSide = "/autodrive/local_map/cameras/camera_left_side/camera";
+        const std::string kCameraRightFront = "/autodrive/local_map/cameras/camera_right_front/camera";
+        const std::string kCameraRightSide = "/autodrive/local_map/cameras/camera_right_side/camera";
+        const std::string kCameraIr = "/autodrive/local_map/cameras/camera_ir/camera";
+
+        const std::string kCameraLeftFrontInfo = "/autodrive/local_map/cameras/camera_left_front/camera_info";
+        const std::string kCameraLeftSideInfo = "/autodrive/local_map/cameras/camera_left_side/camera_info";
+        const std::string kCameraRightFrontInfo = "/autodrive/local_map/cameras/camera_right_front/camera_info";
+        const std::string kCameraRightSideInfo = "/autodrive/local_map/cameras/camera_right_side/camera_info";
+        const std::string kCameraIrInfo = "/autodrive/local_map/cameras/camera_ir/camera_info";
+
+        const std::string kCameraLeftFrontStatus = "/autodrive/local_map/cameras/camera_left_front/status";
+        const std::string kCameraLeftSideStatus = "/autodrive/local_map/cameras/camera_left_side/status";
+        const std::string kCameraRightFrontStatus = "/autodrive/local_map/cameras/camera_right_front/status";
+        const std::string kCameraRightSideStatus = "/autodrive/local_map/cameras/camera_right_side/status";
+        const std::string kCameraIrStatus = "/autodrive/local_map/cameras/camera_ir/status";
+        const std::string kCameraLeftFrontStatusString = "/autodrive/local_map/cameras/camera_left_front/string";
+        const std::string kCameraLeftSideStatusString = "/autodrive/local_map/cameras/camera_left_side/string";
+        const std::string kCameraRightFrontStatusString = "/autodrive/local_map/cameras/camera_right_front/string";
+        const std::string kCameraRightSideStatusString = "/autodrive/local_map/cameras/camera_right_side/string";
+        const std::string kCameraIrStatusString = "/autodrive/local_map/cameras/camera_ir/string";
+
+        const std::string kRawTrajectory = "/autodrive/local_map/trajectory/raw";
+        const std::string kFilteredTrajectory = "/autodrive/local_map/trajectory/filtered";
+        const std::string kImuGpsTrajectory = "/autodrive/local_map/trajectory/imu_gps";
+
+        const std::string kYoloFrustumDetections = "/autodrive/local_map/yolo/frustums";
+        const std::string kYoloFusedFrustumDetections = "/autodrive/local_map/yolo/fused_frustums";
+
+
+        const std::string kLidarAggregatedGlobal = "/autodrive/local_map/lidar/aggregated/global";
+        const std::string kLidarAggregatedEgo = "/autodrive/local_map/lidar/aggregated/ego";
+
+        const std::string kLidarLaser = "/autodrive/local_map/lidar/laser";
+        const std::string kGlobalPointCloud = "/autodrive/local_map/lidar/global";
+        const std::string kCutoutPointcloud = "/autodrive/local_map/lidar/cutout";
+
+        const std::string kLidarApproximation = "/autodrive/local_map/lidar/approximations";
+        const std::string kLidarApproximationRoad = "/autodrive/local_map/lidar/approximations_road";
+
+        const std::string kLidarDetections = "/autodrive/local_map/lidar_detections";
+
+        const std::string kRadarTiObjects = "/autodrive/local_map/radar_ti_data";
+
+        const std::string kTelemetryText = "/autodrive/local_map/telemetry/text";
+        const std::string kSpeedTopic = "/autodrive/local_map/speed";
+        const std::string kEnvironmentalModel = "/autodrive/local_map/environmental_model";
+
+        const std::string kDataLoaderSynchronization = "/autodrive/data_loading/synchronization";
+    }
