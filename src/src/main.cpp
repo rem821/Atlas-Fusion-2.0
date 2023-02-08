@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
     //std::string datasetPath = "/home/standa/Desktop/BUD/3_1_3_3/";
 
     rclcpp::init(argc, argv);
-    rclcpp::executors::SingleThreadedExecutor executor;
+    rclcpp::executors::MultiThreadedExecutor executor;
     rclcpp::NodeOptions nodeOptions = rclcpp::NodeOptions().use_intra_process_comms(true);
 
     auto rgbCameraLSDataLoader = std::make_shared<AtlasFusion::DataLoader::CameraDataLoader>(
