@@ -45,16 +45,25 @@ namespace AtlasFusion::DataLoader {
 
         // Timer to control the polling frequency for publishing
         using namespace std::chrono_literals;
-        timer_ = create_wall_timer(10ms, std::bind(&CameraDataLoader::onDataLoaderTimer, this));
+        auto datarate = cameraIdentifier_ == CameraIdentifier::kCameraIr ? 10ms: 30ms;
+        timer_ = create_wall_timer(datarate, std::bind(&CameraDataLoader::onDataLoaderTimer, this));
 
         // Init camera additional data
         initialize();
     }
 
     void CameraDataLoader::onDataLoaderTimer() {
-        if (latestTimestampPublished_ > synchronizationTimestamp_) return;
+        if (dataFrame_ != nullptr && latestTimestampPublished_ <= synchronizationTimestamp_) {
+            publisher_->publish(*dataFrame_);
+            latestTimestampPublished_ = dataFrame_->timestamp;
 
-        if (!isOnEnd()) {
+            std::cout << "Camera data of frame " << std::to_string(dataFrame_->camera_identifier) << " sent: ("
+                      << &dataFrame_ << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
+                      << std::endl;
+            dataFrame_ = nullptr;
+        }
+
+        if (!isOnEnd() && dataFrame_ == nullptr) {
             cv::Mat frame{};
             video_.read(frame);
 
@@ -72,8 +81,7 @@ namespace AtlasFusion::DataLoader {
             cameraData.max_temperature = static_cast<float>(dataIt_->tempMax_);
             cameraData.yolo_detections = dataIt_->detections_;
 
-            publisher_->publish(cameraData);
-            latestTimestampPublished_ = cameraData.timestamp;
+            dataFrame_ = std::make_unique<atlas_fusion_interfaces::msg::CameraData>(cameraData);
             dataIt_ = std::next(dataIt_, 1);
         }
     }

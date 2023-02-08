@@ -32,36 +32,44 @@ namespace AtlasFusion::DataLoader {
         // Publisher that publishes synchronization timestamps
         publisher_ = create_publisher<std_msgs::msg::UInt64>(synchronizationTopic, 1);
 
+        using namespace std::chrono_literals;
+        timer_ = create_wall_timer(200ms, std::bind(&DataLoaderController::onDataLoaderControllerTimer, this));
+
         // Init all subscribers
         initialize();
     }
 
-    void DataLoaderController::onCameraData(const atlas_fusion_interfaces::msg::CameraData &msg) {
-        std::cout << "Camera data of frame " << std::to_string(msg.camera_identifier) << " arrived" << std::endl;
-
-        auto id = static_cast<CameraIdentifier>(msg.camera_identifier);
-        if (cameraDataCache_[id] != nullptr) {
-            throw std::runtime_error("CameraDataLoader misbehaving");
-        }
-        cameraDataCache_[id] = std::make_shared<atlas_fusion_interfaces::msg::CameraData>(msg);
-
-
-        if (cameraDataCache_.size() == cameraSubscribers_.size()) {
-            while(!cameraDataCache_.empty()) {
-                auto it = std::min_element(
-                        std::begin(cameraDataCache_), std::end(cameraDataCache_),
-                        [](const auto &l, const auto &r) {
-                            return l.second->timestamp < r.second->timestamp;
-                        }
-                );
-                std_msgs::msg::UInt64 m;
-                m.data = it->second->timestamp;
-                publisher_->publish(m);
-
-                cameraDataCache_.erase(it->first);
+    void DataLoaderController::onDataLoaderControllerTimer() {
+        std::cout << "DataLoaderController: Retransmitting " << dataCache_.size() << " elements in order" << std::endl;
+        while (!dataCache_.empty()) {
+            auto min = std::min_element(
+                    std::begin(dataCache_), std::end(dataCache_),
+                    [](const auto &l, const auto &r) {
+                        return l.second->timestamp < r.second->timestamp;
+                    }
+            );
+            std_msgs::msg::UInt64 m;
+            m.data = min->second->timestamp;
+            std::cout << "Publishing synchronization timestamp: " << m.data << std::endl;
+            publisher_->publish(m);
+            if(latestTimestampPublished_ > m.data) {
+                std::cout << "Desynchronization of: " << (latestTimestampPublished_ - m.data) / 1000000.0 << " ms!!!" << std::endl;
             }
-            std::cout << "All sensors passed in order!" << std::endl;
+            latestTimestampPublished_ = m.data;
+
+            auto erase = std::find(dataCache_.begin(), dataCache_.end(), *min);
+            if (erase != dataCache_.end()) dataCache_.erase(erase);
         }
+        std::cout << "DataLoaderController: Data retransmission complete!" << std::endl;
+    }
+
+    void DataLoaderController::onCameraData(const atlas_fusion_interfaces::msg::CameraData &msg) {
+        std::cout << "DataLoaderController: Camera data of frame " << std::to_string(msg.camera_identifier) << " arrived: ("
+                  << &msg << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
+                  << std::endl;
+        auto id = static_cast<CameraIdentifier>(msg.camera_identifier);
+
+        dataCache_.emplace_back() = std::pair(id, std::make_shared<atlas_fusion_interfaces::msg::CameraData>(msg));
     }
 
     void DataLoaderController::initialize() {
