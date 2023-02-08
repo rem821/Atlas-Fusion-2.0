@@ -37,7 +37,7 @@ namespace AtlasFusion::DataLoader {
         publisher_ = create_publisher<atlas_fusion_interfaces::msg::CameraData>(topic, 1);
 
         // Timestamp synchronization subscription to manage data loading speeds
-        create_subscription<std_msgs::msg::UInt64>(
+        timestampSubscription_ = create_subscription<std_msgs::msg::UInt64>(
                 synchronizationTopic,
                 1,
                 std::bind(&CameraDataLoader::onSynchronizationTimestamp, this, std::placeholders::_1)
@@ -46,7 +46,7 @@ namespace AtlasFusion::DataLoader {
         // Timer to control the polling frequency for publishing
         using namespace std::chrono_literals;
         auto datarate = cameraIdentifier_ == CameraIdentifier::kCameraIr ? 10ms: 30ms;
-        create_wall_timer(datarate, [this] { onDataLoaderTimer(); });
+        timer_ = create_wall_timer(datarate, [this] { onDataLoaderTimer(); });
 
         // Init camera additional data
         initialize();

@@ -33,7 +33,7 @@ namespace AtlasFusion::DataLoader {
         publisher_ = create_publisher<std_msgs::msg::UInt64>(synchronizationTopic, 1);
 
         using namespace std::chrono_literals;
-        create_wall_timer(200ms, [this] { onDataLoaderControllerTimer(); });
+        timer_ = create_wall_timer(200ms, [this] { onDataLoaderControllerTimer(); });
 
         // Init all subscribers
         initialize();
@@ -45,11 +45,11 @@ namespace AtlasFusion::DataLoader {
             auto min = std::min_element(
                     std::begin(dataCache_), std::end(dataCache_),
                     [](const auto &l, const auto &r) {
-                        return l.second->timestamp < r.second->timestamp;
+                        return getDataTimestamp(l) < getDataTimestamp(r);
                     }
             );
             std_msgs::msg::UInt64 m;
-            m.data = min->second->timestamp;
+            m.data = getDataTimestamp(*min);
             std::cout << "Publishing synchronization timestamp: " << m.data << std::endl;
             publisher_->publish(m);
             if (latestTimestampPublished_ > m.data) {
@@ -70,6 +70,16 @@ namespace AtlasFusion::DataLoader {
                   << msg.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
                   << std::endl;
         auto id = static_cast<CameraIdentifier>(msg->camera_identifier);
+
+        dataCache_.emplace_back(id, std::move(msg));
+    }
+
+    void DataLoaderController::onLidarData(atlas_fusion_interfaces::msg::LidarData::UniquePtr msg) {
+        std::cout << "DataLoaderController: Lidar data of frame " << std::to_string(msg->lidar_identifier)
+                  << " arrived: ("
+                  << msg.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
+                  << std::endl;
+        auto id = static_cast<LidarIdentifier>(msg->lidar_identifier);
 
         dataCache_.emplace_back(id, std::move(msg));
     }
@@ -104,5 +114,35 @@ namespace AtlasFusion::DataLoader {
                 1,
                 std::bind(&DataLoaderController::onCameraData, this, std::placeholders::_1)
         );
+
+
+        lidarSubscribers_[LidarIdentifier::kLeftLidar] = create_subscription<atlas_fusion_interfaces::msg::LidarData>(
+                Topics::kLidarLeftDataLoader,
+                1,
+                std::bind(&DataLoaderController::onLidarData, this, std::placeholders::_1)
+        );
+
+        lidarSubscribers_[LidarIdentifier::kCenterLidar] = create_subscription<atlas_fusion_interfaces::msg::LidarData>(
+                Topics::kLidarCenterDataLoader,
+                1,
+                std::bind(&DataLoaderController::onLidarData, this, std::placeholders::_1)
+        );
+
+        lidarSubscribers_[LidarIdentifier::kRightLidar] = create_subscription<atlas_fusion_interfaces::msg::LidarData>(
+                Topics::kLidarRightDataLoader,
+                1,
+                std::bind(&DataLoaderController::onLidarData, this, std::placeholders::_1)
+        );
+    }
+
+    uint64_t DataLoaderController::getDataTimestamp(const std::pair<DataIdentifier, DataMsg> &d) {
+        auto d_i = d.second.index();
+        if (d_i == 0) {
+            return std::get<atlas_fusion_interfaces::msg::CameraData::UniquePtr>(d.second)->timestamp;
+        } else if (d_i == 1) {
+            return std::get<atlas_fusion_interfaces::msg::LidarData::UniquePtr>(d.second)->timestamp;
+        } else {
+            throw std::runtime_error("Unexpected variant type when comparing timestamps!");
+        }
     }
 }

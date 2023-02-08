@@ -23,6 +23,7 @@
 #include "data_loaders/CameraDataLoader.h"
 #include "Topics.h"
 #include "data_loaders/DataLoaderController.h"
+#include "data_loaders/LidarDataLoader.h"
 
 
 int main(int argc, char **argv) {
@@ -76,7 +77,7 @@ int main(int argc, char **argv) {
     executor.add_node(rgbCameraRSDataLoader);
 
     auto irCameraDataLoader = std::make_shared<AtlasFusion::DataLoader::CameraDataLoader>(
-            "CameraIRDataLoader",
+            "CameraIrDataLoader",
             datasetPath,
             AtlasFusion::DataLoader::CameraIdentifier::kCameraIr,
             AtlasFusion::Topics::kCameraIrDataLoader,
@@ -84,6 +85,36 @@ int main(int argc, char **argv) {
             nodeOptions
     );
     executor.add_node(irCameraDataLoader);
+
+    auto lidarLeftDataLoader = std::make_shared<AtlasFusion::DataLoader::LidarDataLoader>(
+            "LidarLeftDataLoader",
+            datasetPath,
+            AtlasFusion::DataLoader::LidarIdentifier::kLeftLidar,
+            AtlasFusion::Topics::kLidarLeftDataLoader,
+            AtlasFusion::Topics::kDataLoaderSynchronization,
+            nodeOptions
+    );
+    executor.add_node(lidarLeftDataLoader);
+
+    auto lidarCenterDataLoader = std::make_shared<AtlasFusion::DataLoader::LidarDataLoader>(
+            "LidarCenterDataLoader",
+            datasetPath,
+            AtlasFusion::DataLoader::LidarIdentifier::kCenterLidar,
+            AtlasFusion::Topics::kLidarCenterDataLoader,
+            AtlasFusion::Topics::kDataLoaderSynchronization,
+            nodeOptions
+    );
+    executor.add_node(lidarCenterDataLoader);
+
+    auto lidarRightDataLoader = std::make_shared<AtlasFusion::DataLoader::LidarDataLoader>(
+            "LidarRightDataLoader",
+            datasetPath,
+            AtlasFusion::DataLoader::LidarIdentifier::kRightLidar,
+            AtlasFusion::Topics::kLidarRightDataLoader,
+            AtlasFusion::Topics::kDataLoaderSynchronization,
+            nodeOptions
+    );
+    executor.add_node(lidarRightDataLoader);
 
     auto dataLoaderController = std::make_shared<AtlasFusion::DataLoader::DataLoaderController>(
             "DataLoaderController",

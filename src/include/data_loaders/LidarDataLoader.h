@@ -22,49 +22,67 @@
 #pragma once
 
 #include <std_msgs/msg/u_int64.hpp>
-#include <atlas_fusion_interfaces/msg/camera_data.hpp>
 #include <atlas_fusion_interfaces/msg/lidar_data.hpp>
-#include <any>
+#include <utility>
 #include "rcpputils/endian.hpp"
 
 #include "data_loaders/DataLoaderIdentifiers.h"
 #include "data_loaders/RecordingConstants.h"
 #include "util/CsvReader.h"
 
-#include "Topics.h"
-
 namespace AtlasFusion::DataLoader {
 
-    class DataLoaderController : public rclcpp::Node {
-        using DataIdentifier = std::variant<CameraIdentifier, LidarIdentifier>;
-        using DataMsg = std::variant<atlas_fusion_interfaces::msg::CameraData::UniquePtr, atlas_fusion_interfaces::msg::LidarData::UniquePtr>;
+    class LidarDataLoader : public rclcpp::Node {
+
+        struct LidarFrame {
+
+            /**
+             * Constructor
+             * @param ts Recording timestamp
+             * @param iTs inner lidar's timestamp
+             * @param pcPath point cloud file path
+             */
+            LidarFrame(uint64_t ts, uint64_t iTs, std::string pcPath)
+                    : timestamp_(ts), innerTimestamp_(iTs), pointCloudPath_(std::move(pcPath)) {}
+
+            uint64_t timestamp_;
+            uint64_t innerTimestamp_;
+            std::string pointCloudPath_;
+        };
 
     public:
-        DataLoaderController(const std::string &name,
-                             const std::string &synchronizationTopic,
-                             const rclcpp::NodeOptions &options);
+        LidarDataLoader(const std::string &name,
+                         std::string datasetPath,
+                         const LidarIdentifier &lidarIdentifier,
+                         const std::string &topic,
+                         const std::string &synchronizationTopic,
+                         const rclcpp::NodeOptions &options);
 
     private:
-        void onDataLoaderControllerTimer();
+        void onDataLoaderTimer();
 
-        void onCameraData(atlas_fusion_interfaces::msg::CameraData::UniquePtr msg);
-
-        void onLidarData(atlas_fusion_interfaces::msg::LidarData::UniquePtr msg);
+        void onSynchronizationTimestamp(const std_msgs::msg::UInt64 &msg);
 
         void initialize();
 
-        static uint64_t getDataTimestamp(const std::pair<DataIdentifier, DataMsg> &d);
+        bool isOnEnd() const;
+
+        void clear();
 
         std::string datasetPath_;
+        LidarIdentifier lidarIdentifier_;
 
         rclcpp::TimerBase::SharedPtr timer_;
-        rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr publisher_;
-        std::map<CameraIdentifier, rclcpp::Subscription<atlas_fusion_interfaces::msg::CameraData>::SharedPtr> cameraSubscribers_;
-        std::map<LidarIdentifier, rclcpp::Subscription<atlas_fusion_interfaces::msg::LidarData>::SharedPtr> lidarSubscribers_;
+        rclcpp::Publisher<atlas_fusion_interfaces::msg::LidarData>::SharedPtr publisher_;
+        rclcpp::Subscription<std_msgs::msg::UInt64>::SharedPtr timestampSubscription_;
 
-        std::vector<std::pair<DataIdentifier, DataMsg>> dataCache_;
-
+        atlas_fusion_interfaces::msg::LidarData::UniquePtr dataFrame_;
         uint64_t latestTimestampPublished_;
+        uint64_t synchronizationTimestamp_;
+
+        std::vector<LidarFrame> data_;
+        std::vector<LidarFrame>::iterator dataIt_;
+        std::vector<LidarFrame>::iterator releaseIt_;
     };
 }
 

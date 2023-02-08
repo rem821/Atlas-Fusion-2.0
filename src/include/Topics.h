@@ -28,7 +28,10 @@ namespace AtlasFusion::Topics {
         const std::string kCameraLeftSideDataLoader = "/atlasfusion/data_loader/cameras/camera_left_side/camera";
         const std::string kCameraRightFrontDataLoader = "/atlasfusion/data_loader/cameras/camera_right_front/camera";
         const std::string kCameraRightSideDataLoader = "/atlasfusion/data_loader/cameras/camera_right_side/camera";
-        const std::string kCameraIrDataLoader = "/atlasfusion/local_map/data_loader/camera_ir/camera";
+        const std::string kCameraIrDataLoader = "/atlasfusion/data_loader/cameras/camera_ir/camera";
+        const std::string kLidarLeftDataLoader = "/atlasfusion/data_loader/lidar_left/points";
+        const std::string kLidarRightDataLoader = "/atlasfusion/data_loader/lidar_right/points";
+        const std::string kLidarCenterDataLoader = "/atlasfusion/data_loader/lidar_center/points";
 
         const std::string kDataLoaderSynchronization = "/atlasfusion/data_loading/synchronization";
 

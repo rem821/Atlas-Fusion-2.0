@@ -33,9 +33,6 @@ namespace AtlasFusion::DataLoader {
 
     class CameraDataLoader : public rclcpp::Node {
 
-        /**
-        * Simple structure that represents the frames in the video file, before the video frame is loaded.
-        */
         struct CameraFrame {
 
             /**
@@ -85,7 +82,9 @@ namespace AtlasFusion::DataLoader {
         std::string datasetPath_;
         CameraIdentifier cameraIdentifier_;
 
+        rclcpp::TimerBase::SharedPtr timer_;
         rclcpp::Publisher<atlas_fusion_interfaces::msg::CameraData>::SharedPtr publisher_;
+        rclcpp::Subscription<std_msgs::msg::UInt64>::SharedPtr timestampSubscription_;
 
         atlas_fusion_interfaces::msg::CameraData::UniquePtr dataFrame_;
         uint64_t latestTimestampPublished_;
