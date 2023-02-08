@@ -32,16 +32,15 @@ namespace AtlasFusion::DataLoader {
         // Publisher that publishes synchronization timestamps
         publisher_ = create_publisher<std_msgs::msg::UInt64>(synchronizationTopic, 1);
 
-        using namespace std::chrono_literals;
-        timer_ = create_wall_timer(200ms, [this] { onDataLoaderControllerTimer(); });
-
         // Init all subscribers
         initialize();
     }
 
     void DataLoaderController::onDataLoaderControllerTimer() {
+        // Keep this size the same as number of dataloaders
+        if(dataCache_.size() < 8) return;
         std::cout << "DataLoaderController: Retransmitting " << dataCache_.size() << " elements in order" << std::endl;
-        while (!dataCache_.empty()) {
+        //while (!dataCache_.empty()) {
             auto min = std::min_element(
                     std::begin(dataCache_), std::end(dataCache_),
                     [](const auto &l, const auto &r) {
@@ -60,7 +59,7 @@ namespace AtlasFusion::DataLoader {
 
             auto erase = std::find(dataCache_.begin(), dataCache_.end(), *min);
             if (erase != dataCache_.end()) dataCache_.erase(erase);
-        }
+        //}
         std::cout << "DataLoaderController: Data retransmission complete!" << std::endl;
     }
 
@@ -72,6 +71,7 @@ namespace AtlasFusion::DataLoader {
         auto id = static_cast<CameraIdentifier>(msg->camera_identifier);
 
         dataCache_.emplace_back(id, std::move(msg));
+        onDataLoaderControllerTimer();
     }
 
     void DataLoaderController::onLidarData(atlas_fusion_interfaces::msg::LidarData::UniquePtr msg) {
@@ -82,6 +82,7 @@ namespace AtlasFusion::DataLoader {
         auto id = static_cast<LidarIdentifier>(msg->lidar_identifier);
 
         dataCache_.emplace_back(id, std::move(msg));
+        onDataLoaderControllerTimer();
     }
 
     void DataLoaderController::initialize() {

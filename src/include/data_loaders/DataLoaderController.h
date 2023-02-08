@@ -57,7 +57,6 @@ namespace AtlasFusion::DataLoader {
 
         std::string datasetPath_;
 
-        rclcpp::TimerBase::SharedPtr timer_;
         rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr publisher_;
         std::map<CameraIdentifier, rclcpp::Subscription<atlas_fusion_interfaces::msg::CameraData>::SharedPtr> cameraSubscribers_;
         std::map<LidarIdentifier, rclcpp::Subscription<atlas_fusion_interfaces::msg::LidarData>::SharedPtr> lidarSubscribers_;
