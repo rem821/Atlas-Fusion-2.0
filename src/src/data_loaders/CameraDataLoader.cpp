@@ -31,13 +31,13 @@ namespace AtlasFusion::DataLoader {
                                        const std::string &synchronizationTopic,
                                        const rclcpp::NodeOptions &options)
             : Node(name, options), datasetPath_{std::move(datasetPath)}, cameraIdentifier_{cameraIdentifier},
-              latestTimestampPublished_(0), synchronizationTimestamp_(1) {
+              latestTimestampPublished_(0), synchronizationTimestamp_(0) {
 
         // Publisher that publishes CameraData
         publisher_ = create_publisher<atlas_fusion_interfaces::msg::CameraData>(topic, 1);
 
         // Timestamp synchronization subscription to manage data loading speeds
-        timestampSubscription_ = create_subscription<std_msgs::msg::UInt64>(
+        create_subscription<std_msgs::msg::UInt64>(
                 synchronizationTopic,
                 1,
                 std::bind(&CameraDataLoader::onSynchronizationTimestamp, this, std::placeholders::_1)
@@ -46,7 +46,7 @@ namespace AtlasFusion::DataLoader {
         // Timer to control the polling frequency for publishing
         using namespace std::chrono_literals;
         auto datarate = cameraIdentifier_ == CameraIdentifier::kCameraIr ? 10ms: 30ms;
-        timer_ = create_wall_timer(datarate, std::bind(&CameraDataLoader::onDataLoaderTimer, this));
+        create_wall_timer(datarate, [this] { onDataLoaderTimer(); });
 
         // Init camera additional data
         initialize();
@@ -54,13 +54,13 @@ namespace AtlasFusion::DataLoader {
 
     void CameraDataLoader::onDataLoaderTimer() {
         if (dataFrame_ != nullptr && latestTimestampPublished_ <= synchronizationTimestamp_) {
-            publisher_->publish(*dataFrame_);
             latestTimestampPublished_ = dataFrame_->timestamp;
 
             std::cout << "Camera data of frame " << std::to_string(dataFrame_->camera_identifier) << " sent: ("
-                      << &dataFrame_ << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
+                      << dataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
                       << std::endl;
-            dataFrame_ = nullptr;
+
+            publisher_->publish(std::move(dataFrame_));
         }
 
         if (!isOnEnd() && dataFrame_ == nullptr) {
@@ -69,7 +69,7 @@ namespace AtlasFusion::DataLoader {
 
             std_msgs::msg::Header header;
             header.stamp = this->get_clock()->now();
-            header.frame_id = dataIt_->frameId_;
+            header.frame_id = std::to_string(dataIt_->frameId_);
 
             atlas_fusion_interfaces::msg::CameraData cameraData;
             cameraData.image = toCameraMsg(frame, header,
@@ -146,7 +146,7 @@ namespace AtlasFusion::DataLoader {
             throw std::runtime_error(fmt::format("Unable to open video file: {}", videoPath));
         }
 
-        if (data_.size() != video_.get(cv::CAP_PROP_FRAME_COUNT)) {
+        if (static_cast<double>(data_.size()) != video_.get(cv::CAP_PROP_FRAME_COUNT)) {
             clear();
             throw std::runtime_error(
                     fmt::format("Number of timestamps is not equal to number of frames: {} != {}",

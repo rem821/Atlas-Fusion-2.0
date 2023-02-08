@@ -44,18 +44,16 @@ namespace AtlasFusion::DataLoader {
     private:
         void onDataLoaderControllerTimer();
 
-        void onCameraData(const atlas_fusion_interfaces::msg::CameraData &msg);
+        void onCameraData(atlas_fusion_interfaces::msg::CameraData::UniquePtr msg);
 
         void initialize();
 
         std::string datasetPath_;
 
-        rclcpp::TimerBase::SharedPtr timer_;
         rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr publisher_;
-
         std::map<CameraIdentifier, rclcpp::Subscription<atlas_fusion_interfaces::msg::CameraData>::SharedPtr> cameraSubscribers_;
 
-        std::vector<std::pair<CameraIdentifier, atlas_fusion_interfaces::msg::CameraData::SharedPtr>> dataCache_;
+        std::vector<std::pair<CameraIdentifier, atlas_fusion_interfaces::msg::CameraData::UniquePtr>> dataCache_;
 
         uint64_t latestTimestampPublished_;
     };

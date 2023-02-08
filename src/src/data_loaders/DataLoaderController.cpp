@@ -33,7 +33,7 @@ namespace AtlasFusion::DataLoader {
         publisher_ = create_publisher<std_msgs::msg::UInt64>(synchronizationTopic, 1);
 
         using namespace std::chrono_literals;
-        timer_ = create_wall_timer(200ms, std::bind(&DataLoaderController::onDataLoaderControllerTimer, this));
+        create_wall_timer(200ms, [this] { onDataLoaderControllerTimer(); });
 
         // Init all subscribers
         initialize();
@@ -52,8 +52,9 @@ namespace AtlasFusion::DataLoader {
             m.data = min->second->timestamp;
             std::cout << "Publishing synchronization timestamp: " << m.data << std::endl;
             publisher_->publish(m);
-            if(latestTimestampPublished_ > m.data) {
-                std::cout << "Desynchronization of: " << (latestTimestampPublished_ - m.data) / 1000000.0 << " ms!!!" << std::endl;
+            if (latestTimestampPublished_ > m.data) {
+                std::cout << "Desynchronization of: " << (latestTimestampPublished_ - m.data) / 1000000 << " ms!!!"
+                          << std::endl;
             }
             latestTimestampPublished_ = m.data;
 
@@ -63,13 +64,14 @@ namespace AtlasFusion::DataLoader {
         std::cout << "DataLoaderController: Data retransmission complete!" << std::endl;
     }
 
-    void DataLoaderController::onCameraData(const atlas_fusion_interfaces::msg::CameraData &msg) {
-        std::cout << "DataLoaderController: Camera data of frame " << std::to_string(msg.camera_identifier) << " arrived: ("
-                  << &msg << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
+    void DataLoaderController::onCameraData(atlas_fusion_interfaces::msg::CameraData::UniquePtr msg) {
+        std::cout << "DataLoaderController: Camera data of frame " << std::to_string(msg->camera_identifier)
+                  << " arrived: ("
+                  << msg.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
                   << std::endl;
-        auto id = static_cast<CameraIdentifier>(msg.camera_identifier);
+        auto id = static_cast<CameraIdentifier>(msg->camera_identifier);
 
-        dataCache_.emplace_back() = std::pair(id, std::make_shared<atlas_fusion_interfaces::msg::CameraData>(msg));
+        dataCache_.emplace_back(id, std::move(msg));
     }
 
     void DataLoaderController::initialize() {
