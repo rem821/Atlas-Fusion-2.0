@@ -24,6 +24,7 @@
 #include "Topics.h"
 #include "data_loaders/DataLoaderController.h"
 #include "data_loaders/LidarDataLoader.h"
+#include "data_loaders/ImuDataLoader.h"
 
 
 int main(int argc, char **argv) {
@@ -39,7 +40,6 @@ int main(int argc, char **argv) {
             datasetPath,
             AtlasFusion::DataLoader::CameraIdentifier::kCameraLeftSide,
             AtlasFusion::Topics::kCameraLeftSideDataLoader,
-            AtlasFusion::Topics::kDataLoaderSynchronization,
             nodeOptions
     );
     executor.add_node(rgbCameraLSDataLoader);
@@ -49,7 +49,6 @@ int main(int argc, char **argv) {
             datasetPath,
             AtlasFusion::DataLoader::CameraIdentifier::kCameraLeftFront,
             AtlasFusion::Topics::kCameraLeftFrontDataLoader,
-            AtlasFusion::Topics::kDataLoaderSynchronization,
             nodeOptions
     );
     executor.add_node(rgbCameraLFDataLoader);
@@ -59,7 +58,6 @@ int main(int argc, char **argv) {
             datasetPath,
             AtlasFusion::DataLoader::CameraIdentifier::kCameraRightFront,
             AtlasFusion::Topics::kCameraRightFrontDataLoader,
-            AtlasFusion::Topics::kDataLoaderSynchronization,
             nodeOptions
     );
     executor.add_node(rgbCameraRFDataLoader);
@@ -69,7 +67,6 @@ int main(int argc, char **argv) {
             datasetPath,
             AtlasFusion::DataLoader::CameraIdentifier::kCameraRightSide,
             AtlasFusion::Topics::kCameraRightSideDataLoader,
-            AtlasFusion::Topics::kDataLoaderSynchronization,
             nodeOptions
     );
     executor.add_node(rgbCameraRSDataLoader);
@@ -79,7 +76,6 @@ int main(int argc, char **argv) {
             datasetPath,
             AtlasFusion::DataLoader::CameraIdentifier::kCameraIr,
             AtlasFusion::Topics::kCameraIrDataLoader,
-            AtlasFusion::Topics::kDataLoaderSynchronization,
             nodeOptions
     );
     executor.add_node(irCameraDataLoader);
@@ -89,7 +85,6 @@ int main(int argc, char **argv) {
             datasetPath,
             AtlasFusion::DataLoader::LidarIdentifier::kLeftLidar,
             AtlasFusion::Topics::kLidarLeftDataLoader,
-            AtlasFusion::Topics::kDataLoaderSynchronization,
             nodeOptions
     );
     executor.add_node(lidarLeftDataLoader);
@@ -99,7 +94,6 @@ int main(int argc, char **argv) {
             datasetPath,
             AtlasFusion::DataLoader::LidarIdentifier::kCenterLidar,
             AtlasFusion::Topics::kLidarCenterDataLoader,
-            AtlasFusion::Topics::kDataLoaderSynchronization,
             nodeOptions
     );
     executor.add_node(lidarCenterDataLoader);
@@ -109,14 +103,19 @@ int main(int argc, char **argv) {
             datasetPath,
             AtlasFusion::DataLoader::LidarIdentifier::kRightLidar,
             AtlasFusion::Topics::kLidarRightDataLoader,
-            AtlasFusion::Topics::kDataLoaderSynchronization,
             nodeOptions
     );
     executor.add_node(lidarRightDataLoader);
 
+    auto imuDataLoader = std::make_shared<AtlasFusion::DataLoader::ImuDataLoader>(
+            "ImuDataLoader",
+            datasetPath,
+            nodeOptions
+    );
+    executor.add_node(imuDataLoader);
+
     auto dataLoaderController = std::make_shared<AtlasFusion::DataLoader::DataLoaderController>(
             "DataLoaderController",
-            AtlasFusion::Topics::kDataLoaderSynchronization,
             nodeOptions
     );
     executor.add_node(dataLoaderController);

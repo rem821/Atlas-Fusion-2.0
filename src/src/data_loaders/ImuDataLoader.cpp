@@ -21,64 +21,164 @@
  */
 
 #include "data_loaders/ImuDataLoader.h"
+#include "Topics.h"
 
 namespace AtlasFusion::DataLoader {
 
-    ImuDataLoader::ImuDataLoader(const std::string &name,
-                                       std::string datasetPath,
-                                       const ImuLoaderIdentifier &imuLoaderIdentifier,
-                                       const std::string &topic,
-                                       const std::string &synchronizationTopic,
-                                       const rclcpp::NodeOptions &options)
-            : Node(name, options), datasetPath_{std::move(datasetPath)}, imuLoaderIdentifier_{imuLoaderIdentifier},
-              latestTimestampPublished_(0), synchronizationTimestamp_(0) {
+    ImuDataLoader::ImuDataLoader(const std::string &name, std::string datasetPath, const rclcpp::NodeOptions &options)
+            : Node(name, options), datasetPath_{std::move(datasetPath)},
+              latestDQuatTimestampPublished_(0), latestGnssTimestampPublished_(0), latestImuTimestampPublished_(0),
+              latestMagTimestampPublished_(0), latestPressureTimestampPublished_(0), latestTempTimestampPublished_(0),
+              latestTimeTimestampPublished_(0), synchronizationTimestamp_(0) {
 
         // Publisher that publishes ImuData
-        publisher_ = create_publisher<atlas_fusion_interfaces::msg::LidarData>(topic, 1);
+        kDQuatPublisher_ = create_publisher<atlas_fusion_interfaces::msg::ImuDquatData>(Topics::kImuDquatDataLoader, 1);
+        kGnssPublisher_ = create_publisher<atlas_fusion_interfaces::msg::ImuGnssData>(Topics::kImuGnssDataLoader, 1);
+        kImuPublisher_ = create_publisher<atlas_fusion_interfaces::msg::ImuImuData>(Topics::kImuImuDataLoader, 1);
+        kMagPublisher_ = create_publisher<atlas_fusion_interfaces::msg::ImuMagData>(Topics::kImuMagDataLoader, 1);
+        kPressurePublisher_ = create_publisher<atlas_fusion_interfaces::msg::ImuPressureData>(Topics::kImuPressureDataLoader, 1);
+        kTempPublisher_ = create_publisher<atlas_fusion_interfaces::msg::ImuTempData>(Topics::kImuTempDataLoader, 1);
+        kTimePublisher_ = create_publisher<atlas_fusion_interfaces::msg::ImuTimeData>(Topics::kImuTimeDataLoader, 1);
 
         // Timestamp synchronization subscription to manage data loading speeds
         timestampSubscription_ = create_subscription<std_msgs::msg::UInt64>(
-                synchronizationTopic,
+                Topics::kDataLoaderSynchronization,
                 1,
                 std::bind(&ImuDataLoader::onSynchronizationTimestamp, this, std::placeholders::_1)
         );
 
         // Timer to control the polling frequency for publishing
         using namespace std::chrono_literals;
-        timer_ = create_wall_timer(50ms, [this] { onDataLoaderTimer(); });
+        timer_ = create_wall_timer(10ms, [this] { onDataLoaderTimer(); });
 
         // Init imu additional data
         initialize();
     }
 
     void ImuDataLoader::onDataLoaderTimer() {
-        if (dataFrame_ != nullptr && latestTimestampPublished_ <= synchronizationTimestamp_) {
-            latestTimestampPublished_ = dataFrame_->timestamp;
+        // DQuat
+        if (kDQuatDataFrame_ != nullptr && latestDQuatTimestampPublished_ <= synchronizationTimestamp_) {
+            latestDQuatTimestampPublished_ = kDQuatDataFrame_->timestamp;
 
-            std::cout << "Lidar data of frame " << std::to_string(dataFrame_->lidar_identifier) << " sent: ("
-                      << dataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
+            std::cout << "Imu Dquat data of frame sent: ("
+                      << kDQuatDataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
                       << std::endl;
 
-            publisher_->publish(std::move(dataFrame_));
+            kDQuatPublisher_->publish(std::move(kDQuatDataFrame_));
         }
 
-        if (!isOnEnd() && dataFrame_ == nullptr) {
-            pcl::PointCloud<pcl::PointXYZ>::Ptr scan(new pcl::PointCloud<pcl::PointXYZ>);
-            if (pcl::io::loadPCDFile<pcl::PointXYZ>(dataIt_->pointCloudPath_, *scan) == -1) {
-                throw std::runtime_error(fmt::format("Could not open pcd file: {}", dataIt_->pointCloudPath_));
-            }
+        if (kDQuatDataIt_ < kDQuatData_.end() && kDQuatDataFrame_ == nullptr) {
 
-            sensor_msgs::msg::PointCloud2 msg;
-            pcl::toROSMsg(*scan, msg);
+            kDQuatDataFrame_ = std::move(*kDQuatDataIt_);
+            kDQuatDataIt_ = std::next(kDQuatDataIt_, 1);
+        }
 
-            atlas_fusion_interfaces::msg::LidarData lidarData;
-            lidarData.lidar_identifier = static_cast<int8_t>(lidarIdentifier_);
-            lidarData.timestamp = dataIt_->timestamp_;
-            lidarData.inner_timestamp = dataIt_->innerTimestamp_;
-            lidarData.point_cloud = msg;
 
-            dataFrame_ = std::make_unique<atlas_fusion_interfaces::msg::LidarData>(lidarData);
-            dataIt_ = std::next(dataIt_, 1);
+        // Gnss
+        if (kGnssDataFrame_ != nullptr && latestGnssTimestampPublished_ <= synchronizationTimestamp_) {
+            latestGnssTimestampPublished_ = kGnssDataFrame_->timestamp;
+
+            std::cout << "Imu Gnss data of frame sent: ("
+                      << kGnssDataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
+                      << std::endl;
+
+            kGnssPublisher_->publish(std::move(kGnssDataFrame_));
+        }
+
+        if (kGnssDataIt_ < kGnssData_.end() && kGnssDataFrame_ == nullptr) {
+
+            kGnssDataFrame_ = std::move(*kGnssDataIt_);
+            kGnssDataIt_ = std::next(kGnssDataIt_, 1);
+        }
+
+
+        // Imu
+        if (kImuDataFrame_ != nullptr && latestImuTimestampPublished_ <= synchronizationTimestamp_) {
+            latestImuTimestampPublished_ = kImuDataFrame_->timestamp;
+
+            std::cout << "Imu Imu data of frame sent: ("
+                      << kImuDataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
+                      << std::endl;
+
+            kImuPublisher_->publish(std::move(kImuDataFrame_));
+        }
+
+        if (kImuDataIt_ < kImuData_.end() && kImuDataFrame_ == nullptr) {
+
+            kImuDataFrame_ = std::move(*kImuDataIt_);
+            kImuDataIt_ = std::next(kImuDataIt_, 1);
+        }
+
+
+        // Mag
+        if (kMagDataFrame_ != nullptr && latestMagTimestampPublished_ <= synchronizationTimestamp_) {
+            latestMagTimestampPublished_ = kMagDataFrame_->timestamp;
+
+            std::cout << "Imu Mag data of frame sent: ("
+                      << kMagDataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
+                      << std::endl;
+
+            kMagPublisher_->publish(std::move(kMagDataFrame_));
+        }
+
+        if (kMagDataIt_ < kMagData_.end() && kMagDataFrame_ == nullptr) {
+
+            kMagDataFrame_ = std::move(*kMagDataIt_);
+            kMagDataIt_ = std::next(kMagDataIt_, 1);
+        }
+
+
+        // Pressure
+        if (kPressureDataFrame_ != nullptr && latestPressureTimestampPublished_ <= synchronizationTimestamp_) {
+            latestPressureTimestampPublished_ = kPressureDataFrame_->timestamp;
+
+            std::cout << "Imu Pressure data of frame sent: ("
+                      << kPressureDataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
+                      << std::endl;
+
+            kPressurePublisher_->publish(std::move(kPressureDataFrame_));
+        }
+
+        if (kPressureDataIt_ < kPressureData_.end() && kPressureDataFrame_ == nullptr) {
+
+            kPressureDataFrame_ = std::move(*kPressureDataIt_);
+            kPressureDataIt_ = std::next(kPressureDataIt_, 1);
+        }
+
+
+        // Temp
+        if (kTempDataFrame_ != nullptr && latestTempTimestampPublished_ <= synchronizationTimestamp_) {
+            latestTempTimestampPublished_ = kTempDataFrame_->timestamp;
+
+            std::cout << "Imu Temp data of frame sent: ("
+                      << kTempDataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
+                      << std::endl;
+
+            kTempPublisher_->publish(std::move(kTempDataFrame_));
+        }
+
+        if (kTempDataIt_ < kTempData_.end() && kTempDataFrame_ == nullptr) {
+
+            kTempDataFrame_ = std::move(*kTempDataIt_);
+            kTempDataIt_ = std::next(kTempDataIt_, 1);
+        }
+
+
+        // Time
+        if (kTimeDataFrame_ != nullptr && latestTimeTimestampPublished_ <= synchronizationTimestamp_) {
+            latestTimeTimestampPublished_ = kTimeDataFrame_->timestamp;
+
+            std::cout << "Imu Time data of frame sent: ("
+                      << kTimeDataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
+                      << std::endl;
+
+            kTimePublisher_->publish(std::move(kTimeDataFrame_));
+        }
+
+        if (kTimeDataIt_ < kTimeData_.end() && kTimeDataFrame_ == nullptr) {
+
+            kTimeDataFrame_ = std::move(*kTimeDataIt_);
+            kTimeDataIt_ = std::next(kTimeDataIt_, 1);
         }
     }
 
@@ -87,52 +187,169 @@ namespace AtlasFusion::DataLoader {
     }
 
     void ImuDataLoader::initialize() {
-        std::string folder;
-        switch (lidarIdentifier_) {
-            case LidarIdentifier::kLeftLidar:
-                folder = Folders::kLidarLeftFolder;
-                break;
-            case LidarIdentifier::kRightLidar:
-                folder = Folders::kLidarRightFolder;
-                break;
-            case LidarIdentifier::kCenterLidar:
-                folder = Folders::kLidarCenterFolder;
-                break;
-        }
+        loadImuDquatData();
+        loadImuGnssData();
+        loadImuImuData();
+        loadImuMagData();
+        loadImuPressureData();
+        loadImuTempData();
+        loadImuTimeData();
+    }
 
-        auto csvContent = CsvReader::readCsv(datasetPath_ + folder + Files::kTimestampFile);
+    void ImuDataLoader::loadImuDquatData() {
+        auto csvContent = CsvReader::readCsv(datasetPath_ + Folders::kImuFolder + Files::kDquatFile);
         for (const auto &substrings: csvContent) {
-            size_t timestamp = 0;
-            size_t scan_no = 0;
-            size_t lidar_timestamp = 0;
+            if (substrings.size() == 5) {
+                atlas_fusion_interfaces::msg::ImuDquatData data;
+                data.timestamp = std::stoll(substrings[0]);
+                data.quaternion.x = std::stod(substrings[1]);
+                data.quaternion.x = std::stod(substrings[2]);
+                data.quaternion.x = std::stod(substrings[3]);
+                data.quaternion.x = std::stod(substrings[4]);
 
-            if (substrings.size() == 2) {
-                timestamp = std::stoll(substrings[0]);
-                scan_no = std::stoll(substrings[1]);
-            } else if (substrings.size() == 3) {
-                timestamp = std::stoll(substrings[0]);
-                scan_no = std::stoll(substrings[1]);
-                lidar_timestamp = std::stoll(substrings[2]);
+                kDQuatData_.emplace_back(std::make_unique<atlas_fusion_interfaces::msg::ImuDquatData>(data));
             } else {
-                throw std::runtime_error("Unexpected length of lidar scan data");
+                throw std::runtime_error("Unexpected length of imu d_quat data");
             }
-
-            std::stringstream scan_path;
-            scan_path << datasetPath_ << folder << Files::kScanFile << std::setw(6) << std::setfill('0')
-               << scan_no << Files::kPcdExt;
-
-            data_.emplace_back(timestamp, lidar_timestamp, scan_path.str());
         }
-        dataIt_ = data_.begin();
-        releaseIt_ = dataIt_;
+        kDQuatDataIt_ = kDQuatData_.begin();
     }
 
-    bool ImuDataLoader::isOnEnd() const {
-        return dataIt_ >= data_.end();
+    void ImuDataLoader::loadImuGnssData() {
+        auto csvContent = CsvReader::readCsv(datasetPath_ + Folders::kImuFolder + Files::kGnssFile);
+        for (const auto &substrings: csvContent) {
+            if (substrings.size() == 4) {
+                atlas_fusion_interfaces::msg::ImuGnssData data;
+                data.timestamp = std::stoll(substrings[0]);
+                data.latitude = std::stod(substrings[1]);
+                data.longitude = std::stod(substrings[2]);
+                data.altitude = std::stod(substrings[3]);
+
+                kGnssData_.emplace_back(std::make_unique<atlas_fusion_interfaces::msg::ImuGnssData>(data));
+            } else {
+                throw std::runtime_error("Unexpected length of imu gnss data");
+            }
+        }
+        kGnssDataIt_ = kGnssData_.begin();
     }
+
+    void ImuDataLoader::loadImuImuData() {
+        auto csvContent = CsvReader::readCsv(datasetPath_ + Folders::kImuFolder + Files::kImuFile);
+        for (const auto &substrings: csvContent) {
+            if (substrings.size() == 11) {
+                atlas_fusion_interfaces::msg::ImuImuData data;
+                data.timestamp = std::stoll(substrings[0]);
+                data.lin_acc.x = -std::stod(substrings[1]);
+                data.lin_acc.y = -std::stod(substrings[2]);
+                data.lin_acc.z = -std::stod(substrings[3]);
+                data.ang_vel.x = std::stod(substrings[4]);
+                data.ang_vel.y = std::stod(substrings[5]);
+                data.ang_vel.z = std::stod(substrings[6]);
+                data.orientation.x = std::stod(substrings[7]);
+                data.orientation.y = std::stod(substrings[8]);
+                data.orientation.z = std::stod(substrings[9]);
+                data.orientation.w = std::stod(substrings[10]);
+                kImuData_.emplace_back(std::make_unique<atlas_fusion_interfaces::msg::ImuImuData>(data));
+            } else {
+                throw std::runtime_error("Unexpected length of imu gnss data");
+            }
+        }
+        kImuDataIt_ = kImuData_.begin();
+    }
+
+    void ImuDataLoader::loadImuMagData() {
+        auto csvContent = CsvReader::readCsv(datasetPath_ + Folders::kImuFolder + Files::kMagFile);
+        for (const auto &substrings: csvContent) {
+            if (substrings.size() == 4) {
+                atlas_fusion_interfaces::msg::ImuMagData data;
+                data.timestamp = std::stoll(substrings[0]);
+                data.mag.x = std::stod(substrings[1]);
+                data.mag.y = std::stod(substrings[2]);
+                data.mag.z = std::stod(substrings[3]);
+
+                kMagData_.emplace_back(std::make_unique<atlas_fusion_interfaces::msg::ImuMagData>(data));
+            } else {
+                throw std::runtime_error("Unexpected length of imu gnss data");
+            }
+        }
+        kMagDataIt_ = kMagData_.begin();
+    }
+
+    void ImuDataLoader::loadImuPressureData() {
+        auto csvContent = CsvReader::readCsv(datasetPath_ + Folders::kImuFolder + Files::kPressureFile);
+        for (const auto &substrings: csvContent) {
+            if (substrings.size() == 2) {
+                atlas_fusion_interfaces::msg::ImuPressureData data;
+                data.timestamp = std::stoll(substrings[0]);
+                data.pressure = std::stod(substrings[1]);
+
+                kPressureData_.emplace_back(std::make_unique<atlas_fusion_interfaces::msg::ImuPressureData>(data));
+            } else {
+                throw std::runtime_error("Unexpected length of imu gnss data");
+            }
+        }
+        kPressureDataIt_ = kPressureData_.begin();
+    }
+
+    void ImuDataLoader::loadImuTempData() {
+        auto csvContent = CsvReader::readCsv(datasetPath_ + Folders::kImuFolder + Files::kTempFile);
+        for (const auto &substrings: csvContent) {
+            if (substrings.size() == 2) {
+                atlas_fusion_interfaces::msg::ImuTempData data;
+                data.timestamp = std::stoll(substrings[0]);
+                data.temperature = std::stod(substrings[1]);
+
+                kTempData_.emplace_back(std::make_unique<atlas_fusion_interfaces::msg::ImuTempData>(data));
+            } else {
+                throw std::runtime_error("Unexpected length of imu gnss data");
+            }
+        }
+        kTempDataIt_ = kTempData_.begin();
+    }
+
+    void ImuDataLoader::loadImuTimeData() {
+        auto csvContent = CsvReader::readCsv(datasetPath_ + Folders::kImuFolder + Files::kTimeFile);
+        for (const auto &substrings: csvContent) {
+            if (substrings.size() == 8) {
+                atlas_fusion_interfaces::msg::ImuTimeData data;
+                data.timestamp = std::stoll(substrings[0]);
+                data.year = std::stod(substrings[1]);
+                data.month = std::stod(substrings[2]);
+                data.day = std::stod(substrings[3]);
+                data.hour = std::stod(substrings[4]);
+                data.minute = std::stod(substrings[5]);
+                data.sec = std::stod(substrings[6]);
+                data.nsec = std::stod(substrings[7]);
+
+                kTimeData_.emplace_back(std::make_unique<atlas_fusion_interfaces::msg::ImuTimeData>(data));
+            } else {
+                throw std::runtime_error("Unexpected length of imu gnss data");
+            }
+        }
+        kTimeDataIt_ = kTimeData_.begin();
+    }
+
 
     void ImuDataLoader::clear() {
-        data_.clear();
-        dataIt_ = data_.begin();
+        kDQuatData_.clear();
+        kDQuatDataIt_ = kDQuatData_.begin();
+
+        kGnssData_.clear();
+        kGnssDataIt_ = kGnssData_.begin();
+
+        kImuData_.clear();
+        kImuDataIt_ = kImuData_.begin();
+
+        kMagData_.clear();
+        kMagDataIt_ = kMagData_.begin();
+
+        kPressureData_.clear();
+        kPressureDataIt_ = kPressureData_.begin();
+
+        kTempData_.clear();
+        kTempDataIt_ = kTempData_.begin();
+
+        kTimeData_.clear();
+        kTimeDataIt_ = kTimeData_.begin();
     }
 }

@@ -21,6 +21,7 @@
  */
 
 #include "data_loaders/LidarDataLoader.h"
+#include "Topics.h"
 
 namespace AtlasFusion::DataLoader {
 
@@ -28,7 +29,6 @@ namespace AtlasFusion::DataLoader {
                                        std::string datasetPath,
                                        const LidarIdentifier &lidarIdentifier,
                                        const std::string &topic,
-                                       const std::string &synchronizationTopic,
                                        const rclcpp::NodeOptions &options)
             : Node(name, options), datasetPath_{std::move(datasetPath)}, lidarIdentifier_{lidarIdentifier},
               latestTimestampPublished_(0), synchronizationTimestamp_(0) {
@@ -38,7 +38,7 @@ namespace AtlasFusion::DataLoader {
 
         // Timestamp synchronization subscription to manage data loading speeds
         timestampSubscription_ = create_subscription<std_msgs::msg::UInt64>(
-                synchronizationTopic,
+                Topics::kDataLoaderSynchronization,
                 1,
                 std::bind(&LidarDataLoader::onSynchronizationTimestamp, this, std::placeholders::_1)
         );

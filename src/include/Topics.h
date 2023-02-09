@@ -32,6 +32,13 @@ namespace AtlasFusion::Topics {
         const std::string kLidarLeftDataLoader = "/atlasfusion/data_loader/lidar_left/points";
         const std::string kLidarRightDataLoader = "/atlasfusion/data_loader/lidar_right/points";
         const std::string kLidarCenterDataLoader = "/atlasfusion/data_loader/lidar_center/points";
+        const std::string kImuDquatDataLoader = "/atlasfusion/data_loader/imu/dquat";
+        const std::string kImuGnssDataLoader = "/atlasfusion/data_loader/imu/gnss";
+        const std::string kImuImuDataLoader = "/atlasfusion/data_loader/imu/imu";
+        const std::string kImuMagDataLoader = "/atlasfusion/data_loader/imu/mag";
+        const std::string kImuPressureDataLoader = "/atlasfusion/data_loader/imu/pressure";
+        const std::string kImuTempDataLoader = "/atlasfusion/data_loader/imu/temp";
+        const std::string kImuTimeDataLoader = "/atlasfusion/data_loader/imu/time";
 
         const std::string kDataLoaderSynchronization = "/atlasfusion/data_loading/synchronization";
 

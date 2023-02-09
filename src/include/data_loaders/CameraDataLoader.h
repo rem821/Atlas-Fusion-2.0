@@ -59,7 +59,6 @@ namespace AtlasFusion::DataLoader {
                          std::string datasetPath,
                          const CameraIdentifier &cameraIdentifier,
                          const std::string &topic,
-                         const std::string &synchronizationTopic,
                          const rclcpp::NodeOptions &options);
 
     private:

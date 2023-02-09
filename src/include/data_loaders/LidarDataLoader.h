@@ -55,7 +55,6 @@ namespace AtlasFusion::DataLoader {
                          std::string datasetPath,
                          const LidarIdentifier &lidarIdentifier,
                          const std::string &topic,
-                         const std::string &synchronizationTopic,
                          const rclcpp::NodeOptions &options);
 
     private:
