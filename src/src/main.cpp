@@ -20,11 +20,12 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #include <iostream>
-#include "data_loaders/CameraDataLoader.h"
 #include "Topics.h"
 #include "data_loaders/DataLoaderController.h"
+#include "data_loaders/CameraDataLoader.h"
 #include "data_loaders/LidarDataLoader.h"
 #include "data_loaders/ImuDataLoader.h"
+#include "data_loaders/GnssDataLoader.h"
 
 
 int main(int argc, char **argv) {
@@ -113,6 +114,13 @@ int main(int argc, char **argv) {
             nodeOptions
     );
     executor.add_node(imuDataLoader);
+
+    auto gnssDataLoader = std::make_shared<AtlasFusion::DataLoader::GnssDataLoader>(
+            "GnssDataLoader",
+            datasetPath,
+            nodeOptions
+    );
+    executor.add_node(gnssDataLoader);
 
     auto dataLoaderController = std::make_shared<AtlasFusion::DataLoader::DataLoaderController>(
             "DataLoaderController",

@@ -37,7 +37,7 @@ namespace AtlasFusion::DataLoader {
 
     void DataLoaderController::onDataLoaderControllerTimer() {
         // Keep this size the same as number of dataloaders
-        if (dataCache_.size() < 15) return;
+        if (dataCache_.size() < 17) return;
         std::cout << "DataLoaderController: Retransmitting " << dataCache_.size() << " elements in order" << std::endl;
 
         auto min = std::min_element(
@@ -147,6 +147,24 @@ namespace AtlasFusion::DataLoader {
         onDataLoaderControllerTimer();
     }
 
+    void DataLoaderController::onGnssPositionData(atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr msg) {
+        std::cout << "DataLoaderController: Gnss Position data arrived: (" << msg.get() << ", "
+                  << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
+                  << std::endl;
+
+        dataCache_.emplace_back(GnssLoaderIdentifier::kPose, std::move(msg));
+        onDataLoaderControllerTimer();
+    }
+
+    void DataLoaderController::onGnssTimeData(atlas_fusion_interfaces::msg::GnssTimeData::UniquePtr msg) {
+        std::cout << "DataLoaderController: Gnss Time data arrived: (" << msg.get() << ", "
+                  << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
+                  << std::endl;
+
+        dataCache_.emplace_back(GnssLoaderIdentifier::kTime, std::move(msg));
+        onDataLoaderControllerTimer();
+    }
+
     void DataLoaderController::initialize() {
         cameraSubscribers_[CameraIdentifier::kCameraLeftSide] = create_subscription<atlas_fusion_interfaces::msg::CameraData>(
                 Topics::kCameraLeftSideDataLoader,
@@ -239,6 +257,18 @@ namespace AtlasFusion::DataLoader {
                 1,
                 std::bind(&DataLoaderController::onImuTimeData, this, std::placeholders::_1)
         );
+
+        gnssPositionSubscriber_ = create_subscription<atlas_fusion_interfaces::msg::GnssPositionData>(
+                Topics::kGnssPositionDataLoader,
+                1,
+                std::bind(&DataLoaderController::onGnssPositionData, this, std::placeholders::_1)
+        );
+
+        gnssTimeSubscriber_ = create_subscription<atlas_fusion_interfaces::msg::GnssTimeData>(
+                Topics::kGnssTimeDataLoader,
+                1,
+                std::bind(&DataLoaderController::onGnssTimeData, this, std::placeholders::_1)
+        );
     }
 
     uint64_t DataLoaderController::getDataTimestamp(const std::pair<DataIdentifier, DataMsg> &d) {
@@ -269,6 +299,12 @@ namespace AtlasFusion::DataLoader {
         }
         if (d_i == 8) {
             return std::get<atlas_fusion_interfaces::msg::ImuTimeData::UniquePtr>(d.second)->timestamp;
+        }
+        if (d_i == 9) {
+            return std::get<atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr>(d.second)->timestamp;
+        }
+        if (d_i == 10) {
+            return std::get<atlas_fusion_interfaces::msg::GnssTimeData::UniquePtr>(d.second)->timestamp;
         }
 
         throw std::runtime_error("Unexpected variant type when comparing timestamps!");

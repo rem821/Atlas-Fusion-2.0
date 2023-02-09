@@ -19,41 +19,22 @@
  * OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
 #pragma once
 
 #include <std_msgs/msg/u_int64.hpp>
-#include <atlas_fusion_interfaces/msg/lidar_data.hpp>
+#include <atlas_fusion_interfaces/msg/gnss_position_data.hpp>
+#include <atlas_fusion_interfaces/msg/gnss_time_data.hpp>
 
-#include "data_loaders/DataLoaderIdentifiers.h"
 #include "data_loaders/RecordingConstants.h"
 #include "util/CsvReader.h"
 
 namespace AtlasFusion::DataLoader {
 
-    class LidarDataLoader : public rclcpp::Node {
-
-        struct LidarFrame {
-
-            /**
-             * Constructor
-             * @param ts Recording timestamp
-             * @param iTs inner lidar's timestamp
-             * @param pcPath point cloud file path
-             */
-            LidarFrame(uint64_t ts, uint64_t iTs, std::string pcPath)
-                    : timestamp_(ts), innerTimestamp_(iTs), pointCloudPath_(std::move(pcPath)) {}
-
-            uint64_t timestamp_;
-            uint64_t innerTimestamp_;
-            std::string pointCloudPath_;
-        };
+    class GnssDataLoader : public rclcpp::Node {
 
     public:
-        LidarDataLoader(const std::string &name,
-                         std::string datasetPath,
-                         const LidarIdentifier &lidarIdentifier,
-                         const std::string &topic,
-                         const rclcpp::NodeOptions &options);
+        GnssDataLoader(const std::string &name, std::string datasetPath, const rclcpp::NodeOptions &options);
 
     private:
         void onDataLoaderTimer();
@@ -62,24 +43,30 @@ namespace AtlasFusion::DataLoader {
 
         void initialize();
 
-        bool isOnEnd() const;
-
-        void clear();
+        void loadGnssPositionData();
+        void loadGnssTimeData();
 
         std::string datasetPath_;
-        LidarIdentifier lidarIdentifier_;
 
         rclcpp::TimerBase::SharedPtr timer_;
-        rclcpp::Publisher<atlas_fusion_interfaces::msg::LidarData>::SharedPtr publisher_;
+        rclcpp::Publisher<atlas_fusion_interfaces::msg::GnssPositionData>::SharedPtr positionPublisher_;
+        rclcpp::Publisher<atlas_fusion_interfaces::msg::GnssTimeData>::SharedPtr timePublisher_;
+
         rclcpp::Subscription<std_msgs::msg::UInt64>::SharedPtr timestampSubscription_;
 
-        atlas_fusion_interfaces::msg::LidarData::UniquePtr dataFrame_;
-        uint64_t latestTimestampPublished_;
+        atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr positionDataFrame_;
+        atlas_fusion_interfaces::msg::GnssTimeData::UniquePtr timeDataFrame_;
+
+        uint64_t latestPositionTimestampPublished_;
+        uint64_t latestTimeTimestampPublished_;
+
         uint64_t synchronizationTimestamp_;
 
-        std::vector<LidarFrame> data_;
-        std::vector<LidarFrame>::iterator dataIt_;
-        std::vector<LidarFrame>::iterator releaseIt_;
+        std::vector<atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr> positionData_;
+        std::vector<atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr>::iterator positionDataIt_;
+
+        std::vector<atlas_fusion_interfaces::msg::GnssTimeData::UniquePtr> timeData_;
+        std::vector<atlas_fusion_interfaces::msg::GnssTimeData::UniquePtr>::iterator timeDataIt_;
+
     };
 }
-

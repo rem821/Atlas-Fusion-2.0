@@ -55,7 +55,7 @@ add_definitions(${PCL_DEFINITIONS})
 
 set(HEADER_FILES include/precompiled_headers/PCH.h)
 
-set(DATA_LOADER_SRCS src/data_loaders/CameraDataLoader.cpp src/data_loaders/LidarDataLoader.cpp src/data_loaders/ImuDataLoader.cpp src/data_loaders/DataLoaderController.cpp)
+set(DATA_LOADER_SRCS src/data_loaders/CameraDataLoader.cpp src/data_loaders/LidarDataLoader.cpp src/data_loaders/ImuDataLoader.cpp src/data_loaders/GnssDataLoader.cpp src/data_loaders/DataLoaderController.cpp)
 set(DATA_MODEL_SRCS src/data_models/YoloDetectionClass.cpp)
 
 set(UTIL_SRCS src/util/CsvReader.cpp)

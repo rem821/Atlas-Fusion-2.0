@@ -31,6 +31,9 @@
 #include <atlas_fusion_interfaces/msg/imu_pressure_data.hpp>
 #include <atlas_fusion_interfaces/msg/imu_temp_data.hpp>
 #include <atlas_fusion_interfaces/msg/imu_time_data.hpp>
+#include <atlas_fusion_interfaces/msg/gnss_position_data.hpp>
+#include <atlas_fusion_interfaces/msg/gnss_time_data.hpp>
+
 #include <any>
 #include "rcpputils/endian.hpp"
 
@@ -43,8 +46,8 @@
 namespace AtlasFusion::DataLoader {
 
     class DataLoaderController : public rclcpp::Node {
-        using DataIdentifier = std::variant<CameraIdentifier, LidarIdentifier, ImuLoaderIdentifier>;
-        using DataMsg = std::variant<atlas_fusion_interfaces::msg::CameraData::UniquePtr, atlas_fusion_interfaces::msg::LidarData::UniquePtr, atlas_fusion_interfaces::msg::ImuDquatData::UniquePtr, atlas_fusion_interfaces::msg::ImuGnssData::UniquePtr, atlas_fusion_interfaces::msg::ImuImuData::UniquePtr, atlas_fusion_interfaces::msg::ImuMagData::UniquePtr, atlas_fusion_interfaces::msg::ImuPressureData::UniquePtr, atlas_fusion_interfaces::msg::ImuTempData::UniquePtr, atlas_fusion_interfaces::msg::ImuTimeData::UniquePtr>;
+        using DataIdentifier = std::variant<CameraIdentifier, LidarIdentifier, ImuLoaderIdentifier, GnssLoaderIdentifier>;
+        using DataMsg = std::variant<atlas_fusion_interfaces::msg::CameraData::UniquePtr, atlas_fusion_interfaces::msg::LidarData::UniquePtr, atlas_fusion_interfaces::msg::ImuDquatData::UniquePtr, atlas_fusion_interfaces::msg::ImuGnssData::UniquePtr, atlas_fusion_interfaces::msg::ImuImuData::UniquePtr, atlas_fusion_interfaces::msg::ImuMagData::UniquePtr, atlas_fusion_interfaces::msg::ImuPressureData::UniquePtr, atlas_fusion_interfaces::msg::ImuTempData::UniquePtr, atlas_fusion_interfaces::msg::ImuTimeData::UniquePtr, atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr, atlas_fusion_interfaces::msg::GnssTimeData::UniquePtr>;
 
     public:
         DataLoaderController(const std::string &name,
@@ -64,6 +67,8 @@ namespace AtlasFusion::DataLoader {
         void onImuPressureData(atlas_fusion_interfaces::msg::ImuPressureData::UniquePtr msg);
         void onImuTempData(atlas_fusion_interfaces::msg::ImuTempData::UniquePtr msg);
         void onImuTimeData(atlas_fusion_interfaces::msg::ImuTimeData::UniquePtr msg);
+        void onGnssPositionData(atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr msg);
+        void onGnssTimeData(atlas_fusion_interfaces::msg::GnssTimeData::UniquePtr msg);
 
         void initialize();
 
@@ -74,6 +79,7 @@ namespace AtlasFusion::DataLoader {
         rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr publisher_;
         std::map<CameraIdentifier, rclcpp::Subscription<atlas_fusion_interfaces::msg::CameraData>::SharedPtr> cameraSubscribers_;
         std::map<LidarIdentifier, rclcpp::Subscription<atlas_fusion_interfaces::msg::LidarData>::SharedPtr> lidarSubscribers_;
+
         rclcpp::Subscription<atlas_fusion_interfaces::msg::ImuDquatData>::SharedPtr imuDquatSubscriber_;
         rclcpp::Subscription<atlas_fusion_interfaces::msg::ImuGnssData>::SharedPtr imuGnssSubscriber_;
         rclcpp::Subscription<atlas_fusion_interfaces::msg::ImuImuData>::SharedPtr imuImuSubscriber_;
@@ -81,6 +87,9 @@ namespace AtlasFusion::DataLoader {
         rclcpp::Subscription<atlas_fusion_interfaces::msg::ImuPressureData>::SharedPtr imuPressureSubscriber_;
         rclcpp::Subscription<atlas_fusion_interfaces::msg::ImuTempData>::SharedPtr imuTempSubscriber_;
         rclcpp::Subscription<atlas_fusion_interfaces::msg::ImuTimeData>::SharedPtr imuTimeSubscriber_;
+
+        rclcpp::Subscription<atlas_fusion_interfaces::msg::GnssPositionData>::SharedPtr gnssPositionSubscriber_;
+        rclcpp::Subscription<atlas_fusion_interfaces::msg::GnssTimeData>::SharedPtr gnssTimeSubscriber_;
 
         std::vector<std::pair<DataIdentifier, DataMsg>> dataCache_;
 

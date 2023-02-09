@@ -30,9 +30,6 @@
 #include <atlas_fusion_interfaces/msg/imu_temp_data.hpp>
 #include <atlas_fusion_interfaces/msg/imu_time_data.hpp>
 
-#include <utility>
-#include "rcpputils/endian.hpp"
-
 #include "data_loaders/DataLoaderIdentifiers.h"
 #include "data_loaders/RecordingConstants.h"
 #include "util/CsvReader.h"
