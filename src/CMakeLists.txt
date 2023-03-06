@@ -35,8 +35,21 @@ find_package(Qt5 COMPONENTS Core REQUIRED)
 find_package(PCL 1.7 REQUIRED COMPONENTS)
 find_package(Yaml-cpp)
 
+add_executable(${PROJECT_NAME} src/main.cpp)
+target_precompile_headers(${PROJECT_NAME} PRIVATE include/precompiled_headers/PCH.h)
+file(GLOB_RECURSE DATA_LOADER_SRCS src/data_loaders/*.cpp)
+file(GLOB_RECURSE DATA_MODEL_SRCS src/data_models/*.cpp)
+file(GLOB_RECURSE UTIL_SRCS src/util/*.cpp)
+file(GLOB_RECURSE LOGGING_SRCS src/logging/*.cpp)
+
+target_sources(${PROJECT_NAME} PRIVATE ${DATA_LOADER_SRCS} ${DATA_MODEL_SRCS} ${UTIL_SRCS} ${LOGGING_SRCS})
+
 add_subdirectory(libs/robotic-template-library)
-include_directories(include
+add_subdirectory(libs/spdlog)
+target_precompile_headers(${PROJECT_NAME} PRIVATE include/precompiled_headers/PCH.h)
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+        include
         ${rclcpp_INCLUDE_DIRS}
         ${std_msgs_INCLUDE_DIRS}
         ${sensor_msgs_INCLUDE_DIRS}
@@ -48,33 +61,19 @@ include_directories(include
         ${PCL_INCLUDE_DIRS}
         ${OpenCV_INCLUDE_DIRS}
         ${Qt5_INCLUDE_DIRS}
-        libs/fmt
         libs/robotic-template-library/include
         )
 
-link_directories(${PCL_LIBRARY_DIRS})
+target_link_directories(${PROJECT_NAME} PRIVATE ${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
-
-set(HEADER_FILES include/precompiled_headers/PCH.h)
-
-set(DATA_LOADER_SRCS src/data_loaders/CameraDataLoader.cpp src/data_loaders/LidarDataLoader.cpp src/data_loaders/ImuDataLoader.cpp src/data_loaders/GnssDataLoader.cpp src/data_loaders/RadarDataLoader.cpp src/data_loaders/DataLoaderController.cpp)
-set(DATA_MODEL_SRCS src/data_models/YoloDetectionClass.cpp)
-
-set(UTIL_SRCS src/util/CsvReader.cpp)
-
-
-add_executable(${PROJECT_NAME} src/main.cpp ${DATA_LOADER_SRCS} ${DATA_MODEL_SRCS} ${UTIL_SRCS})
-target_precompile_headers(${PROJECT_NAME} PRIVATE ${HEADER_FILES})
-
 ament_target_dependencies(${PROJECT_NAME} rclcpp std_msgs sensor_msgs geometry_msgs visualization_msgs rviz_2d_overlay_msgs atlas_fusion_interfaces image_transport camera_info_manager tf2_ros)
-
 target_link_libraries(${PROJECT_NAME}
         ${OpenCV_LIBRARIES}
         ${PCL_LIBRARIES}
         Qt5::Core
         stdc++fs
         yaml-cpp
-        fmt::fmt-header-only
+        fmt
         )
 
 ament_package()

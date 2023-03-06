@@ -45,8 +45,7 @@ namespace AtlasFusion::DataLoader {
 
         // Timer to control the polling frequency for publishing
         using namespace std::chrono_literals;
-        auto datarate = cameraIdentifier_ == CameraIdentifier::kCameraIr ? 10ms: 30ms;
-        timer_ = create_wall_timer(datarate, [this] { onDataLoaderTimer(); });
+        timer_ = create_wall_timer(10ms, [this] { onDataLoaderTimer(); });
 
         // Init camera additional data
         initialize();
@@ -56,9 +55,7 @@ namespace AtlasFusion::DataLoader {
         if (dataFrame_ != nullptr && latestTimestampPublished_ <= synchronizationTimestamp_) {
             latestTimestampPublished_ = dataFrame_->timestamp;
 
-            std::cout << "Camera data of frame " << std::to_string(dataFrame_->camera_identifier) << " sent: ("
-                      << dataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
-                      << std::endl;
+            LOG_TRACE("Camera data of frame {} sent: ({}, 0x{})", dataFrame_->camera_identifier, this->get_clock()->now().nanoseconds(), HEX_ADDR(dataFrame_.get()));
 
             publisher_->publish(std::move(dataFrame_));
         }

@@ -72,7 +72,8 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/features/moment_of_inertia_estimation.h>
 
-// FMT
+// Logging
+#include <logging/Log.h>
 #include <fmt/format.h>
 
 // RTL
@@ -85,3 +86,5 @@
 #include "Timer.h"
 #include "visualizers/Topics.h"
 */
+
+#define HEX_ADDR(addr) ({ std::stringstream ss; ss << "0x" << std::hex << reinterpret_cast<uintptr_t>(addr); ss.str(); })

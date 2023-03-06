@@ -53,9 +53,7 @@ namespace AtlasFusion::DataLoader {
         if (positionDataFrame_ != nullptr && latestPositionTimestampPublished_ <= synchronizationTimestamp_) {
             latestPositionTimestampPublished_ = positionDataFrame_->timestamp;
 
-            std::cout << "Gnss Position data of frame sent: ("
-                      << positionDataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
-                      << std::endl;
+            LOG_TRACE("GNSS Position data sent: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(positionDataFrame_.get()));
 
             positionPublisher_->publish(std::move(positionDataFrame_));
         }
@@ -71,9 +69,7 @@ namespace AtlasFusion::DataLoader {
         if (timeDataFrame_ != nullptr && latestTimeTimestampPublished_ <= synchronizationTimestamp_) {
             latestTimeTimestampPublished_ = timeDataFrame_->timestamp;
 
-            std::cout << "Gnss Time data of frame sent: ("
-                      << timeDataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
-                      << std::endl;
+            LOG_TRACE("GNSS Time data sent: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(timeDataFrame_.get()));
 
             timePublisher_->publish(std::move(timeDataFrame_));
         }

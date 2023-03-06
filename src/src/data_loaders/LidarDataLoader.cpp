@@ -45,7 +45,7 @@ namespace AtlasFusion::DataLoader {
 
         // Timer to control the polling frequency for publishing
         using namespace std::chrono_literals;
-        timer_ = create_wall_timer(50ms, [this] { onDataLoaderTimer(); });
+        timer_ = create_wall_timer(10ms, [this] { onDataLoaderTimer(); });
 
         // Init lidar additional data
         initialize();
@@ -55,9 +55,7 @@ namespace AtlasFusion::DataLoader {
         if (dataFrame_ != nullptr && latestTimestampPublished_ <= synchronizationTimestamp_) {
             latestTimestampPublished_ = dataFrame_->timestamp;
 
-            std::cout << "Lidar data of frame " << std::to_string(dataFrame_->lidar_identifier) << " sent: ("
-                      << dataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
-                      << std::endl;
+            LOG_TRACE("Lidar data of frame {} sent: ({}, {})", dataFrame_->lidar_identifier, this->get_clock()->now().nanoseconds(), HEX_ADDR(dataFrame_.get()));
 
             publisher_->publish(std::move(dataFrame_));
         }

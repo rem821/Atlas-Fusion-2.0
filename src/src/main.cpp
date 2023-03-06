@@ -30,6 +30,8 @@
 
 
 int main(int argc, char **argv) {
+    AtlasFusion::Log::Init();
+
     std::string datasetPath = "/media/standa/174A20FD45B9BA09/BUD/3_1_1_2/";
     //std::string datasetPath = "/home/standa/Desktop/BUD/3_1_3_3/";
 

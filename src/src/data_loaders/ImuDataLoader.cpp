@@ -60,9 +60,7 @@ namespace AtlasFusion::DataLoader {
         if (kDQuatDataFrame_ != nullptr && latestDQuatTimestampPublished_ <= synchronizationTimestamp_) {
             latestDQuatTimestampPublished_ = kDQuatDataFrame_->timestamp;
 
-            std::cout << "Imu Dquat data of frame sent: ("
-                      << kDQuatDataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
-                      << std::endl;
+            LOG_TRACE("IMU DQuat data sent: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(kDQuatDataFrame_.get()));
 
             kDQuatPublisher_->publish(std::move(kDQuatDataFrame_));
         }
@@ -78,9 +76,7 @@ namespace AtlasFusion::DataLoader {
         if (kGnssDataFrame_ != nullptr && latestGnssTimestampPublished_ <= synchronizationTimestamp_) {
             latestGnssTimestampPublished_ = kGnssDataFrame_->timestamp;
 
-            std::cout << "Imu Gnss data of frame sent: ("
-                      << kGnssDataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
-                      << std::endl;
+            LOG_TRACE("IMU GNSS data sent: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(kGnssDataFrame_.get()));
 
             kGnssPublisher_->publish(std::move(kGnssDataFrame_));
         }
@@ -96,9 +92,7 @@ namespace AtlasFusion::DataLoader {
         if (kImuDataFrame_ != nullptr && latestImuTimestampPublished_ <= synchronizationTimestamp_) {
             latestImuTimestampPublished_ = kImuDataFrame_->timestamp;
 
-            std::cout << "Imu Imu data of frame sent: ("
-                      << kImuDataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
-                      << std::endl;
+            LOG_TRACE("IMU IMU data sent: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(kImuDataFrame_.get()));
 
             kImuPublisher_->publish(std::move(kImuDataFrame_));
         }
@@ -114,9 +108,7 @@ namespace AtlasFusion::DataLoader {
         if (kMagDataFrame_ != nullptr && latestMagTimestampPublished_ <= synchronizationTimestamp_) {
             latestMagTimestampPublished_ = kMagDataFrame_->timestamp;
 
-            std::cout << "Imu Mag data of frame sent: ("
-                      << kMagDataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
-                      << std::endl;
+            LOG_TRACE("IMU Mag data sent: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(kMagDataFrame_.get()));
 
             kMagPublisher_->publish(std::move(kMagDataFrame_));
         }
@@ -132,9 +124,7 @@ namespace AtlasFusion::DataLoader {
         if (kPressureDataFrame_ != nullptr && latestPressureTimestampPublished_ <= synchronizationTimestamp_) {
             latestPressureTimestampPublished_ = kPressureDataFrame_->timestamp;
 
-            std::cout << "Imu Pressure data of frame sent: ("
-                      << kPressureDataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
-                      << std::endl;
+            LOG_TRACE("IMU Pressure data sent: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(kPressureDataFrame_.get()));
 
             kPressurePublisher_->publish(std::move(kPressureDataFrame_));
         }
@@ -150,9 +140,7 @@ namespace AtlasFusion::DataLoader {
         if (kTempDataFrame_ != nullptr && latestTempTimestampPublished_ <= synchronizationTimestamp_) {
             latestTempTimestampPublished_ = kTempDataFrame_->timestamp;
 
-            std::cout << "Imu Temp data of frame sent: ("
-                      << kTempDataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
-                      << std::endl;
+            LOG_TRACE("IMU Temp data sent: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(kTempDataFrame_.get()));
 
             kTempPublisher_->publish(std::move(kTempDataFrame_));
         }
@@ -168,9 +156,7 @@ namespace AtlasFusion::DataLoader {
         if (kTimeDataFrame_ != nullptr && latestTimeTimestampPublished_ <= synchronizationTimestamp_) {
             latestTimeTimestampPublished_ = kTimeDataFrame_->timestamp;
 
-            std::cout << "Imu Time data of frame sent: ("
-                      << kTimeDataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
-                      << std::endl;
+            LOG_TRACE("IMU Time data sent: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(kTimeDataFrame_.get()));
 
             kTimePublisher_->publish(std::move(kTimeDataFrame_));
         }

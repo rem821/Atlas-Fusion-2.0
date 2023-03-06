@@ -43,7 +43,7 @@ namespace AtlasFusion::DataLoader {
 
         // Timer to control the polling frequency for publishing
         using namespace std::chrono_literals;
-        timer_ = create_wall_timer(50ms, [this] { onDataLoaderTimer(); });
+        timer_ = create_wall_timer(10ms, [this] { onDataLoaderTimer(); });
 
         // Init radar additional data
         initialize();
@@ -53,9 +53,7 @@ namespace AtlasFusion::DataLoader {
         if (dataFrame_ != nullptr && latestTimestampPublished_ <= synchronizationTimestamp_) {
             latestTimestampPublished_ = dataFrame_->timestamp;
 
-            std::cout << "Radar data sent: ("
-                      << dataFrame_.get() << ", " << std::to_string(this->get_clock()->now().nanoseconds()) << ")"
-                      << std::endl;
+            LOG_TRACE("Radar data sent: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(dataFrame_.get()));
 
             publisher_->publish(std::move(dataFrame_));
         }
@@ -74,7 +72,7 @@ namespace AtlasFusion::DataLoader {
             }
 
             atlas_fusion_interfaces::msg::RadarData radarData;
-            radarData.radar_identifier = 0;
+            radarData.radar_identifier = static_cast<int8_t>(RadarIdentifier::kRadarTi);
             radarData.timestamp = dataIt_->timestamp_;
             radarData.no_detections = dataIt_->numberOfDetections_;
             radarData.detections = detections;
@@ -105,7 +103,7 @@ namespace AtlasFusion::DataLoader {
                     float vel = std::stof(substrings.at(offset + 3));
                     detections.emplace_back(RadarDetection{{x, y, z}, vel});
                 }
-                data_.push_back({timestamp, numberOfDetections, detections});
+                data_.emplace_back(timestamp, numberOfDetections, detections);
             }
         }
         dataIt_ = data_.begin();
