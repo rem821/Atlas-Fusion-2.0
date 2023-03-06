@@ -23,4 +23,5 @@ namespace AtlasFusion {
 #define LOG_ERROR(...)     ::AtlasFusion::Log::GetLogger()->error(__VA_ARGS__)
 #define LOG_WARN(...)      ::AtlasFusion::Log::GetLogger()->warn(__VA_ARGS__)
 #define LOG_INFO(...)      ::AtlasFusion::Log::GetLogger()->info(__VA_ARGS__)
-#define LOG_TRACE(...)     AtlasFusion::Log::GetLogger()->trace(__VA_ARGS__)
+//#define LOG_TRACE(...)     AtlasFusion::Log::GetLogger()->trace(__VA_ARGS__)
+#define LOG_TRACE(...)

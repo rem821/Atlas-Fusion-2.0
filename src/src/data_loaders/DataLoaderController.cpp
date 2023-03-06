@@ -27,24 +27,29 @@ namespace AtlasFusion::DataLoader {
     DataLoaderController::DataLoaderController(const std::string &name, const uint8_t noDataLoaders, const rclcpp::NodeOptions &options)
             : Node(name, options), noDataLoaders_(noDataLoaders), latestTimestampPublished_(0) {
 
-        // Publisher that publishes synchronization timestamps
-        publisher_ = create_publisher<std_msgs::msg::UInt64>(Topics::kDataLoaderSynchronization, 1);
-
-        // Init all subscribers
-        initialize();
+        initializePublishers();
+        initializeSubscribers();
     }
 
     void DataLoaderController::onDataLoaderControllerTimer() {
-        // Keep this size the same as number of dataloaders
         if (dataCache_.size() < noDataLoaders_) return;
-        LOG_INFO("DataLoaderController: Retransmitting {} elements in order", dataCache_.size());
 
+        // Find the index of the earliest msg in cache
         auto min = std::min_element(
                 std::begin(dataCache_), std::end(dataCache_),
                 [](const auto &l, const auto &r) {
                     return getDataTimestamp(l) < getDataTimestamp(r);
                 }
         );
+        auto max = std::max_element(
+                std::begin(dataCache_), std::end(dataCache_),
+                [](const auto &l, const auto &r) {
+                    return getDataTimestamp(l) < getDataTimestamp(r);
+                }
+        );
+        LOG_INFO("DataLoader cache extent: {}ms", (getDataTimestamp(*max) - getDataTimestamp(*min)) / 1000000);
+        retransmitMsg(*min);
+
         std_msgs::msg::UInt64 m;
         m.data = getDataTimestamp(*min);
 
@@ -58,7 +63,6 @@ namespace AtlasFusion::DataLoader {
         auto erase = std::find(dataCache_.begin(), dataCache_.end(), *min);
         if (erase != dataCache_.end()) dataCache_.erase(erase);
 
-        LOG_INFO("DataLoaderController: Data retransmission complete!");
     }
 
     void DataLoaderController::onCameraData(atlas_fusion_interfaces::msg::CameraData::UniquePtr msg) {
@@ -149,8 +153,7 @@ namespace AtlasFusion::DataLoader {
         onDataLoaderControllerTimer();
     }
 
-
-    void DataLoaderController::initialize() {
+    void DataLoaderController::initializeSubscribers() {
         cameraSubscribers_[CameraIdentifier::kCameraLeftSide] = create_subscription<atlas_fusion_interfaces::msg::CameraData>(
                 Topics::kCameraLeftSideDataLoader,
                 1,
@@ -262,6 +265,34 @@ namespace AtlasFusion::DataLoader {
         );
     }
 
+    void DataLoaderController::initializePublishers() {
+        // Publisher that publishes synchronization timestamps
+        publisher_ = create_publisher<std_msgs::msg::UInt64>(Topics::kDataLoaderSynchronization, 1);
+
+        cameraPublishers_[CameraIdentifier::kCameraLeftSide] = create_publisher<atlas_fusion_interfaces::msg::CameraData>(Topics::kCameraLeftSide, 1);
+        cameraPublishers_[CameraIdentifier::kCameraLeftFront] = create_publisher<atlas_fusion_interfaces::msg::CameraData>(Topics::kCameraLeftFront, 1);
+        cameraPublishers_[CameraIdentifier::kCameraRightFront] = create_publisher<atlas_fusion_interfaces::msg::CameraData>(Topics::kCameraRightFront, 1);
+        cameraPublishers_[CameraIdentifier::kCameraRightSide] = create_publisher<atlas_fusion_interfaces::msg::CameraData>(Topics::kCameraRightSide, 1);
+        cameraPublishers_[CameraIdentifier::kCameraIr] = create_publisher<atlas_fusion_interfaces::msg::CameraData>(Topics::kCameraIr, 1);
+
+        lidarPublishers_[LidarIdentifier::kLeftLidar] = create_publisher<atlas_fusion_interfaces::msg::LidarData>(Topics::kLidarLeft, 1);
+        lidarPublishers_[LidarIdentifier::kCenterLidar] = create_publisher<atlas_fusion_interfaces::msg::LidarData>(Topics::kLidarCenter, 1);
+        lidarPublishers_[LidarIdentifier::kRightLidar] = create_publisher<atlas_fusion_interfaces::msg::LidarData>(Topics::kLidarRight, 1);
+
+        imuDquatPublisher_ = create_publisher<atlas_fusion_interfaces::msg::ImuDquatData>(Topics::kImuDquat, 1);
+        imuGnssPublisher_ = create_publisher<atlas_fusion_interfaces::msg::ImuGnssData>(Topics::kImuGnss, 1);
+        imuImuPublisher_ = create_publisher<atlas_fusion_interfaces::msg::ImuImuData>(Topics::kImuImu, 1);
+        imuMagPublisher_ = create_publisher<atlas_fusion_interfaces::msg::ImuMagData>(Topics::kImuMag, 1);
+        imuPressurePublisher_ = create_publisher<atlas_fusion_interfaces::msg::ImuPressureData>(Topics::kImuPressure, 1);
+        imuTempPublisher_ = create_publisher<atlas_fusion_interfaces::msg::ImuTempData>(Topics::kImuTemp, 1);
+        imuTimePublisher_ = create_publisher<atlas_fusion_interfaces::msg::ImuTimeData>(Topics::kImuTime, 1);
+
+        gnssPositionPublisher_ = create_publisher<atlas_fusion_interfaces::msg::GnssPositionData>(Topics::kGnssPosition, 1);
+        gnssTimePublisher_ = create_publisher<atlas_fusion_interfaces::msg::GnssTimeData>(Topics::kGnssTime, 1);
+
+        radarPublisher_ = create_publisher<atlas_fusion_interfaces::msg::RadarData>(Topics::kRadarTi, 1);
+    }
+
     uint64_t DataLoaderController::getDataTimestamp(const std::pair<DataIdentifier, DataMsg> &d) {
         auto d_i = d.second.index();
         if (d_i == 0) {
@@ -299,6 +330,74 @@ namespace AtlasFusion::DataLoader {
         }
         if (d_i == 11) {
             return std::get<atlas_fusion_interfaces::msg::RadarData::UniquePtr>(d.second)->timestamp;
+        }
+
+        throw std::runtime_error("Unexpected variant type when comparing timestamps!");
+    }
+
+    void DataLoaderController::retransmitMsg(const std::pair<DataIdentifier, DataMsg> &d) {
+        auto d_i = d.second.index();
+        if (d_i == 0) {
+            auto cameraIdentifier = std::get<CameraIdentifier>(d.first);
+            auto &msg = std::get<atlas_fusion_interfaces::msg::CameraData::UniquePtr>(d.second);
+            cameraPublishers_[cameraIdentifier]->publish(*msg);
+            return;
+        }
+        if (d_i == 1) {
+            auto lidarIdentifier = std::get<LidarIdentifier>(d.first);
+            auto &msg = std::get<atlas_fusion_interfaces::msg::LidarData::UniquePtr>(d.second);
+            lidarPublishers_[lidarIdentifier]->publish(*msg);
+            return;
+        }
+        if (d_i == 2) {
+            auto &msg = std::get<atlas_fusion_interfaces::msg::ImuDquatData::UniquePtr>(d.second);
+            imuDquatPublisher_->publish(*msg);
+            return;
+        }
+        if (d_i == 3) {
+            auto &msg = std::get<atlas_fusion_interfaces::msg::ImuGnssData::UniquePtr>(d.second);
+            imuGnssPublisher_->publish(*msg);
+            return;
+        }
+        if (d_i == 4) {
+            auto &msg = std::get<atlas_fusion_interfaces::msg::ImuImuData ::UniquePtr>(d.second);
+            imuImuPublisher_->publish(*msg);
+            return;
+        }
+        if (d_i == 5) {
+            auto &msg = std::get<atlas_fusion_interfaces::msg::ImuMagData::UniquePtr>(d.second);
+            imuMagPublisher_->publish(*msg);
+            return;
+        }
+        if (d_i == 6) {
+            auto &msg = std::get<atlas_fusion_interfaces::msg::ImuPressureData::UniquePtr>(d.second);
+            imuPressurePublisher_->publish(*msg);
+            return;
+        }
+        if (d_i == 7) {
+            auto &msg = std::get<atlas_fusion_interfaces::msg::ImuTempData::UniquePtr>(d.second);
+            imuTempPublisher_->publish(*msg);
+            return;
+        }
+        if (d_i == 8) {
+            auto &msg = std::get<atlas_fusion_interfaces::msg::ImuTimeData::UniquePtr>(d.second);
+            imuTimePublisher_->publish(*msg);
+            return;
+        }
+        if (d_i == 9) {
+            auto &msg = std::get<atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr>(d.second);
+            gnssPositionPublisher_->publish(*msg);
+            return;
+        }
+        if (d_i == 10) {
+            auto &msg = std::get<atlas_fusion_interfaces::msg::GnssTimeData::UniquePtr>(d.second);
+            gnssTimePublisher_->publish(*msg);
+            return;
+        }
+        if (d_i == 11) {
+            auto &msg = std::get<atlas_fusion_interfaces::msg::RadarData::UniquePtr>(d.second);
+            radarPublisher_->publish(*msg);
+            return;
         }
 
         throw std::runtime_error("Unexpected variant type when comparing timestamps!");

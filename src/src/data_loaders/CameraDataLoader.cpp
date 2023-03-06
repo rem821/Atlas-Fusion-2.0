@@ -69,8 +69,7 @@ namespace AtlasFusion::DataLoader {
             header.frame_id = std::to_string(dataIt_->frameId_);
 
             atlas_fusion_interfaces::msg::CameraData cameraData;
-            cameraData.image = toCameraMsg(frame, header,
-                                           cameraIdentifier_ == CameraIdentifier::kCameraIr ? "mono8" : "bgr8");
+            cameraData.image = toCameraMsg(frame, header, cameraIdentifier_ == CameraIdentifier::kCameraIr ? "mono8" : "bgr8");
             cameraData.camera_identifier = static_cast<int8_t>(cameraIdentifier_);
             cameraData.timestamp = dataIt_->timestamp_;
             cameraData.inner_timestamp = dataIt_->innerTimestamp_;

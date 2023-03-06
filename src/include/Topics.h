@@ -43,9 +43,28 @@ namespace AtlasFusion::Topics {
         const std::string kGnssTimeDataLoader = "/atlasfusion/data_loader/gnss/time";
         const std::string kRadarTiDataLoader = "/atlasfusion/data_loader/radar_ti";
 
-        const std::string kDataLoaderSynchronization = "/atlasfusion/data_loading/synchronization";
+        const std::string kDataLoaderSynchronization = "/atlasfusion/data_loader/synchronization";
 
+        const std::string kCameraLeftFront = "/atlasfusion/cameras/camera_left_front/camera";
+        const std::string kCameraLeftSide = "/atlasfusion/cameras/camera_left_side/camera";
+        const std::string kCameraRightFront = "/atlasfusion/cameras/camera_right_front/camera";
+        const std::string kCameraRightSide = "/atlasfusion/cameras/camera_right_side/camera";
+        const std::string kCameraIr = "/atlasfusion/cameras/camera_ir/camera";
+        const std::string kLidarLeft = "/atlasfusion/lidar_left/points";
+        const std::string kLidarRight = "/atlasfusion/lidar_right/points";
+        const std::string kLidarCenter = "/atlasfusion/lidar_center/points";
+        const std::string kImuDquat = "/atlasfusion/imu/dquat";
+        const std::string kImuGnss = "/atlasfusion/imu/gnss";
+        const std::string kImuImu = "/atlasfusion/imu/imu";
+        const std::string kImuMag = "/atlasfusion/imu/mag";
+        const std::string kImuPressure = "/atlasfusion/imu/pressure";
+        const std::string kImuTemp = "/atlasfusion/imu/temp";
+        const std::string kImuTime = "/atlasfusion/imu/time";
+        const std::string kGnssPosition = "/atlasfusion/gnss/position";
+        const std::string kGnssTime = "/atlasfusion/gnss/time";
+        const std::string kRadarTi = "/atlasfusion/radar_ti";
 
+        /*
         const std::string kSelfGlobal = "/atlasfusion/local_map/self/global";
         const std::string kSelfEgo = "/atlasfusion/local_map/self/ego";
 
@@ -110,5 +129,6 @@ namespace AtlasFusion::Topics {
         const std::string kTelemetryText = "/atlasfusion/local_map/telemetry/text";
         const std::string kSpeedTopic = "/atlasfusion/local_map/speed";
         const std::string kEnvironmentalModel = "/atlasfusion/local_map/environmental_model";
+         */
 
     }

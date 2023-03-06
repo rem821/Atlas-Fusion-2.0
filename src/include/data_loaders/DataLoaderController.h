@@ -73,17 +73,19 @@ namespace AtlasFusion::DataLoader {
 
         void onRadarData(atlas_fusion_interfaces::msg::RadarData::UniquePtr msg);
 
-        void initialize();
+        void initializeSubscribers();
+        void initializePublishers();
 
         static uint64_t getDataTimestamp(const std::pair<DataIdentifier, DataMsg> &d);
+        void retransmitMsg(const std::pair<DataIdentifier, DataMsg> &d);
 
         std::string datasetPath_;
-        uint8_t noDataLoaders_;
+        uint8_t noDataLoaders_;        // Keep this size the same as number of dataloaders
 
-        rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr publisher_;
+
+        /* Data loader Subscribers */
         std::map<CameraIdentifier, rclcpp::Subscription<atlas_fusion_interfaces::msg::CameraData>::SharedPtr> cameraSubscribers_;
         std::map<LidarIdentifier, rclcpp::Subscription<atlas_fusion_interfaces::msg::LidarData>::SharedPtr> lidarSubscribers_;
-
         rclcpp::Subscription<atlas_fusion_interfaces::msg::ImuDquatData>::SharedPtr imuDquatSubscriber_;
         rclcpp::Subscription<atlas_fusion_interfaces::msg::ImuGnssData>::SharedPtr imuGnssSubscriber_;
         rclcpp::Subscription<atlas_fusion_interfaces::msg::ImuImuData>::SharedPtr imuImuSubscriber_;
@@ -91,12 +93,27 @@ namespace AtlasFusion::DataLoader {
         rclcpp::Subscription<atlas_fusion_interfaces::msg::ImuPressureData>::SharedPtr imuPressureSubscriber_;
         rclcpp::Subscription<atlas_fusion_interfaces::msg::ImuTempData>::SharedPtr imuTempSubscriber_;
         rclcpp::Subscription<atlas_fusion_interfaces::msg::ImuTimeData>::SharedPtr imuTimeSubscriber_;
-
         rclcpp::Subscription<atlas_fusion_interfaces::msg::GnssPositionData>::SharedPtr gnssPositionSubscriber_;
         rclcpp::Subscription<atlas_fusion_interfaces::msg::GnssTimeData>::SharedPtr gnssTimeSubscriber_;
-
         rclcpp::Subscription<atlas_fusion_interfaces::msg::RadarData>::SharedPtr radarSubscriber_;
 
+        /* Synchronized data re-publishers */
+        rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr publisher_;
+
+        std::map<CameraIdentifier, rclcpp::Publisher<atlas_fusion_interfaces::msg::CameraData>::SharedPtr> cameraPublishers_;
+        std::map<LidarIdentifier, rclcpp::Publisher<atlas_fusion_interfaces::msg::LidarData>::SharedPtr> lidarPublishers_;
+        rclcpp::Publisher<atlas_fusion_interfaces::msg::ImuDquatData>::SharedPtr imuDquatPublisher_;
+        rclcpp::Publisher<atlas_fusion_interfaces::msg::ImuGnssData>::SharedPtr imuGnssPublisher_;
+        rclcpp::Publisher<atlas_fusion_interfaces::msg::ImuImuData>::SharedPtr imuImuPublisher_;
+        rclcpp::Publisher<atlas_fusion_interfaces::msg::ImuMagData>::SharedPtr imuMagPublisher_;
+        rclcpp::Publisher<atlas_fusion_interfaces::msg::ImuPressureData>::SharedPtr imuPressurePublisher_;
+        rclcpp::Publisher<atlas_fusion_interfaces::msg::ImuTempData>::SharedPtr imuTempPublisher_;
+        rclcpp::Publisher<atlas_fusion_interfaces::msg::ImuTimeData>::SharedPtr imuTimePublisher_;
+        rclcpp::Publisher<atlas_fusion_interfaces::msg::GnssPositionData>::SharedPtr gnssPositionPublisher_;
+        rclcpp::Publisher<atlas_fusion_interfaces::msg::GnssTimeData>::SharedPtr gnssTimePublisher_;
+        rclcpp::Publisher<atlas_fusion_interfaces::msg::RadarData>::SharedPtr radarPublisher_;
+
+        /* Data cache */
         std::vector<std::pair<DataIdentifier, DataMsg>> dataCache_;
 
         uint64_t latestTimestampPublished_;
