@@ -21,7 +21,6 @@
  */
 
 #include "data_loaders/LidarDataLoader.h"
-#include "Topics.h"
 
 namespace AtlasFusion::DataLoader {
 

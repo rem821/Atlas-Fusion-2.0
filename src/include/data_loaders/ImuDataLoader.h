@@ -21,18 +21,7 @@
  */
 #pragma once
 
-#include <std_msgs/msg/u_int64.hpp>
-#include <atlas_fusion_interfaces/msg/imu_dquat_data.hpp>
-#include <atlas_fusion_interfaces/msg/imu_gnss_data.hpp>
-#include <atlas_fusion_interfaces/msg/imu_imu_data.hpp>
-#include <atlas_fusion_interfaces/msg/imu_mag_data.hpp>
-#include <atlas_fusion_interfaces/msg/imu_pressure_data.hpp>
-#include <atlas_fusion_interfaces/msg/imu_temp_data.hpp>
-#include <atlas_fusion_interfaces/msg/imu_time_data.hpp>
-
-#include "data_loaders/DataLoaderIdentifiers.h"
-#include "data_loaders/RecordingConstants.h"
-#include "util/CsvReader.h"
+#include <precompiled_headers/PCH.h>
 
 namespace AtlasFusion::DataLoader {
 

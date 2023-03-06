@@ -21,50 +21,19 @@
  */
 #pragma once
 
-namespace AtlasFusion::DataLoader {
+#include <precompiled_headers/PCH.h>
 
-    /**
-     * Lidar Data Loaders identifiers
-     */
-    enum class LidarIdentifier {
-        kLeftLidar,
-        kRightLidar,
-        kCenterLidar,
-    };
+namespace AtlasFusion::LocalMap {
 
-    enum class RadarIdentifier {
-        kRadarTi,
-    };
+    class LidarAggregator : public rclcpp::Node {
+    public:
+        LidarAggregator(const std::string& name, const std::string &topic, const rclcpp::NodeOptions &options);
 
-    /**
-     * Camera Data Loader identifiers
-     */
-    enum class CameraIdentifier {
-        kCameraLeftFront,
-        kCameraLeftSide,
-        kCameraRightFront,
-        kCameraRightSide,
-        kCameraIr,
-    };
+    private:
+        void onLidarData(atlas_fusion_interfaces::msg::LidarData::UniquePtr msg);
 
-    /**
-     * Imu Loader Identifier distinguishes Imu Data Loaders by the data types they are handling
-     */
-    enum class ImuLoaderIdentifier {
-        kDQuat,
-        kGnss,
-        kImu,
-        kMag,
-        kPressure,
-        kTemp,
-        kTime,
-    };
 
-    /**
-     * GNSS Loader Identifier distinguishes GNSS Data Loaders by the data types they are handling
-     */
-    enum class GnssLoaderIdentifier {
-        kPose,
-        kTime,
+        std::map<DataLoader::LidarIdentifier, rclcpp::Subscription<atlas_fusion_interfaces::msg::LidarData>::SharedPtr> lidarSubscribers_;
     };
 }
+

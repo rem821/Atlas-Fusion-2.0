@@ -41,6 +41,8 @@
 #include <cmath>
 #include <map>
 #include <list>
+#include <any>
+#include <variant>
 
 // ROS2
 #include "rclcpp/rclcpp.hpp"
@@ -79,8 +81,28 @@
 #include <rtl/Transformation.h>
 #include <rtl/Core.h>
 
+// Interfaces
+#include <atlas_fusion_interfaces/msg/camera_data.hpp>
+#include <atlas_fusion_interfaces/msg/lidar_data.hpp>
+#include <atlas_fusion_interfaces/msg/imu_dquat_data.hpp>
+#include <atlas_fusion_interfaces/msg/imu_gnss_data.hpp>
+#include <atlas_fusion_interfaces/msg/imu_imu_data.hpp>
+#include <atlas_fusion_interfaces/msg/imu_mag_data.hpp>
+#include <atlas_fusion_interfaces/msg/imu_pressure_data.hpp>
+#include <atlas_fusion_interfaces/msg/imu_temp_data.hpp>
+#include <atlas_fusion_interfaces/msg/imu_time_data.hpp>
+#include <atlas_fusion_interfaces/msg/gnss_position_data.hpp>
+#include <atlas_fusion_interfaces/msg/gnss_time_data.hpp>
+#include <atlas_fusion_interfaces/msg/radar_data.hpp>
+#include <std_msgs/msg/u_int64.hpp>
+
 // Misc
+#include <Topics.h>
+#include <data_loaders/DataLoaderIdentifiers.h>
+#include <data_loaders/RecordingConstants.h>
 #include <util/Macros.h>
+#include <util/CsvReader.h>
+
 /*
 #include "Context.h"
 #include "Timer.h"

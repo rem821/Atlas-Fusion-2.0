@@ -21,7 +21,7 @@
  */
 
 #include "data_loaders/CameraDataLoader.h"
-#include "Topics.h"
+#include "rcpputils/endian.hpp"
 
 namespace AtlasFusion::DataLoader {
 

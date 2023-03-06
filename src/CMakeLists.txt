@@ -40,10 +40,11 @@ add_executable(${PROJECT_NAME} src/main.cpp)
 target_precompile_headers(${PROJECT_NAME} PRIVATE include/precompiled_headers/PCH.h)
 file(GLOB_RECURSE DATA_LOADER_SRCS src/data_loaders/*.cpp)
 file(GLOB_RECURSE DATA_MODEL_SRCS src/data_models/*.cpp)
+file(GLOB_RECURSE LIDAR_PROCESSING src/lidar_processing/*.cpp)
 file(GLOB_RECURSE UTIL_SRCS src/util/*.cpp)
 file(GLOB_RECURSE LOGGING_SRCS src/logging/*.cpp)
 
-target_sources(${PROJECT_NAME} PRIVATE ${DATA_LOADER_SRCS} ${DATA_MODEL_SRCS} ${UTIL_SRCS} ${LOGGING_SRCS})
+target_sources(${PROJECT_NAME} PRIVATE ${DATA_LOADER_SRCS} ${DATA_MODEL_SRCS} ${LIDAR_PROCESSING} ${UTIL_SRCS} ${LOGGING_SRCS})
 
 add_subdirectory(libs/robotic-template-library)
 add_subdirectory(libs/spdlog)

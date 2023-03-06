@@ -22,12 +22,7 @@
 
 #pragma once
 
-#include <std_msgs/msg/u_int64.hpp>
-#include <atlas_fusion_interfaces/msg/gnss_position_data.hpp>
-#include <atlas_fusion_interfaces/msg/gnss_time_data.hpp>
-
-#include "data_loaders/RecordingConstants.h"
-#include "util/CsvReader.h"
+#include <precompiled_headers/PCH.h>
 
 namespace AtlasFusion::DataLoader {
 

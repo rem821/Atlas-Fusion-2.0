@@ -21,7 +21,6 @@
  */
 
 #include "data_loaders/ImuDataLoader.h"
-#include "Topics.h"
 
 namespace AtlasFusion::DataLoader {
 

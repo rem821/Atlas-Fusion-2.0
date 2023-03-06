@@ -21,13 +21,7 @@
  */
 #pragma once
 
-#include <std_msgs/msg/u_int64.hpp>
-#include <atlas_fusion_interfaces/msg/camera_data.hpp>
-#include "rcpputils/endian.hpp"
-
-#include "data_loaders/DataLoaderIdentifiers.h"
-#include "data_loaders/RecordingConstants.h"
-#include "util/CsvReader.h"
+#include <precompiled_headers/PCH.h>
 
 namespace AtlasFusion::DataLoader {
 

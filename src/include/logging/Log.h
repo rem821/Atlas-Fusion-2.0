@@ -2,6 +2,7 @@
 // Created by standa on 6.3.23.
 //
 #pragma once
+
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "spdlog/fmt/ostr.h"
