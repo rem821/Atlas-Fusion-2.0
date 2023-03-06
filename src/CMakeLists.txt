@@ -11,7 +11,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
 # Setup Debug and Release flags
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-add_compile_options(-Wno-unused-parameter -Wno-unused-variable -Wno-gnu-statement-expression -Wno-modernize-avoid-bind)
+add_compile_options(-Wno-unused-parameter -Wno-unused-variable)
 
 # Find package paths
 find_package(ament_cmake REQUIRED)
@@ -38,13 +38,9 @@ find_package(Yaml-cpp)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_precompile_headers(${PROJECT_NAME} PRIVATE include/precompiled_headers/PCH.h)
-file(GLOB_RECURSE DATA_LOADER_SRCS src/data_loaders/*.cpp)
-file(GLOB_RECURSE DATA_MODEL_SRCS src/data_models/*.cpp)
-file(GLOB_RECURSE LIDAR_PROCESSING src/lidar_processing/*.cpp)
-file(GLOB_RECURSE UTIL_SRCS src/util/*.cpp)
-file(GLOB_RECURSE LOGGING_SRCS src/logging/*.cpp)
+file(GLOB_RECURSE PROJECT_SRCS src/*.cpp)
 
-target_sources(${PROJECT_NAME} PRIVATE ${DATA_LOADER_SRCS} ${DATA_MODEL_SRCS} ${LIDAR_PROCESSING} ${UTIL_SRCS} ${LOGGING_SRCS})
+target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SRCS})
 
 add_subdirectory(libs/robotic-template-library)
 add_subdirectory(libs/spdlog)

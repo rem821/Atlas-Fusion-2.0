@@ -21,7 +21,7 @@
  */
 #pragma once
 
-namespace AtlasFusion::DataLoader {
+namespace AtlasFusion {
     namespace Folders {
 
         const std::string kCameraLeftFrontFolder = "camera_left_front/";

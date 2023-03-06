@@ -47,7 +47,7 @@ namespace AtlasFusion::DataLoader {
                     return getDataTimestamp(l) < getDataTimestamp(r);
                 }
         );
-        LOG_INFO("DataLoader cache extent: {}ms", (getDataTimestamp(*max) - getDataTimestamp(*min)) / 1000000);
+        LOG_TRACE("DataLoader cache extent: {}ms", (getDataTimestamp(*max) - getDataTimestamp(*min)) / 1000000);
         retransmitMsg(*min);
 
         std_msgs::msg::UInt64 m;

@@ -4,3 +4,6 @@
 [submodule "src/libs/spdlog"]
 	path = src/libs/spdlog
 	url = https://github.com/gabime/spdlog
+[submodule "src/calibrations"]
+	path = src/calibrations
+	url = https://github.com/Robotics-BUT/Brno-Urban-Dataset-Calibrations.git
