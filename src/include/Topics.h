@@ -41,6 +41,7 @@ namespace AtlasFusion::Topics {
         const std::string kImuTimeDataLoader = "/atlasfusion/data_loader/imu/time";
         const std::string kGnssPositionDataLoader = "/atlasfusion/data_loader/gnss/position";
         const std::string kGnssTimeDataLoader = "/atlasfusion/data_loader/gnss/time";
+        const std::string kRadarTiDataLoader = "/atlasfusion/data_loader/radar_ti";
 
         const std::string kDataLoaderSynchronization = "/atlasfusion/data_loading/synchronization";
 

@@ -35,6 +35,7 @@ find_package(Qt5 COMPONENTS Core REQUIRED)
 find_package(PCL 1.7 REQUIRED COMPONENTS)
 find_package(Yaml-cpp)
 
+add_subdirectory(libs/robotic-template-library)
 include_directories(include
         ${rclcpp_INCLUDE_DIRS}
         ${std_msgs_INCLUDE_DIRS}
@@ -48,6 +49,7 @@ include_directories(include
         ${OpenCV_INCLUDE_DIRS}
         ${Qt5_INCLUDE_DIRS}
         libs/fmt
+        libs/robotic-template-library/include
         )
 
 link_directories(${PCL_LIBRARY_DIRS})
@@ -55,7 +57,7 @@ add_definitions(${PCL_DEFINITIONS})
 
 set(HEADER_FILES include/precompiled_headers/PCH.h)
 
-set(DATA_LOADER_SRCS src/data_loaders/CameraDataLoader.cpp src/data_loaders/LidarDataLoader.cpp src/data_loaders/ImuDataLoader.cpp src/data_loaders/GnssDataLoader.cpp src/data_loaders/DataLoaderController.cpp)
+set(DATA_LOADER_SRCS src/data_loaders/CameraDataLoader.cpp src/data_loaders/LidarDataLoader.cpp src/data_loaders/ImuDataLoader.cpp src/data_loaders/GnssDataLoader.cpp src/data_loaders/RadarDataLoader.cpp src/data_loaders/DataLoaderController.cpp)
 set(DATA_MODEL_SRCS src/data_models/YoloDetectionClass.cpp)
 
 set(UTIL_SRCS src/util/CsvReader.cpp)

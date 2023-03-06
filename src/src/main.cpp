@@ -26,6 +26,7 @@
 #include "data_loaders/LidarDataLoader.h"
 #include "data_loaders/ImuDataLoader.h"
 #include "data_loaders/GnssDataLoader.h"
+#include "data_loaders/RadarDataLoader.h"
 
 
 int main(int argc, char **argv) {
@@ -121,6 +122,14 @@ int main(int argc, char **argv) {
             nodeOptions
     );
     executor.add_node(gnssDataLoader);
+
+    auto radarDataLoader = std::make_shared<AtlasFusion::DataLoader::RadarDataLoader>(
+            "RadarDataLoader",
+            datasetPath,
+            AtlasFusion::Topics::kRadarTiDataLoader,
+            nodeOptions
+    );
+    executor.add_node(radarDataLoader);
 
     auto dataLoaderController = std::make_shared<AtlasFusion::DataLoader::DataLoaderController>(
             "DataLoaderController",
