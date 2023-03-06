@@ -24,9 +24,8 @@
 
 namespace AtlasFusion::DataLoader {
 
-    DataLoaderController::DataLoaderController(const std::string &name,
-                                               const rclcpp::NodeOptions &options)
-            : Node(name, options), latestTimestampPublished_(0) {
+    DataLoaderController::DataLoaderController(const std::string &name, const uint8_t noDataLoaders, const rclcpp::NodeOptions &options)
+            : Node(name, options), noDataLoaders_(noDataLoaders), latestTimestampPublished_(0) {
 
         // Publisher that publishes synchronization timestamps
         publisher_ = create_publisher<std_msgs::msg::UInt64>(Topics::kDataLoaderSynchronization, 1);
@@ -37,7 +36,7 @@ namespace AtlasFusion::DataLoader {
 
     void DataLoaderController::onDataLoaderControllerTimer() {
         // Keep this size the same as number of dataloaders
-        if (dataCache_.size() < 18) return;
+        if (dataCache_.size() < noDataLoaders_) return;
         LOG_INFO("DataLoaderController: Retransmitting {} elements in order", dataCache_.size());
 
         auto min = std::min_element(

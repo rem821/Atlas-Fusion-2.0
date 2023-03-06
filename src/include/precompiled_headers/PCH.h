@@ -54,7 +54,6 @@
 // OpenCV
 #include <opencv2/opencv.hpp>
 
-
 // PCL
 #include <pcl/common/common.h>
 #include <pcl/common/transforms.h>
@@ -81,10 +80,10 @@
 #include <rtl/Core.h>
 
 // Misc
+#include <util/Macros.h>
 /*
 #include "Context.h"
 #include "Timer.h"
 #include "visualizers/Topics.h"
 */
 
-#define HEX_ADDR(addr) ({ std::stringstream ss; ss << "0x" << std::hex << reinterpret_cast<uintptr_t>(addr); ss.str(); })

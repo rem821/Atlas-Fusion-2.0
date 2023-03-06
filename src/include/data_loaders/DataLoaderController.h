@@ -51,8 +51,7 @@ namespace AtlasFusion::DataLoader {
         using DataMsg = std::variant<atlas_fusion_interfaces::msg::CameraData::UniquePtr, atlas_fusion_interfaces::msg::LidarData::UniquePtr, atlas_fusion_interfaces::msg::ImuDquatData::UniquePtr, atlas_fusion_interfaces::msg::ImuGnssData::UniquePtr, atlas_fusion_interfaces::msg::ImuImuData::UniquePtr, atlas_fusion_interfaces::msg::ImuMagData::UniquePtr, atlas_fusion_interfaces::msg::ImuPressureData::UniquePtr, atlas_fusion_interfaces::msg::ImuTempData::UniquePtr, atlas_fusion_interfaces::msg::ImuTimeData::UniquePtr, atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr, atlas_fusion_interfaces::msg::GnssTimeData::UniquePtr, atlas_fusion_interfaces::msg::RadarData::UniquePtr>;
 
     public:
-        DataLoaderController(const std::string &name,
-                             const rclcpp::NodeOptions &options);
+        DataLoaderController(const std::string &name, const uint8_t noDataLoaders, const rclcpp::NodeOptions &options);
 
     private:
         void onDataLoaderControllerTimer();
@@ -79,6 +78,7 @@ namespace AtlasFusion::DataLoader {
         static uint64_t getDataTimestamp(const std::pair<DataIdentifier, DataMsg> &d);
 
         std::string datasetPath_;
+        uint8_t noDataLoaders_;
 
         rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr publisher_;
         std::map<CameraIdentifier, rclcpp::Subscription<atlas_fusion_interfaces::msg::CameraData>::SharedPtr> cameraSubscribers_;

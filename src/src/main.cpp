@@ -135,6 +135,7 @@ int main(int argc, char **argv) {
 
     auto dataLoaderController = std::make_shared<AtlasFusion::DataLoader::DataLoaderController>(
             "DataLoaderController",
+            18,
             nodeOptions
     );
     executor.add_node(dataLoaderController);

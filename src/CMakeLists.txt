@@ -11,6 +11,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
 # Setup Debug and Release flags
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+add_compile_options(-Wno-unused-parameter -Wno-unused-variable -Wno-gnu-statement-expression)
 
 # Find package paths
 find_package(ament_cmake REQUIRED)
