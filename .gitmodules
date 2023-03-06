@@ -1,0 +1,6 @@
+[submodule "src/libs/robotic-template-library"]
+	path = src/libs/robotic-template-library
+	url = https://github.com/Robotics-BUT/Robotic-Template-Library.git
+[submodule "src/libs/spdlog"]
+	path = src/libs/spdlog
+	url = https://github.com/gabime/spdlog
