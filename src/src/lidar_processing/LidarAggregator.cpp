@@ -31,30 +31,29 @@ namespace AtlasFusion::LocalMap {
         // publisher_ = create_publisher<atlas_fusion_interfaces::msg::CameraData>(topic, 1);
 
 
-        lidarSubscribers_[DataLoader::LidarIdentifier::kLeftLidar] = create_subscription<atlas_fusion_interfaces::msg::LidarData>(
+        lidarSubscribers_[DataLoader::LidarIdentifier::kLeftLidar] = create_subscription<sensor_msgs::msg::PointCloud2>(
                 Topics::kLidarLeft,
                 1,
                 std::bind(&LidarAggregator::OnLidarData, this, std::placeholders::_1)
         );
 
-        lidarSubscribers_[DataLoader::LidarIdentifier::kCenterLidar] = create_subscription<atlas_fusion_interfaces::msg::LidarData>(
+        lidarSubscribers_[DataLoader::LidarIdentifier::kCenterLidar] = create_subscription<sensor_msgs::msg::PointCloud2>(
                 Topics::kLidarCenter,
                 1,
                 std::bind(&LidarAggregator::OnLidarData, this, std::placeholders::_1)
         );
 
-        lidarSubscribers_[DataLoader::LidarIdentifier::kRightLidar] = create_subscription<atlas_fusion_interfaces::msg::LidarData>(
+        lidarSubscribers_[DataLoader::LidarIdentifier::kRightLidar] = create_subscription<sensor_msgs::msg::PointCloud2>(
                 Topics::kLidarRight,
                 1,
                 std::bind(&LidarAggregator::OnLidarData, this, std::placeholders::_1)
         );
     }
 
-    void LidarAggregator::OnLidarData(atlas_fusion_interfaces::msg::LidarData::UniquePtr msg) {
+    void LidarAggregator::OnLidarData(sensor_msgs::msg::PointCloud2::UniquePtr msg) {
         LOG_TRACE("LidarAggregator: Lidar data of frame {} arrived: ({}, {})", msg->lidar_identifier, this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
 
-        auto lidarID = static_cast<DataLoader::LidarIdentifier>(msg->lidar_identifier);
-        const auto sensorFrame = FrameTypeFromIdentifier(lidarID);
+        const auto sensorFrame = NameToFrameType(msg->header.frame_id);
 
         auto lidarTF = EntryPoint::GetContext().GetTransformationForFrame(sensorFrame);
 

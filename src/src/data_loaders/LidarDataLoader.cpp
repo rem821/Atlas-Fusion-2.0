@@ -28,7 +28,7 @@ namespace AtlasFusion::DataLoader {
             : Node(name, options), lidarIdentifier_{lidarIdentifier}, latestTimestampPublished_(0), synchronizationTimestamp_(0) {
 
         // Publisher that publishes LidarData
-        publisher_ = create_publisher<atlas_fusion_interfaces::msg::LidarData>(topic, 1);
+        publisher_ = create_publisher<sensor_msgs::msg::PointCloud2>(topic, 1);
 
         // Timestamp synchronization subscription to manage data loading speeds
         timestampSubscription_ = create_subscription<std_msgs::msg::UInt64>(
@@ -47,7 +47,7 @@ namespace AtlasFusion::DataLoader {
 
     void LidarDataLoader::OnDataLoaderTimer() {
         if (dataFrame_ != nullptr && latestTimestampPublished_ <= synchronizationTimestamp_) {
-            latestTimestampPublished_ = dataFrame_->timestamp;
+            latestTimestampPublished_ = STAMP_TO_NANOSEC(dataFrame_->header.stamp);
 
             LOG_TRACE("Lidar data of frame {} sent: ({}, {})", dataFrame_->lidar_identifier, this->get_clock()->now().nanoseconds(), HEX_ADDR(dataFrame_.get()));
 
@@ -62,14 +62,11 @@ namespace AtlasFusion::DataLoader {
 
             sensor_msgs::msg::PointCloud2 msg;
             pcl::toROSMsg(*scan, msg);
+            msg.header.stamp.sec = NANOSEC_TO_STAMP_SEC(dataIt_->timestamp_);
+            msg.header.stamp.nanosec = NANOSEC_TO_STAMP_NANOSECSEC(dataIt_->timestamp_);
+            msg.header.frame_id = FrameTypeName(FrameTypeFromIdentifier(lidarIdentifier_));
 
-            atlas_fusion_interfaces::msg::LidarData lidarData;
-            lidarData.lidar_identifier = static_cast<int8_t>(lidarIdentifier_);
-            lidarData.timestamp = dataIt_->timestamp_;
-            lidarData.inner_timestamp = dataIt_->innerTimestamp_;
-            lidarData.point_cloud = msg;
-
-            dataFrame_ = std::make_unique<atlas_fusion_interfaces::msg::LidarData>(lidarData);
+            dataFrame_ = std::make_unique<sensor_msgs::msg::PointCloud2>(msg);
             dataIt_ = std::next(dataIt_, 1);
         }
     }

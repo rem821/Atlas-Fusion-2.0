@@ -54,7 +54,7 @@ namespace AtlasFusion {
     }
 
     void EntryPoint::InitROS() {
-        nodeOptions_ = rclcpp::NodeOptions().use_intra_process_comms(false);
+        nodeOptions_ = rclcpp::NodeOptions().use_intra_process_comms(true);
 
         InitNodes();
 
@@ -172,7 +172,7 @@ namespace AtlasFusion {
         std::string selfModel = "SelfModel";
         nodes_[selfModel] = std::make_shared<LocalMap::SelfModel>(
                 selfModel,
-                nodeOptions_
+                rclcpp::NodeOptions().use_intra_process_comms(false)
         );
         rosExecutor_.add_node(nodes_[selfModel]);
 

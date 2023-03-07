@@ -74,10 +74,10 @@ namespace AtlasFusion::DataLoader {
         OnDataLoaderControllerTimer();
     }
 
-    void DataLoaderController::OnLidarData(atlas_fusion_interfaces::msg::LidarData::UniquePtr msg) {
+    void DataLoaderController::OnLidarData(sensor_msgs::msg::PointCloud2::UniquePtr msg) {
         LOG_TRACE("DataLoaderController: Lidar data of frame {} arrived: ({}, {})", msg->lidar_identifier, this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
 
-        auto id = static_cast<LidarIdentifier>(msg->lidar_identifier);
+        auto id = LidarIdentifierFromFrameType(NameToFrameType(msg->header.frame_id));
 
         dataCache_.emplace_back(id, std::move(msg));
         OnDataLoaderControllerTimer();
@@ -185,19 +185,19 @@ namespace AtlasFusion::DataLoader {
         );
 
 
-        lidarSubscribers_[LidarIdentifier::kLeftLidar] = create_subscription<atlas_fusion_interfaces::msg::LidarData>(
+        lidarSubscribers_[LidarIdentifier::kLeftLidar] = create_subscription<sensor_msgs::msg::PointCloud2>(
                 Topics::kLidarLeftDataLoader,
                 1,
                 std::bind(&DataLoaderController::OnLidarData, this, std::placeholders::_1)
         );
 
-        lidarSubscribers_[LidarIdentifier::kCenterLidar] = create_subscription<atlas_fusion_interfaces::msg::LidarData>(
+        lidarSubscribers_[LidarIdentifier::kCenterLidar] = create_subscription<sensor_msgs::msg::PointCloud2>(
                 Topics::kLidarCenterDataLoader,
                 1,
                 std::bind(&DataLoaderController::OnLidarData, this, std::placeholders::_1)
         );
 
-        lidarSubscribers_[LidarIdentifier::kRightLidar] = create_subscription<atlas_fusion_interfaces::msg::LidarData>(
+        lidarSubscribers_[LidarIdentifier::kRightLidar] = create_subscription<sensor_msgs::msg::PointCloud2>(
                 Topics::kLidarRightDataLoader,
                 1,
                 std::bind(&DataLoaderController::OnLidarData, this, std::placeholders::_1)
@@ -275,9 +275,9 @@ namespace AtlasFusion::DataLoader {
         cameraPublishers_[CameraIdentifier::kCameraRightSide] = create_publisher<atlas_fusion_interfaces::msg::CameraData>(Topics::kCameraRightSide, 1);
         cameraPublishers_[CameraIdentifier::kCameraIr] = create_publisher<atlas_fusion_interfaces::msg::CameraData>(Topics::kCameraIr, 1);
 
-        lidarPublishers_[LidarIdentifier::kLeftLidar] = create_publisher<atlas_fusion_interfaces::msg::LidarData>(Topics::kLidarLeft, 1);
-        lidarPublishers_[LidarIdentifier::kCenterLidar] = create_publisher<atlas_fusion_interfaces::msg::LidarData>(Topics::kLidarCenter, 1);
-        lidarPublishers_[LidarIdentifier::kRightLidar] = create_publisher<atlas_fusion_interfaces::msg::LidarData>(Topics::kLidarRight, 1);
+        lidarPublishers_[LidarIdentifier::kLeftLidar] = create_publisher<sensor_msgs::msg::PointCloud2>(Topics::kLidarLeft, 1);
+        lidarPublishers_[LidarIdentifier::kCenterLidar] = create_publisher<sensor_msgs::msg::PointCloud2>(Topics::kLidarCenter, 1);
+        lidarPublishers_[LidarIdentifier::kRightLidar] = create_publisher<sensor_msgs::msg::PointCloud2>(Topics::kLidarRight, 1);
 
         imuDquatPublisher_ = create_publisher<atlas_fusion_interfaces::msg::ImuDquatData>(Topics::kImuDquat, 1);
         imuGnssPublisher_ = create_publisher<atlas_fusion_interfaces::msg::ImuGnssData>(Topics::kImuGnss, 1);
@@ -299,7 +299,7 @@ namespace AtlasFusion::DataLoader {
             return std::get<atlas_fusion_interfaces::msg::CameraData::UniquePtr>(d.second)->timestamp;
         }
         if (d_i == 1) {
-            return std::get<atlas_fusion_interfaces::msg::LidarData::UniquePtr>(d.second)->timestamp;
+            return STAMP_TO_NANOSEC(std::get<sensor_msgs::msg::PointCloud2::UniquePtr>(d.second)->header.stamp);
         }
         if (d_i == 2) {
             return std::get<atlas_fusion_interfaces::msg::ImuDquatData::UniquePtr>(d.second)->timestamp;
@@ -345,7 +345,7 @@ namespace AtlasFusion::DataLoader {
         }
         if (d_i == 1) {
             auto lidarIdentifier = std::get<LidarIdentifier>(d.first);
-            auto& msg = std::get<atlas_fusion_interfaces::msg::LidarData::UniquePtr>(d.second);
+            auto& msg = std::get<sensor_msgs::msg::PointCloud2::UniquePtr>(d.second);
             lidarPublishers_[lidarIdentifier]->publish(*msg);
             return;
         }

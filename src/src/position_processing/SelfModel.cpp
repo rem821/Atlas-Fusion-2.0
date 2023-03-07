@@ -41,7 +41,7 @@ namespace AtlasFusion::LocalMap {
         filteredTrajectoryPublisher_ = create_publisher<visualization_msgs::msg::Marker>(Topics::kFilteredTrajectory, 1);
 
         using namespace std::chrono_literals;
-        timer_ = create_wall_timer(100ms, [this] { OnPublishPoseAndTrajectory(); });
+        timer_ = create_wall_timer(20ms, [this] { OnPublishPoseAndTrajectory(); });
 
         gnssSubscriber_ = create_subscription<atlas_fusion_interfaces::msg::GnssPositionData>(
                 Topics::kGnssPosition,

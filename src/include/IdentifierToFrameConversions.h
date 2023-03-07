@@ -9,6 +9,9 @@
 namespace AtlasFusion {
 
     std::string FrameTypeName(const FrameType& frame);
+    FrameType NameToFrameType(const std::string& name);
+    DataLoader::CameraIdentifier CameraIdentifierFromFrameType(const FrameType& frame);
     FrameType FrameTypeFromIdentifier(const DataLoader::CameraIdentifier &identifier);
+    DataLoader::LidarIdentifier LidarIdentifierFromFrameType(const FrameType& frame);
     FrameType FrameTypeFromIdentifier(const DataLoader::LidarIdentifier &identifier);
 }

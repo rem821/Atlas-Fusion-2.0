@@ -72,9 +72,7 @@ namespace AtlasFusion::Topics {
         const std::string kSelfEgo = "/atlasfusion/local_map/self/ego";
 
         /*
-        const std::string kLidarLeft = "/atlasfusion/local_map/lidar_left/points";
-        const std::string kLidarRight = "/atlasfusion/local_map/lidar_right/points";
-        const std::string kLidarCenter = "/atlasfusion/local_map/lidar_center/points";
+
         const std::string kLidarLeftStatus = "/atlasfusion/local_map/lidar_left/status";
         const std::string kLidarRightStatus = "/atlasfusion/local_map/lidar_right/status";
         const std::string kLidarCenterStatus = "/atlasfusion/local_map/lidar_center/status";

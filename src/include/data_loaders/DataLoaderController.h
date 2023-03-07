@@ -27,17 +27,17 @@ namespace AtlasFusion::DataLoader {
 
     class DataLoaderController : public rclcpp::Node {
         using DataIdentifier = std::variant<CameraIdentifier, LidarIdentifier, ImuLoaderIdentifier, GnssLoaderIdentifier, RadarIdentifier>;
-        using DataMsg = std::variant<atlas_fusion_interfaces::msg::CameraData::UniquePtr, atlas_fusion_interfaces::msg::LidarData::UniquePtr, atlas_fusion_interfaces::msg::ImuDquatData::UniquePtr, atlas_fusion_interfaces::msg::ImuGnssData::UniquePtr, atlas_fusion_interfaces::msg::ImuImuData::UniquePtr, atlas_fusion_interfaces::msg::ImuMagData::UniquePtr, atlas_fusion_interfaces::msg::ImuPressureData::UniquePtr, atlas_fusion_interfaces::msg::ImuTempData::UniquePtr, atlas_fusion_interfaces::msg::ImuTimeData::UniquePtr, atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr, atlas_fusion_interfaces::msg::GnssTimeData::UniquePtr, atlas_fusion_interfaces::msg::RadarData::UniquePtr>;
+        using DataMsg = std::variant<atlas_fusion_interfaces::msg::CameraData::UniquePtr, sensor_msgs::msg::PointCloud2::UniquePtr, atlas_fusion_interfaces::msg::ImuDquatData::UniquePtr, atlas_fusion_interfaces::msg::ImuGnssData::UniquePtr, atlas_fusion_interfaces::msg::ImuImuData::UniquePtr, atlas_fusion_interfaces::msg::ImuMagData::UniquePtr, atlas_fusion_interfaces::msg::ImuPressureData::UniquePtr, atlas_fusion_interfaces::msg::ImuTempData::UniquePtr, atlas_fusion_interfaces::msg::ImuTimeData::UniquePtr, atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr, atlas_fusion_interfaces::msg::GnssTimeData::UniquePtr, atlas_fusion_interfaces::msg::RadarData::UniquePtr>;
 
     public:
-        DataLoaderController(const std::string &name, const uint8_t noDataLoaders, const rclcpp::NodeOptions &options);
+        DataLoaderController(const std::string &name, uint8_t noDataLoaders, const rclcpp::NodeOptions &options);
 
     private:
         void OnDataLoaderControllerTimer();
 
         void OnCameraData(atlas_fusion_interfaces::msg::CameraData::UniquePtr msg);
 
-        void OnLidarData(atlas_fusion_interfaces::msg::LidarData::UniquePtr msg);
+        void OnLidarData(sensor_msgs::msg::PointCloud2::UniquePtr msg);
 
         void OnImuDquatData(atlas_fusion_interfaces::msg::ImuDquatData::UniquePtr msg);
         void OnImuGnssData(atlas_fusion_interfaces::msg::ImuGnssData::UniquePtr msg);
@@ -64,7 +64,7 @@ namespace AtlasFusion::DataLoader {
 
         /* Data loader Subscribers */
         std::map<CameraIdentifier, rclcpp::Subscription<atlas_fusion_interfaces::msg::CameraData>::SharedPtr> cameraSubscribers_;
-        std::map<LidarIdentifier, rclcpp::Subscription<atlas_fusion_interfaces::msg::LidarData>::SharedPtr> lidarSubscribers_;
+        std::map<LidarIdentifier, rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr> lidarSubscribers_;
         rclcpp::Subscription<atlas_fusion_interfaces::msg::ImuDquatData>::SharedPtr imuDquatSubscriber_;
         rclcpp::Subscription<atlas_fusion_interfaces::msg::ImuGnssData>::SharedPtr imuGnssSubscriber_;
         rclcpp::Subscription<atlas_fusion_interfaces::msg::ImuImuData>::SharedPtr imuImuSubscriber_;
@@ -80,7 +80,7 @@ namespace AtlasFusion::DataLoader {
         rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr publisher_;
 
         std::map<CameraIdentifier, rclcpp::Publisher<atlas_fusion_interfaces::msg::CameraData>::SharedPtr> cameraPublishers_;
-        std::map<LidarIdentifier, rclcpp::Publisher<atlas_fusion_interfaces::msg::LidarData>::SharedPtr> lidarPublishers_;
+        std::map<LidarIdentifier, rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr> lidarPublishers_;
         rclcpp::Publisher<atlas_fusion_interfaces::msg::ImuDquatData>::SharedPtr imuDquatPublisher_;
         rclcpp::Publisher<atlas_fusion_interfaces::msg::ImuGnssData>::SharedPtr imuGnssPublisher_;
         rclcpp::Publisher<atlas_fusion_interfaces::msg::ImuImuData>::SharedPtr imuImuPublisher_;

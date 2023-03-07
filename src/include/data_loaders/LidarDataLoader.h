@@ -63,10 +63,10 @@ namespace AtlasFusion::DataLoader {
         LidarIdentifier lidarIdentifier_;
 
         rclcpp::TimerBase::SharedPtr timer_;
-        rclcpp::Publisher<atlas_fusion_interfaces::msg::LidarData>::SharedPtr publisher_;
+        rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr publisher_;
         rclcpp::Subscription<std_msgs::msg::UInt64>::SharedPtr timestampSubscription_;
 
-        atlas_fusion_interfaces::msg::LidarData::UniquePtr dataFrame_;
+        sensor_msgs::msg::PointCloud2::UniquePtr dataFrame_;
         uint64_t latestTimestampPublished_;
         uint64_t synchronizationTimestamp_;
 
