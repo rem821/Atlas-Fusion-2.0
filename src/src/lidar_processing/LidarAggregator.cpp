@@ -51,7 +51,7 @@ namespace AtlasFusion::LocalMap {
     }
 
     void LidarAggregator::OnLidarData(atlas_fusion_interfaces::msg::LidarData::UniquePtr msg) {
-        LOG_INFO("LidarAggregator: Lidar data of frame {} arrived: ({}, {})", msg->lidar_identifier, this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
+        LOG_TRACE("LidarAggregator: Lidar data of frame {} arrived: ({}, {})", msg->lidar_identifier, this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
 
         auto lidarID = static_cast<DataLoader::LidarIdentifier>(msg->lidar_identifier);
         const auto sensorFrame = FrameTypeFromIdentifier(lidarID);

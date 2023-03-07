@@ -26,14 +26,14 @@ namespace AtlasFusion {
          * @param tf new child transformations
          * @param name new frame name
          */
-        void AddFrame(const rtl::RigidTf3D<double> &tf, const FrameType &frameType);
+        void AddFrame(const rtl::RigidTf3D<double>& tf, const FrameType& frameType);
 
         /**
          * Method returns transformation between the root frame the the child frame
          * @param frameType child frame type
          * @return child transformation
          */
-        rtl::RigidTf3D<double> GetTransformationForFrame(const FrameType &frameType) const;
+        rtl::RigidTf3D<double> GetTransformationForFrame(const FrameType& frameType) const;
 
         /**
          * Method returns the vector of all child frame names.
@@ -45,7 +45,7 @@ namespace AtlasFusion {
          * Getter for root frame name
          * @return root frame name
          */
-        const FrameType &GetRootFrameType() const { return rootFrameType_; };
+        const FrameType& GetRootFrameType() const { return rootFrameType_; };
 
         /**
          * Method estimates transformation between two child frames.
@@ -54,7 +54,7 @@ namespace AtlasFusion {
          * @param destination destination frame type
          * @return returns the point transformed from the original coordinate system to the new one.
          */
-        rtl::Vector3D<double> TransformPointFromFrameToFrame(const rtl::Vector3D<double> &, const FrameType &source, const FrameType &destination) const;
+        rtl::Vector3D<double> TransformPointFromFrameToFrame(const rtl::Vector3D<double>& srcPoint, const FrameType& source, const FrameType& destination) const;
 
     protected:
 
@@ -62,6 +62,6 @@ namespace AtlasFusion {
         std::vector<FrameType> frameTypes_{};
         std::unordered_map<FrameType, rtl::RigidTf3D<double>> frameMap_{};
 
-        const std::unordered_map<FrameType, rtl::RigidTf3D<double>> &GetTree() { return frameMap_; };
+        const std::unordered_map<FrameType, rtl::RigidTf3D<double>>& GetTree() { return frameMap_; };
     };
 }

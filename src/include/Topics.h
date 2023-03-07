@@ -45,29 +45,33 @@ namespace AtlasFusion::Topics {
 
         const std::string kDataLoaderSynchronization = "/atlasfusion/data_loader/synchronization";
 
-        const std::string kCameraLeftFront = "/atlasfusion/cameras/camera_left_front/camera";
-        const std::string kCameraLeftSide = "/atlasfusion/cameras/camera_left_side/camera";
-        const std::string kCameraRightFront = "/atlasfusion/cameras/camera_right_front/camera";
-        const std::string kCameraRightSide = "/atlasfusion/cameras/camera_right_side/camera";
-        const std::string kCameraIr = "/atlasfusion/cameras/camera_ir/camera";
-        const std::string kLidarLeft = "/atlasfusion/lidar_left/points";
-        const std::string kLidarRight = "/atlasfusion/lidar_right/points";
-        const std::string kLidarCenter = "/atlasfusion/lidar_center/points";
-        const std::string kImuDquat = "/atlasfusion/imu/dquat";
-        const std::string kImuGnss = "/atlasfusion/imu/gnss";
-        const std::string kImuImu = "/atlasfusion/imu/imu";
-        const std::string kImuMag = "/atlasfusion/imu/mag";
-        const std::string kImuPressure = "/atlasfusion/imu/pressure";
-        const std::string kImuTemp = "/atlasfusion/imu/temp";
-        const std::string kImuTime = "/atlasfusion/imu/time";
-        const std::string kGnssPosition = "/atlasfusion/gnss/position";
-        const std::string kGnssTime = "/atlasfusion/gnss/time";
-        const std::string kRadarTi = "/atlasfusion/radar_ti";
+        const std::string kCameraLeftFront = "/atlasfusion/data/cameras/camera_left_front/camera";
+        const std::string kCameraLeftSide = "/atlasfusion/data/cameras/camera_left_side/camera";
+        const std::string kCameraRightFront = "/atlasfusion/data/cameras/camera_right_front/camera";
+        const std::string kCameraRightSide = "/atlasfusion/data/cameras/camera_right_side/camera";
+        const std::string kCameraIr = "/atlasfusion/data/cameras/camera_ir/camera";
+        const std::string kLidarLeft = "/atlasfusion/data/lidar_left/points";
+        const std::string kLidarRight = "/atlasfusion/data/lidar_right/points";
+        const std::string kLidarCenter = "/atlasfusion/data/lidar_center/points";
+        const std::string kImuDquat = "/atlasfusion/data/imu/dquat";
+        const std::string kImuGnss = "/atlasfusion/data/imu/gnss";
+        const std::string kImuImu = "/atlasfusion/data/imu/imu";
+        const std::string kImuMag = "/atlasfusion/data/imu/mag";
+        const std::string kImuPressure = "/atlasfusion/data/imu/pressure";
+        const std::string kImuTemp = "/atlasfusion/data/imu/temp";
+        const std::string kImuTime = "/atlasfusion/data/imu/time";
+        const std::string kGnssPosition = "/atlasfusion/data/gnss/position";
+        const std::string kGnssTime = "/atlasfusion/data/gnss/time";
+        const std::string kRadarTi = "/atlasfusion/data/radar_ti";
 
-        /*
+        const std::string kRawTrajectory = "/atlasfusion/local_map/trajectory/raw";
+        const std::string kFilteredTrajectory = "/atlasfusion/local_map/trajectory/filtered";
+        const std::string kImuGpsTrajectory = "/atlasfusion/local_map/trajectory/imu_gps";
+
         const std::string kSelfGlobal = "/atlasfusion/local_map/self/global";
         const std::string kSelfEgo = "/atlasfusion/local_map/self/ego";
 
+        /*
         const std::string kLidarLeft = "/atlasfusion/local_map/lidar_left/points";
         const std::string kLidarRight = "/atlasfusion/local_map/lidar_right/points";
         const std::string kLidarCenter = "/atlasfusion/local_map/lidar_center/points";
@@ -103,10 +107,6 @@ namespace AtlasFusion::Topics {
         const std::string kCameraRightFrontStatusString = "/atlasfusion/local_map/cameras/camera_right_front/string";
         const std::string kCameraRightSideStatusString = "/atlasfusion/local_map/cameras/camera_right_side/string";
         const std::string kCameraIrStatusString = "/atlasfusion/local_map/cameras/camera_ir/string";
-
-        const std::string kRawTrajectory = "/atlasfusion/local_map/trajectory/raw";
-        const std::string kFilteredTrajectory = "/atlasfusion/local_map/trajectory/filtered";
-        const std::string kImuGpsTrajectory = "/atlasfusion/local_map/trajectory/imu_gps";
 
         const std::string kYoloFrustumDetections = "/atlasfusion/local_map/yolo/frustums";
         const std::string kYoloFusedFrustumDetections = "/atlasfusion/local_map/yolo/fused_frustums";
