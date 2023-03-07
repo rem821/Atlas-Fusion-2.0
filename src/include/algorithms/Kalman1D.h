@@ -49,13 +49,13 @@ namespace AtlasFusion::Algorithms {
          * Getter for a position inner state
          * @return modeled position
          */
-        double GetPosition() const;
+        [[nodiscard]] double GetPosition() const;
 
         /**
          * Getter for a velocity inner state
          * @return modeles velocity
          */
-        double GetVelocity() const;
+        [[nodiscard]] double GetVelocity() const;
 
         /**
          * Setter for a modeled position
@@ -79,8 +79,8 @@ namespace AtlasFusion::Algorithms {
 
         static void PrintMatrix(cv::Mat mat, std::string name);
         static cv::Mat GetTransitionMatrix(double dt);  // Matrix A
-        static cv::Mat GetControlMatrix(double dt) ;    // Matrix B
-        static cv::Mat GetMeasurementMatrix() ;         // Matrix H
+        static cv::Mat GetControlMatrix(double dt);     // Matrix B
+        static cv::Mat GetMeasurementMatrix();          // Matrix H
         static cv::Mat GetCovarianceObservationNoiseMatrix(double cov);     // Matrix R
         static cv::Mat GetCovarianceProcessNoiseMatrix(double sigma, double dt);    // Matrix Q
     };

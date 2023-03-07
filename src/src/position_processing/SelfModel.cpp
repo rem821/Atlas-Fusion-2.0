@@ -197,7 +197,6 @@ namespace AtlasFusion::LocalMap {
 
         for (const DataModels::LocalPosition& pos: positionHistory_) {
             auto p = pos.GetPosition();
-            LOG_INFO("trajectory point: {} {} {}", p.x(), p.y(), p.z());
 
             geometry_msgs::msg::Point point;
             point.x = p.x();
@@ -331,7 +330,7 @@ namespace AtlasFusion::LocalMap {
     rtl::Vector3D<double> SelfModel::RemoveGravitationalForceFromLinAcc(const atlas_fusion_interfaces::msg::ImuImuData::UniquePtr& data) const {
         auto orientation = rtl::Quaternion<double>{data->orientation.w, data->orientation.x, data->orientation.y, data->orientation.z};
         auto acc = rtl::Vector3d{data->lin_acc.x, data->lin_acc.y, data->lin_acc.z};
-        auto tf = rtl::RigidTf3D<double>{orientation_, {0, 0, 0}};
+        auto tf = rtl::RigidTf3D<double>{orientation, {0, 0, 0}};
         auto grav = tf.inverted()(rtl::Vector3D<double>{0.0, 0.0, 9.81});
         rtl::Vector3D<double> diff = acc - grav;
         return diff;

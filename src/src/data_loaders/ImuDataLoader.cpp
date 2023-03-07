@@ -187,9 +187,9 @@ namespace AtlasFusion::DataLoader {
                 atlas_fusion_interfaces::msg::ImuDquatData data;
                 data.timestamp = std::stoll(substrings[0]);
                 data.quaternion.x = std::stod(substrings[1]);
-                data.quaternion.x = std::stod(substrings[2]);
-                data.quaternion.x = std::stod(substrings[3]);
-                data.quaternion.x = std::stod(substrings[4]);
+                data.quaternion.y = std::stod(substrings[2]);
+                data.quaternion.z = std::stod(substrings[3]);
+                data.quaternion.w = std::stod(substrings[4]);
 
                 kDQuatData_.emplace_back(std::make_unique<atlas_fusion_interfaces::msg::ImuDquatData>(data));
             } else {
