@@ -52,15 +52,15 @@ namespace AtlasFusion::DataLoader {
         RadarDataLoader(const std::string& name, const std::string& topic, const rclcpp::NodeOptions& options);
 
     private:
-        void onDataLoaderTimer();
+        void OnDataLoaderTimer();
 
-        void onSynchronizationTimestamp(const std_msgs::msg::UInt64& msg);
+        void OnSynchronizationTimestamp(const std_msgs::msg::UInt64& msg);
 
-        void initialize();
+        void Initialize();
 
-        bool isOnEnd() const;
+        bool IsOnEnd() const;
 
-        void clear();
+        void Clear();
 
         rclcpp::TimerBase::SharedPtr timer_;
         rclcpp::Publisher<atlas_fusion_interfaces::msg::RadarData>::SharedPtr publisher_;

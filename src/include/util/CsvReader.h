@@ -23,8 +23,8 @@
 
 namespace AtlasFusion::DataLoader::CsvReader {
 
-    std::vector <std::vector<std::string>> readCsv(const std::string &&path);
+    std::vector <std::vector<std::string>> ReadCsv(const std::string &&path);
 
-    std::vector <std::string> split(const std::string &s, char delimiter);
+    std::vector <std::string> Split(const std::string &s, char delimiter);
 }
 

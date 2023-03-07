@@ -21,7 +21,6 @@
  */
 
 #include "data_loaders/GnssDataLoader.h"
-#include <EntryPoint.h>
 
 namespace AtlasFusion::DataLoader {
 
@@ -36,18 +35,18 @@ namespace AtlasFusion::DataLoader {
         timestampSubscription_ = create_subscription<std_msgs::msg::UInt64>(
                 Topics::kDataLoaderSynchronization,
                 1,
-                std::bind(&GnssDataLoader::onSynchronizationTimestamp, this, std::placeholders::_1)
+                std::bind(&GnssDataLoader::OnSynchronizationTimestamp, this, std::placeholders::_1)
         );
 
         // Timer to control the polling frequency for publishing
         using namespace std::chrono_literals;
-        timer_ = create_wall_timer(10ms, [this] { onDataLoaderTimer(); });
+        timer_ = create_wall_timer(10ms, [this] { OnDataLoaderTimer(); });
 
         // Init gnss additional data
-        initialize();
+        Initialize();
     }
 
-    void GnssDataLoader::onDataLoaderTimer() {
+    void GnssDataLoader::OnDataLoaderTimer() {
         // Position
         if (positionDataFrame_ != nullptr && latestPositionTimestampPublished_ <= synchronizationTimestamp_) {
             latestPositionTimestampPublished_ = positionDataFrame_->timestamp;
@@ -80,18 +79,18 @@ namespace AtlasFusion::DataLoader {
         }
     }
 
-    void GnssDataLoader::onSynchronizationTimestamp(const std_msgs::msg::UInt64& msg) {
+    void GnssDataLoader::OnSynchronizationTimestamp(const std_msgs::msg::UInt64& msg) {
         synchronizationTimestamp_ = msg.data;
     }
 
-    void GnssDataLoader::initialize() {
-        loadGnssPositionData();
-        loadGnssTimeData();
+    void GnssDataLoader::Initialize() {
+        LoadGnssPositionData();
+        LoadGnssTimeData();
     }
 
-    void GnssDataLoader::loadGnssPositionData() {
+    void GnssDataLoader::LoadGnssPositionData() {
         std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
-        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kGnssFolder + Files::kPoseFile);
+        auto csvContent = CsvReader::ReadCsv(datasetPath + Folders::kGnssFolder + Files::kPoseFile);
         for (const auto& substrings: csvContent) {
             if (substrings.size() == 5) {
                 atlas_fusion_interfaces::msg::GnssPositionData data;
@@ -109,9 +108,9 @@ namespace AtlasFusion::DataLoader {
         }
     }
 
-    void GnssDataLoader::loadGnssTimeData() {
+    void GnssDataLoader::LoadGnssTimeData() {
         std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
-        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kGnssFolder + Files::kTimeFile);
+        auto csvContent = CsvReader::ReadCsv(datasetPath + Folders::kGnssFolder + Files::kTimeFile);
         for (const auto& substrings: csvContent) {
             if (substrings.size() == 8) {
                 atlas_fusion_interfaces::msg::GnssTimeData data;

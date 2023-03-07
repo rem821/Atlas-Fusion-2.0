@@ -30,7 +30,7 @@ namespace AtlasFusion::LocalMap {
         LidarAggregator(const std::string& name, const std::string &topic, const rclcpp::NodeOptions &options);
 
     private:
-        void onLidarData(atlas_fusion_interfaces::msg::LidarData::UniquePtr msg);
+        void OnLidarData(atlas_fusion_interfaces::msg::LidarData::UniquePtr msg);
 
 
         std::map<DataLoader::LidarIdentifier, rclcpp::Subscription<atlas_fusion_interfaces::msg::LidarData>::SharedPtr> lidarSubscribers_;

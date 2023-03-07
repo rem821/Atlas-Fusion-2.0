@@ -23,7 +23,7 @@
 #include "util/CsvReader.h"
 
 namespace AtlasFusion::DataLoader::CsvReader {
-    std::vector <std::vector<std::string>> readCsv(const std::string &&path) {
+    std::vector <std::vector<std::string>> ReadCsv(const std::string &&path) {
         std::vector <std::vector<std::string>> output;
 
         std::ifstream file;
@@ -31,7 +31,7 @@ namespace AtlasFusion::DataLoader::CsvReader {
         if (file.is_open()) {
             std::string line;
             while (std::getline(file, line)) {
-                output.push_back(split(line, ','));
+                output.push_back(Split(line, ','));
             }
         } else {
             std::cerr << "Unable to open data file: " << path << std::endl;
@@ -40,7 +40,7 @@ namespace AtlasFusion::DataLoader::CsvReader {
         return output;
     }
 
-    std::vector <std::string> split(const std::string &s, char delimiter) {
+    std::vector <std::string> Split(const std::string &s, char delimiter) {
         std::vector <std::string> tokens;
         std::string token;
         std::istringstream tokenStream(s);

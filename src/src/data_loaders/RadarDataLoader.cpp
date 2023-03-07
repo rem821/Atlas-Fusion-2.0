@@ -21,7 +21,6 @@
  */
 
 #include "data_loaders/RadarDataLoader.h"
-#include <EntryPoint.h>
 
 namespace AtlasFusion::DataLoader {
 
@@ -35,18 +34,18 @@ namespace AtlasFusion::DataLoader {
         timestampSubscription_ = create_subscription<std_msgs::msg::UInt64>(
                 Topics::kDataLoaderSynchronization,
                 1,
-                std::bind(&RadarDataLoader::onSynchronizationTimestamp, this, std::placeholders::_1)
+                std::bind(&RadarDataLoader::OnSynchronizationTimestamp, this, std::placeholders::_1)
         );
 
         // Timer to control the polling frequency for publishing
         using namespace std::chrono_literals;
-        timer_ = create_wall_timer(10ms, [this] { onDataLoaderTimer(); });
+        timer_ = create_wall_timer(10ms, [this] { OnDataLoaderTimer(); });
 
         // Init radar additional data
-        initialize();
+        Initialize();
     }
 
-    void RadarDataLoader::onDataLoaderTimer() {
+    void RadarDataLoader::OnDataLoaderTimer() {
         if (dataFrame_ != nullptr && latestTimestampPublished_ <= synchronizationTimestamp_) {
             latestTimestampPublished_ = dataFrame_->timestamp;
 
@@ -55,7 +54,7 @@ namespace AtlasFusion::DataLoader {
             publisher_->publish(std::move(dataFrame_));
         }
 
-        if (!isOnEnd() && dataFrame_ == nullptr) {
+        if (!IsOnEnd() && dataFrame_ == nullptr) {
             std::vector<atlas_fusion_interfaces::msg::RadarDetection> detections;
             for (auto& det: dataIt_->radarDetections_) {
                 geometry_msgs::msg::Point32 point;
@@ -79,13 +78,13 @@ namespace AtlasFusion::DataLoader {
         }
     }
 
-    void RadarDataLoader::onSynchronizationTimestamp(const std_msgs::msg::UInt64& msg) {
+    void RadarDataLoader::OnSynchronizationTimestamp(const std_msgs::msg::UInt64& msg) {
         synchronizationTimestamp_ = msg.data;
     }
 
-    void RadarDataLoader::initialize() {
+    void RadarDataLoader::Initialize() {
         std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
-        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kRadarTi + Files::kRadarTiScan);
+        auto csvContent = CsvReader::ReadCsv(datasetPath + Folders::kRadarTi + Files::kRadarTiScan);
         for (const auto& substrings: csvContent) {
             if (substrings.size() >= 2) {
 
@@ -108,11 +107,11 @@ namespace AtlasFusion::DataLoader {
         releaseIt_ = dataIt_;
     }
 
-    bool RadarDataLoader::isOnEnd() const {
+    bool RadarDataLoader::IsOnEnd() const {
         return dataIt_ >= data_.end();
     }
 
-    void RadarDataLoader::clear() {
+    void RadarDataLoader::Clear() {
         data_.clear();
         dataIt_ = data_.begin();
     }

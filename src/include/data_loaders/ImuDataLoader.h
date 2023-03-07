@@ -31,27 +31,27 @@ namespace AtlasFusion::DataLoader {
         ImuDataLoader(const std::string& name, const rclcpp::NodeOptions& options);
 
     private:
-        void onDataLoaderTimer();
+        void OnDataLoaderTimer();
 
-        void onSynchronizationTimestamp(const std_msgs::msg::UInt64& msg);
+        void OnSynchronizationTimestamp(const std_msgs::msg::UInt64& msg);
 
-        void initialize();
+        void Initialize();
 
-        void loadImuDquatData();
+        void LoadImuDquatData();
 
-        void loadImuGnssData();
+        void LoadImuGnssData();
 
-        void loadImuImuData();
+        void LoadImuImuData();
 
-        void loadImuMagData();
+        void LoadImuMagData();
 
-        void loadImuPressureData();
+        void LoadImuPressureData();
 
-        void loadImuTempData();
+        void LoadImuTempData();
 
-        void loadImuTimeData();
+        void LoadImuTimeData();
 
-        void clear();
+        void Clear();
 
         rclcpp::TimerBase::SharedPtr timer_;
         rclcpp::Publisher<atlas_fusion_interfaces::msg::ImuDquatData>::SharedPtr kDQuatPublisher_;

@@ -55,19 +55,19 @@ namespace AtlasFusion::DataLoader {
                          const rclcpp::NodeOptions &options);
 
     private:
-        void onDataLoaderTimer();
+        void OnDataLoaderTimer();
 
-        void onSynchronizationTimestamp(const std_msgs::msg::UInt64 &msg);
+        void OnSynchronizationTimestamp(const std_msgs::msg::UInt64 &msg);
 
-        void initialize();
+        void Initialize();
 
-        bool isOnEnd() const;
+        bool IsOnEnd() const;
 
-        void clear();
+        void Clear();
 
-        void loadYoloDetections(const std::string &path);
+        void LoadYoloDetections(const std::string &path);
 
-        static sensor_msgs::msg::Image toCameraMsg(const cv::Mat &img,
+        static sensor_msgs::msg::Image ToCameraMsg(const cv::Mat &img,
                                                    const std_msgs::msg::Header &header,
                                                    const std::string &encoding);
 

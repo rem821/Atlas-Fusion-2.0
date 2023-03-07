@@ -21,7 +21,6 @@
  */
 
 #include "data_loaders/ImuDataLoader.h"
-#include <EntryPoint.h>
 
 namespace AtlasFusion::DataLoader {
 
@@ -42,18 +41,18 @@ namespace AtlasFusion::DataLoader {
         timestampSubscription_ = create_subscription<std_msgs::msg::UInt64>(
                 Topics::kDataLoaderSynchronization,
                 1,
-                std::bind(&ImuDataLoader::onSynchronizationTimestamp, this, std::placeholders::_1)
+                std::bind(&ImuDataLoader::OnSynchronizationTimestamp, this, std::placeholders::_1)
         );
 
         // Timer to control the polling frequency for publishing
         using namespace std::chrono_literals;
-        timer_ = create_wall_timer(10ms, [this] { onDataLoaderTimer(); });
+        timer_ = create_wall_timer(10ms, [this] { OnDataLoaderTimer(); });
 
         // Init imu additional data
-        initialize();
+        Initialize();
     }
 
-    void ImuDataLoader::onDataLoaderTimer() {
+    void ImuDataLoader::OnDataLoaderTimer() {
         // DQuat
         if (kDQuatDataFrame_ != nullptr && latestDQuatTimestampPublished_ <= synchronizationTimestamp_) {
             latestDQuatTimestampPublished_ = kDQuatDataFrame_->timestamp;
@@ -166,23 +165,23 @@ namespace AtlasFusion::DataLoader {
         }
     }
 
-    void ImuDataLoader::onSynchronizationTimestamp(const std_msgs::msg::UInt64& msg) {
+    void ImuDataLoader::OnSynchronizationTimestamp(const std_msgs::msg::UInt64& msg) {
         synchronizationTimestamp_ = msg.data;
     }
 
-    void ImuDataLoader::initialize() {
-        loadImuDquatData();
-        loadImuGnssData();
-        loadImuImuData();
-        loadImuMagData();
-        loadImuPressureData();
-        loadImuTempData();
-        loadImuTimeData();
+    void ImuDataLoader::Initialize() {
+        LoadImuDquatData();
+        LoadImuGnssData();
+        LoadImuImuData();
+        LoadImuMagData();
+        LoadImuPressureData();
+        LoadImuTempData();
+        LoadImuTimeData();
     }
 
-    void ImuDataLoader::loadImuDquatData() {
+    void ImuDataLoader::LoadImuDquatData() {
         std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
-        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kImuFolder + Files::kDquatFile);
+        auto csvContent = CsvReader::ReadCsv(datasetPath + Folders::kImuFolder + Files::kDquatFile);
         for (const auto& substrings: csvContent) {
             if (substrings.size() == 5) {
                 atlas_fusion_interfaces::msg::ImuDquatData data;
@@ -200,9 +199,9 @@ namespace AtlasFusion::DataLoader {
         kDQuatDataIt_ = kDQuatData_.begin();
     }
 
-    void ImuDataLoader::loadImuGnssData() {
+    void ImuDataLoader::LoadImuGnssData() {
         std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
-        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kImuFolder + Files::kGnssFile);
+        auto csvContent = CsvReader::ReadCsv(datasetPath + Folders::kImuFolder + Files::kGnssFile);
         for (const auto& substrings: csvContent) {
             if (substrings.size() == 4) {
                 atlas_fusion_interfaces::msg::ImuGnssData data;
@@ -219,9 +218,9 @@ namespace AtlasFusion::DataLoader {
         kGnssDataIt_ = kGnssData_.begin();
     }
 
-    void ImuDataLoader::loadImuImuData() {
+    void ImuDataLoader::LoadImuImuData() {
         std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
-        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kImuFolder + Files::kImuFile);
+        auto csvContent = CsvReader::ReadCsv(datasetPath + Folders::kImuFolder + Files::kImuFile);
         for (const auto& substrings: csvContent) {
             if (substrings.size() == 11) {
                 atlas_fusion_interfaces::msg::ImuImuData data;
@@ -244,9 +243,9 @@ namespace AtlasFusion::DataLoader {
         kImuDataIt_ = kImuData_.begin();
     }
 
-    void ImuDataLoader::loadImuMagData() {
+    void ImuDataLoader::LoadImuMagData() {
         std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
-        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kImuFolder + Files::kMagFile);
+        auto csvContent = CsvReader::ReadCsv(datasetPath + Folders::kImuFolder + Files::kMagFile);
         for (const auto& substrings: csvContent) {
             if (substrings.size() == 4) {
                 atlas_fusion_interfaces::msg::ImuMagData data;
@@ -263,9 +262,9 @@ namespace AtlasFusion::DataLoader {
         kMagDataIt_ = kMagData_.begin();
     }
 
-    void ImuDataLoader::loadImuPressureData() {
+    void ImuDataLoader::LoadImuPressureData() {
         std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
-        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kImuFolder + Files::kPressureFile);
+        auto csvContent = CsvReader::ReadCsv(datasetPath + Folders::kImuFolder + Files::kPressureFile);
         for (const auto& substrings: csvContent) {
             if (substrings.size() == 2) {
                 atlas_fusion_interfaces::msg::ImuPressureData data;
@@ -280,9 +279,9 @@ namespace AtlasFusion::DataLoader {
         kPressureDataIt_ = kPressureData_.begin();
     }
 
-    void ImuDataLoader::loadImuTempData() {
+    void ImuDataLoader::LoadImuTempData() {
         std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
-        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kImuFolder + Files::kTempFile);
+        auto csvContent = CsvReader::ReadCsv(datasetPath + Folders::kImuFolder + Files::kTempFile);
         for (const auto& substrings: csvContent) {
             if (substrings.size() == 2) {
                 atlas_fusion_interfaces::msg::ImuTempData data;
@@ -297,9 +296,9 @@ namespace AtlasFusion::DataLoader {
         kTempDataIt_ = kTempData_.begin();
     }
 
-    void ImuDataLoader::loadImuTimeData() {
+    void ImuDataLoader::LoadImuTimeData() {
         std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
-        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kImuFolder + Files::kTimeFile);
+        auto csvContent = CsvReader::ReadCsv(datasetPath + Folders::kImuFolder + Files::kTimeFile);
         for (const auto& substrings: csvContent) {
             if (substrings.size() == 8) {
                 atlas_fusion_interfaces::msg::ImuTimeData data;
@@ -321,7 +320,7 @@ namespace AtlasFusion::DataLoader {
     }
 
 
-    void ImuDataLoader::clear() {
+    void ImuDataLoader::Clear() {
         kDQuatData_.clear();
         kDQuatDataIt_ = kDQuatData_.begin();
 

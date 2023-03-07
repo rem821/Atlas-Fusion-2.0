@@ -21,7 +21,6 @@
  */
 
 #include "data_loaders/LidarDataLoader.h"
-#include <EntryPoint.h>
 
 namespace AtlasFusion::DataLoader {
 
@@ -35,18 +34,18 @@ namespace AtlasFusion::DataLoader {
         timestampSubscription_ = create_subscription<std_msgs::msg::UInt64>(
                 Topics::kDataLoaderSynchronization,
                 1,
-                std::bind(&LidarDataLoader::onSynchronizationTimestamp, this, std::placeholders::_1)
+                std::bind(&LidarDataLoader::OnSynchronizationTimestamp, this, std::placeholders::_1)
         );
 
         // Timer to control the polling frequency for publishing
         using namespace std::chrono_literals;
-        timer_ = create_wall_timer(10ms, [this] { onDataLoaderTimer(); });
+        timer_ = create_wall_timer(10ms, [this] { OnDataLoaderTimer(); });
 
         // Init lidar additional data
-        initialize();
+        Initialize();
     }
 
-    void LidarDataLoader::onDataLoaderTimer() {
+    void LidarDataLoader::OnDataLoaderTimer() {
         if (dataFrame_ != nullptr && latestTimestampPublished_ <= synchronizationTimestamp_) {
             latestTimestampPublished_ = dataFrame_->timestamp;
 
@@ -55,7 +54,7 @@ namespace AtlasFusion::DataLoader {
             publisher_->publish(std::move(dataFrame_));
         }
 
-        if (!isOnEnd() && dataFrame_ == nullptr) {
+        if (!IsOnEnd() && dataFrame_ == nullptr) {
             pcl::PointCloud<pcl::PointXYZ>::Ptr scan(new pcl::PointCloud<pcl::PointXYZ>);
             if (pcl::io::loadPCDFile<pcl::PointXYZ>(dataIt_->pointCloudPath_, *scan) == -1) {
                 throw std::runtime_error(fmt::format("Could not open pcd file: {}", dataIt_->pointCloudPath_));
@@ -75,11 +74,11 @@ namespace AtlasFusion::DataLoader {
         }
     }
 
-    void LidarDataLoader::onSynchronizationTimestamp(const std_msgs::msg::UInt64& msg) {
+    void LidarDataLoader::OnSynchronizationTimestamp(const std_msgs::msg::UInt64& msg) {
         synchronizationTimestamp_ = msg.data;
     }
 
-    void LidarDataLoader::initialize() {
+    void LidarDataLoader::Initialize() {
         std::string folder;
         switch (lidarIdentifier_) {
             case LidarIdentifier::kLeftLidar:
@@ -94,7 +93,7 @@ namespace AtlasFusion::DataLoader {
         }
 
         std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
-        auto csvContent = CsvReader::readCsv(datasetPath + folder + Files::kTimestampFile);
+        auto csvContent = CsvReader::ReadCsv(datasetPath + folder + Files::kTimestampFile);
         for (const auto& substrings: csvContent) {
             size_t timestamp = 0;
             size_t scan_no = 0;
@@ -121,11 +120,11 @@ namespace AtlasFusion::DataLoader {
         releaseIt_ = dataIt_;
     }
 
-    bool LidarDataLoader::isOnEnd() const {
+    bool LidarDataLoader::IsOnEnd() const {
         return dataIt_ >= data_.end();
     }
 
-    void LidarDataLoader::clear() {
+    void LidarDataLoader::Clear() {
         data_.clear();
         dataIt_ = data_.begin();
     }

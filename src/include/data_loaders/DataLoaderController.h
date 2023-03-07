@@ -33,30 +33,30 @@ namespace AtlasFusion::DataLoader {
         DataLoaderController(const std::string &name, const uint8_t noDataLoaders, const rclcpp::NodeOptions &options);
 
     private:
-        void onDataLoaderControllerTimer();
+        void OnDataLoaderControllerTimer();
 
-        void onCameraData(atlas_fusion_interfaces::msg::CameraData::UniquePtr msg);
+        void OnCameraData(atlas_fusion_interfaces::msg::CameraData::UniquePtr msg);
 
-        void onLidarData(atlas_fusion_interfaces::msg::LidarData::UniquePtr msg);
+        void OnLidarData(atlas_fusion_interfaces::msg::LidarData::UniquePtr msg);
 
-        void onImuDquatData(atlas_fusion_interfaces::msg::ImuDquatData::UniquePtr msg);
-        void onImuGnssData(atlas_fusion_interfaces::msg::ImuGnssData::UniquePtr msg);
-        void onImuImuData(atlas_fusion_interfaces::msg::ImuImuData::UniquePtr msg);
-        void onImuMagData(atlas_fusion_interfaces::msg::ImuMagData::UniquePtr msg);
-        void onImuPressureData(atlas_fusion_interfaces::msg::ImuPressureData::UniquePtr msg);
-        void onImuTempData(atlas_fusion_interfaces::msg::ImuTempData::UniquePtr msg);
-        void onImuTimeData(atlas_fusion_interfaces::msg::ImuTimeData::UniquePtr msg);
+        void OnImuDquatData(atlas_fusion_interfaces::msg::ImuDquatData::UniquePtr msg);
+        void OnImuGnssData(atlas_fusion_interfaces::msg::ImuGnssData::UniquePtr msg);
+        void OnImuImuData(atlas_fusion_interfaces::msg::ImuImuData::UniquePtr msg);
+        void OnImuMagData(atlas_fusion_interfaces::msg::ImuMagData::UniquePtr msg);
+        void OnImuPressureData(atlas_fusion_interfaces::msg::ImuPressureData::UniquePtr msg);
+        void OnImuTempData(atlas_fusion_interfaces::msg::ImuTempData::UniquePtr msg);
+        void OnImuTimeData(atlas_fusion_interfaces::msg::ImuTimeData::UniquePtr msg);
 
-        void onGnssPositionData(atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr msg);
-        void onGnssTimeData(atlas_fusion_interfaces::msg::GnssTimeData::UniquePtr msg);
+        void OnGnssPositionData(atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr msg);
+        void OnGnssTimeData(atlas_fusion_interfaces::msg::GnssTimeData::UniquePtr msg);
 
-        void onRadarData(atlas_fusion_interfaces::msg::RadarData::UniquePtr msg);
+        void OnRadarData(atlas_fusion_interfaces::msg::RadarData::UniquePtr msg);
 
-        void initializeSubscribers();
-        void initializePublishers();
+        void InitializeSubscribers();
+        void InitializePublishers();
 
-        static uint64_t getDataTimestamp(const std::pair<DataIdentifier, DataMsg> &d);
-        void retransmitMsg(const std::pair<DataIdentifier, DataMsg> &d);
+        static uint64_t GetDataTimestamp(const std::pair<DataIdentifier, DataMsg> &d);
+        void RetransmitMsg(const std::pair<DataIdentifier, DataMsg> &d);
 
         std::string datasetPath_;
         uint8_t noDataLoaders_;        // Keep this size the same as number of dataloaders

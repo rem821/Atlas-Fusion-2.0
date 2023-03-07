@@ -34,28 +34,31 @@ namespace AtlasFusion::LocalMap {
         lidarSubscribers_[DataLoader::LidarIdentifier::kLeftLidar] = create_subscription<atlas_fusion_interfaces::msg::LidarData>(
                 Topics::kLidarLeft,
                 1,
-                std::bind(&LidarAggregator::onLidarData, this, std::placeholders::_1)
+                std::bind(&LidarAggregator::OnLidarData, this, std::placeholders::_1)
         );
 
         lidarSubscribers_[DataLoader::LidarIdentifier::kCenterLidar] = create_subscription<atlas_fusion_interfaces::msg::LidarData>(
                 Topics::kLidarCenter,
                 1,
-                std::bind(&LidarAggregator::onLidarData, this, std::placeholders::_1)
+                std::bind(&LidarAggregator::OnLidarData, this, std::placeholders::_1)
         );
 
         lidarSubscribers_[DataLoader::LidarIdentifier::kRightLidar] = create_subscription<atlas_fusion_interfaces::msg::LidarData>(
                 Topics::kLidarRight,
                 1,
-                std::bind(&LidarAggregator::onLidarData, this, std::placeholders::_1)
+                std::bind(&LidarAggregator::OnLidarData, this, std::placeholders::_1)
         );
     }
 
-    void LidarAggregator::onLidarData(atlas_fusion_interfaces::msg::LidarData::UniquePtr msg) {
+    void LidarAggregator::OnLidarData(atlas_fusion_interfaces::msg::LidarData::UniquePtr msg) {
         LOG_INFO("LidarAggregator: Lidar data of frame {} arrived: ({}, {})", msg->lidar_identifier, this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
 
         auto lidarID = static_cast<DataLoader::LidarIdentifier>(msg->lidar_identifier);
+        const auto sensorFrame = FrameTypeFromIdentifier(lidarID);
+
+        auto lidarTF = EntryPoint::GetContext().GetTransformationForFrame(sensorFrame);
 
         //dataCache_.emplace_back(id, std::move(msg));
-        //onDataLoaderControllerTimer();
+        //OnDataLoaderControllerTimer();
     }
 }

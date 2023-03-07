@@ -27,31 +27,31 @@ namespace AtlasFusion::DataLoader {
     DataLoaderController::DataLoaderController(const std::string& name, const uint8_t noDataLoaders, const rclcpp::NodeOptions& options)
             : Node(name, options), noDataLoaders_(noDataLoaders), latestTimestampPublished_(0) {
 
-        initializePublishers();
-        initializeSubscribers();
+        InitializePublishers();
+        InitializeSubscribers();
     }
 
-    void DataLoaderController::onDataLoaderControllerTimer() {
+    void DataLoaderController::OnDataLoaderControllerTimer() {
         if (dataCache_.size() < noDataLoaders_) return;
 
         // Find the index of the earliest msg in cache
         auto min = std::min_element(
                 std::begin(dataCache_), std::end(dataCache_),
                 [](const auto& l, const auto& r) {
-                    return getDataTimestamp(l) < getDataTimestamp(r);
+                    return GetDataTimestamp(l) < GetDataTimestamp(r);
                 }
         );
         auto max = std::max_element(
                 std::begin(dataCache_), std::end(dataCache_),
                 [](const auto& l, const auto& r) {
-                    return getDataTimestamp(l) < getDataTimestamp(r);
+                    return GetDataTimestamp(l) < GetDataTimestamp(r);
                 }
         );
-        LOG_TRACE("DataLoader cache extent: {}ms", (getDataTimestamp(*max) - getDataTimestamp(*min)) / 1000000);
-        retransmitMsg(*min);
+        LOG_TRACE("DataLoader cache extent: {}ms", (GetDataTimestamp(*max) - GetDataTimestamp(*min)) / 1000000);
+        RetransmitMsg(*min);
 
         std_msgs::msg::UInt64 m;
-        m.data = getDataTimestamp(*min);
+        m.data = GetDataTimestamp(*min);
 
         LOG_TRACE("Publishing synchronization timestamp: {}", m.data);
         publisher_->publish(m);
@@ -65,207 +65,207 @@ namespace AtlasFusion::DataLoader {
 
     }
 
-    void DataLoaderController::onCameraData(atlas_fusion_interfaces::msg::CameraData::UniquePtr msg) {
+    void DataLoaderController::OnCameraData(atlas_fusion_interfaces::msg::CameraData::UniquePtr msg) {
         LOG_TRACE("DataLoaderController: Camera data of frame {} arrived: ({}, {})", msg->camera_identifier, this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
 
         auto id = static_cast<CameraIdentifier>(msg->camera_identifier);
 
         dataCache_.emplace_back(id, std::move(msg));
-        onDataLoaderControllerTimer();
+        OnDataLoaderControllerTimer();
     }
 
-    void DataLoaderController::onLidarData(atlas_fusion_interfaces::msg::LidarData::UniquePtr msg) {
+    void DataLoaderController::OnLidarData(atlas_fusion_interfaces::msg::LidarData::UniquePtr msg) {
         LOG_TRACE("DataLoaderController: Lidar data of frame {} arrived: ({}, {})", msg->lidar_identifier, this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
 
         auto id = static_cast<LidarIdentifier>(msg->lidar_identifier);
 
         dataCache_.emplace_back(id, std::move(msg));
-        onDataLoaderControllerTimer();
+        OnDataLoaderControllerTimer();
     }
 
-    void DataLoaderController::onImuDquatData(atlas_fusion_interfaces::msg::ImuDquatData::UniquePtr msg) {
+    void DataLoaderController::OnImuDquatData(atlas_fusion_interfaces::msg::ImuDquatData::UniquePtr msg) {
         LOG_TRACE("DataLoaderController: IMU DQuat data arrived: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
 
         dataCache_.emplace_back(ImuLoaderIdentifier::kDQuat, std::move(msg));
-        onDataLoaderControllerTimer();
+        OnDataLoaderControllerTimer();
     }
 
-    void DataLoaderController::onImuGnssData(atlas_fusion_interfaces::msg::ImuGnssData::UniquePtr msg) {
+    void DataLoaderController::OnImuGnssData(atlas_fusion_interfaces::msg::ImuGnssData::UniquePtr msg) {
         LOG_TRACE("DataLoaderController: IMU GNSS data arrived: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
 
         dataCache_.emplace_back(ImuLoaderIdentifier::kGnss, std::move(msg));
-        onDataLoaderControllerTimer();
+        OnDataLoaderControllerTimer();
     }
 
-    void DataLoaderController::onImuImuData(atlas_fusion_interfaces::msg::ImuImuData::UniquePtr msg) {
+    void DataLoaderController::OnImuImuData(atlas_fusion_interfaces::msg::ImuImuData::UniquePtr msg) {
         LOG_TRACE("DataLoaderController: IMU IMU data arrived: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
 
         dataCache_.emplace_back(ImuLoaderIdentifier::kImu, std::move(msg));
-        onDataLoaderControllerTimer();
+        OnDataLoaderControllerTimer();
     }
 
-    void DataLoaderController::onImuMagData(atlas_fusion_interfaces::msg::ImuMagData::UniquePtr msg) {
+    void DataLoaderController::OnImuMagData(atlas_fusion_interfaces::msg::ImuMagData::UniquePtr msg) {
         LOG_TRACE("DataLoaderController: IMU Mag data arrived: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
 
         dataCache_.emplace_back(ImuLoaderIdentifier::kMag, std::move(msg));
-        onDataLoaderControllerTimer();
+        OnDataLoaderControllerTimer();
     }
 
-    void DataLoaderController::onImuPressureData(atlas_fusion_interfaces::msg::ImuPressureData::UniquePtr msg) {
+    void DataLoaderController::OnImuPressureData(atlas_fusion_interfaces::msg::ImuPressureData::UniquePtr msg) {
         LOG_TRACE("DataLoaderController: IMU Pressure data arrived: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
 
         dataCache_.emplace_back(ImuLoaderIdentifier::kPressure, std::move(msg));
-        onDataLoaderControllerTimer();
+        OnDataLoaderControllerTimer();
     }
 
-    void DataLoaderController::onImuTempData(atlas_fusion_interfaces::msg::ImuTempData::UniquePtr msg) {
+    void DataLoaderController::OnImuTempData(atlas_fusion_interfaces::msg::ImuTempData::UniquePtr msg) {
         LOG_TRACE("DataLoaderController: IMU Temp data arrived: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
 
         dataCache_.emplace_back(ImuLoaderIdentifier::kTemp, std::move(msg));
-        onDataLoaderControllerTimer();
+        OnDataLoaderControllerTimer();
     }
 
-    void DataLoaderController::onImuTimeData(atlas_fusion_interfaces::msg::ImuTimeData::UniquePtr msg) {
+    void DataLoaderController::OnImuTimeData(atlas_fusion_interfaces::msg::ImuTimeData::UniquePtr msg) {
         LOG_TRACE("DataLoaderController: IMU Time data arrived: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
 
         dataCache_.emplace_back(ImuLoaderIdentifier::kTime, std::move(msg));
-        onDataLoaderControllerTimer();
+        OnDataLoaderControllerTimer();
     }
 
-    void DataLoaderController::onGnssPositionData(atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr msg) {
+    void DataLoaderController::OnGnssPositionData(atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr msg) {
         LOG_TRACE("DataLoaderController: GNSS Pos data arrived: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
 
         dataCache_.emplace_back(GnssLoaderIdentifier::kPose, std::move(msg));
-        onDataLoaderControllerTimer();
+        OnDataLoaderControllerTimer();
     }
 
-    void DataLoaderController::onGnssTimeData(atlas_fusion_interfaces::msg::GnssTimeData::UniquePtr msg) {
+    void DataLoaderController::OnGnssTimeData(atlas_fusion_interfaces::msg::GnssTimeData::UniquePtr msg) {
         LOG_TRACE("DataLoaderController: GNSS Time data arrived: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
 
         dataCache_.emplace_back(GnssLoaderIdentifier::kTime, std::move(msg));
-        onDataLoaderControllerTimer();
+        OnDataLoaderControllerTimer();
     }
 
-    void DataLoaderController::onRadarData(atlas_fusion_interfaces::msg::RadarData::UniquePtr msg) {
+    void DataLoaderController::OnRadarData(atlas_fusion_interfaces::msg::RadarData::UniquePtr msg) {
         LOG_TRACE("DataLoaderController: Radar data arrived: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
 
         dataCache_.emplace_back(RadarIdentifier::kRadarTi, std::move(msg));
-        onDataLoaderControllerTimer();
+        OnDataLoaderControllerTimer();
     }
 
-    void DataLoaderController::initializeSubscribers() {
+    void DataLoaderController::InitializeSubscribers() {
         cameraSubscribers_[CameraIdentifier::kCameraLeftSide] = create_subscription<atlas_fusion_interfaces::msg::CameraData>(
                 Topics::kCameraLeftSideDataLoader,
                 1,
-                std::bind(&DataLoaderController::onCameraData, this, std::placeholders::_1)
+                std::bind(&DataLoaderController::OnCameraData, this, std::placeholders::_1)
         );
 
         cameraSubscribers_[CameraIdentifier::kCameraLeftFront] = create_subscription<atlas_fusion_interfaces::msg::CameraData>(
                 Topics::kCameraLeftFrontDataLoader,
                 1,
-                std::bind(&DataLoaderController::onCameraData, this, std::placeholders::_1)
+                std::bind(&DataLoaderController::OnCameraData, this, std::placeholders::_1)
         );
 
         cameraSubscribers_[CameraIdentifier::kCameraRightFront] = create_subscription<atlas_fusion_interfaces::msg::CameraData>(
                 Topics::kCameraRightFrontDataLoader,
                 1,
-                std::bind(&DataLoaderController::onCameraData, this, std::placeholders::_1)
+                std::bind(&DataLoaderController::OnCameraData, this, std::placeholders::_1)
         );
 
         cameraSubscribers_[CameraIdentifier::kCameraRightSide] = create_subscription<atlas_fusion_interfaces::msg::CameraData>(
                 Topics::kCameraRightSideDataLoader,
                 1,
-                std::bind(&DataLoaderController::onCameraData, this, std::placeholders::_1)
+                std::bind(&DataLoaderController::OnCameraData, this, std::placeholders::_1)
         );
 
         cameraSubscribers_[CameraIdentifier::kCameraIr] = create_subscription<atlas_fusion_interfaces::msg::CameraData>(
                 Topics::kCameraIrDataLoader,
                 1,
-                std::bind(&DataLoaderController::onCameraData, this, std::placeholders::_1)
+                std::bind(&DataLoaderController::OnCameraData, this, std::placeholders::_1)
         );
 
 
         lidarSubscribers_[LidarIdentifier::kLeftLidar] = create_subscription<atlas_fusion_interfaces::msg::LidarData>(
                 Topics::kLidarLeftDataLoader,
                 1,
-                std::bind(&DataLoaderController::onLidarData, this, std::placeholders::_1)
+                std::bind(&DataLoaderController::OnLidarData, this, std::placeholders::_1)
         );
 
         lidarSubscribers_[LidarIdentifier::kCenterLidar] = create_subscription<atlas_fusion_interfaces::msg::LidarData>(
                 Topics::kLidarCenterDataLoader,
                 1,
-                std::bind(&DataLoaderController::onLidarData, this, std::placeholders::_1)
+                std::bind(&DataLoaderController::OnLidarData, this, std::placeholders::_1)
         );
 
         lidarSubscribers_[LidarIdentifier::kRightLidar] = create_subscription<atlas_fusion_interfaces::msg::LidarData>(
                 Topics::kLidarRightDataLoader,
                 1,
-                std::bind(&DataLoaderController::onLidarData, this, std::placeholders::_1)
+                std::bind(&DataLoaderController::OnLidarData, this, std::placeholders::_1)
         );
 
 
         imuDquatSubscriber_ = create_subscription<atlas_fusion_interfaces::msg::ImuDquatData>(
                 Topics::kImuDquatDataLoader,
                 1,
-                std::bind(&DataLoaderController::onImuDquatData, this, std::placeholders::_1)
+                std::bind(&DataLoaderController::OnImuDquatData, this, std::placeholders::_1)
         );
 
         imuGnssSubscriber_ = create_subscription<atlas_fusion_interfaces::msg::ImuGnssData>(
                 Topics::kImuGnssDataLoader,
                 1,
-                std::bind(&DataLoaderController::onImuGnssData, this, std::placeholders::_1)
+                std::bind(&DataLoaderController::OnImuGnssData, this, std::placeholders::_1)
         );
 
         imuImuSubscriber_ = create_subscription<atlas_fusion_interfaces::msg::ImuImuData>(
                 Topics::kImuImuDataLoader,
                 1,
-                std::bind(&DataLoaderController::onImuImuData, this, std::placeholders::_1)
+                std::bind(&DataLoaderController::OnImuImuData, this, std::placeholders::_1)
         );
 
         imuMagSubscriber_ = create_subscription<atlas_fusion_interfaces::msg::ImuMagData>(
                 Topics::kImuMagDataLoader,
                 1,
-                std::bind(&DataLoaderController::onImuMagData, this, std::placeholders::_1)
+                std::bind(&DataLoaderController::OnImuMagData, this, std::placeholders::_1)
         );
 
         imuPressureSubscriber_ = create_subscription<atlas_fusion_interfaces::msg::ImuPressureData>(
                 Topics::kImuPressureDataLoader,
                 1,
-                std::bind(&DataLoaderController::onImuPressureData, this, std::placeholders::_1)
+                std::bind(&DataLoaderController::OnImuPressureData, this, std::placeholders::_1)
         );
 
         imuTempSubscriber_ = create_subscription<atlas_fusion_interfaces::msg::ImuTempData>(
                 Topics::kImuTempDataLoader,
                 1,
-                std::bind(&DataLoaderController::onImuTempData, this, std::placeholders::_1)
+                std::bind(&DataLoaderController::OnImuTempData, this, std::placeholders::_1)
         );
 
         imuTimeSubscriber_ = create_subscription<atlas_fusion_interfaces::msg::ImuTimeData>(
                 Topics::kImuTimeDataLoader,
                 1,
-                std::bind(&DataLoaderController::onImuTimeData, this, std::placeholders::_1)
+                std::bind(&DataLoaderController::OnImuTimeData, this, std::placeholders::_1)
         );
 
         gnssPositionSubscriber_ = create_subscription<atlas_fusion_interfaces::msg::GnssPositionData>(
                 Topics::kGnssPositionDataLoader,
                 1,
-                std::bind(&DataLoaderController::onGnssPositionData, this, std::placeholders::_1)
+                std::bind(&DataLoaderController::OnGnssPositionData, this, std::placeholders::_1)
         );
 
         gnssTimeSubscriber_ = create_subscription<atlas_fusion_interfaces::msg::GnssTimeData>(
                 Topics::kGnssTimeDataLoader,
                 1,
-                std::bind(&DataLoaderController::onGnssTimeData, this, std::placeholders::_1)
+                std::bind(&DataLoaderController::OnGnssTimeData, this, std::placeholders::_1)
         );
 
         radarSubscriber_ = create_subscription<atlas_fusion_interfaces::msg::RadarData>(
                 Topics::kRadarTiDataLoader,
                 1,
-                std::bind(&DataLoaderController::onRadarData, this, std::placeholders::_1)
+                std::bind(&DataLoaderController::OnRadarData, this, std::placeholders::_1)
         );
     }
 
-    void DataLoaderController::initializePublishers() {
+    void DataLoaderController::InitializePublishers() {
         // Publisher that publishes synchronization timestamps
         publisher_ = create_publisher<std_msgs::msg::UInt64>(Topics::kDataLoaderSynchronization, 1);
 
@@ -293,7 +293,7 @@ namespace AtlasFusion::DataLoader {
         radarPublisher_ = create_publisher<atlas_fusion_interfaces::msg::RadarData>(Topics::kRadarTi, 1);
     }
 
-    uint64_t DataLoaderController::getDataTimestamp(const std::pair<DataIdentifier, DataMsg>& d) {
+    uint64_t DataLoaderController::GetDataTimestamp(const std::pair<DataIdentifier, DataMsg>& d) {
         auto d_i = d.second.index();
         if (d_i == 0) {
             return std::get<atlas_fusion_interfaces::msg::CameraData::UniquePtr>(d.second)->timestamp;
@@ -335,7 +335,7 @@ namespace AtlasFusion::DataLoader {
         throw std::runtime_error("Unexpected variant type when comparing timestamps!");
     }
 
-    void DataLoaderController::retransmitMsg(const std::pair<DataIdentifier, DataMsg>& d) {
+    void DataLoaderController::RetransmitMsg(const std::pair<DataIdentifier, DataMsg>& d) {
         auto d_i = d.second.index();
         if (d_i == 0) {
             auto cameraIdentifier = std::get<CameraIdentifier>(d.first);

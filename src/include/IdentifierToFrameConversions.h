@@ -4,8 +4,11 @@
 #pragma once
 
 #include <FrameTypes.h>
+#include <data_loaders/DataLoaderIdentifiers.h>
 
 namespace AtlasFusion {
 
-    std::string frameTypeName(const FrameType& frame);
+    std::string FrameTypeName(const FrameType& frame);
+    FrameType FrameTypeFromIdentifier(const DataLoader::CameraIdentifier &identifier);
+    FrameType FrameTypeFromIdentifier(const DataLoader::LidarIdentifier &identifier);
 }
