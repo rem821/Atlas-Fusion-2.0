@@ -45,7 +45,6 @@ namespace AtlasFusion::DataLoader {
 
     public:
         LidarDataLoader(const std::string &name,
-                         std::string datasetPath,
                          const LidarIdentifier &lidarIdentifier,
                          const std::string &topic,
                          const rclcpp::NodeOptions &options);
@@ -61,7 +60,6 @@ namespace AtlasFusion::DataLoader {
 
         void clear();
 
-        std::string datasetPath_;
         LidarIdentifier lidarIdentifier_;
 
         rclcpp::TimerBase::SharedPtr timer_;

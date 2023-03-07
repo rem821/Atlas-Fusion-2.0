@@ -29,7 +29,7 @@ namespace AtlasFusion::DataLoader {
     class GnssDataLoader : public rclcpp::Node {
 
     public:
-        GnssDataLoader(const std::string &name, std::string datasetPath, const rclcpp::NodeOptions &options);
+        GnssDataLoader(const std::string &name, const rclcpp::NodeOptions &options);
 
     private:
         void onDataLoaderTimer();
@@ -40,8 +40,6 @@ namespace AtlasFusion::DataLoader {
 
         void loadGnssPositionData();
         void loadGnssTimeData();
-
-        std::string datasetPath_;
 
         rclcpp::TimerBase::SharedPtr timer_;
         rclcpp::Publisher<atlas_fusion_interfaces::msg::GnssPositionData>::SharedPtr positionPublisher_;

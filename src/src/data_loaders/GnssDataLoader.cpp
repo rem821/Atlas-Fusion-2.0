@@ -21,12 +21,12 @@
  */
 
 #include "data_loaders/GnssDataLoader.h"
+#include <EntryPoint.h>
 
 namespace AtlasFusion::DataLoader {
 
-    GnssDataLoader::GnssDataLoader(const std::string &name, std::string datasetPath, const rclcpp::NodeOptions &options)
-            : Node(name, options), datasetPath_{std::move(datasetPath)},
-              latestPositionTimestampPublished_(0), latestTimeTimestampPublished_(0), synchronizationTimestamp_(0) {
+    GnssDataLoader::GnssDataLoader(const std::string& name, const rclcpp::NodeOptions& options)
+            : Node(name, options), latestPositionTimestampPublished_(0), latestTimeTimestampPublished_(0), synchronizationTimestamp_(0) {
 
         // Publisher that publishes GnssData
         positionPublisher_ = create_publisher<atlas_fusion_interfaces::msg::GnssPositionData>(Topics::kGnssPositionDataLoader, 1);
@@ -80,7 +80,7 @@ namespace AtlasFusion::DataLoader {
         }
     }
 
-    void GnssDataLoader::onSynchronizationTimestamp(const std_msgs::msg::UInt64 &msg) {
+    void GnssDataLoader::onSynchronizationTimestamp(const std_msgs::msg::UInt64& msg) {
         synchronizationTimestamp_ = msg.data;
     }
 
@@ -90,8 +90,9 @@ namespace AtlasFusion::DataLoader {
     }
 
     void GnssDataLoader::loadGnssPositionData() {
-        auto csvContent = CsvReader::readCsv(datasetPath_ + Folders::kGnssFolder + Files::kPoseFile);
-        for(const auto& substrings : csvContent) {
+        std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
+        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kGnssFolder + Files::kPoseFile);
+        for (const auto& substrings: csvContent) {
             if (substrings.size() == 5) {
                 atlas_fusion_interfaces::msg::GnssPositionData data;
                 data.timestamp = std::stoll(substrings[0]);
@@ -109,8 +110,9 @@ namespace AtlasFusion::DataLoader {
     }
 
     void GnssDataLoader::loadGnssTimeData() {
-        auto csvContent = CsvReader::readCsv(datasetPath_ + Folders::kGnssFolder + Files::kTimeFile);
-        for(const auto& substrings : csvContent) {
+        std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
+        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kGnssFolder + Files::kTimeFile);
+        for (const auto& substrings: csvContent) {
             if (substrings.size() == 8) {
                 atlas_fusion_interfaces::msg::GnssTimeData data;
                 data.timestamp = std::stoll(substrings[0]);

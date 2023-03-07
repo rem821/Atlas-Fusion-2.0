@@ -21,17 +21,13 @@
  */
 
 #include "data_loaders/CameraDataLoader.h"
+#include <EntryPoint.h>
 #include "rcpputils/endian.hpp"
 
 namespace AtlasFusion::DataLoader {
 
-    CameraDataLoader::CameraDataLoader(const std::string &name,
-                                       std::string datasetPath,
-                                       const CameraIdentifier &cameraIdentifier,
-                                       const std::string &topic,
-                                       const rclcpp::NodeOptions &options)
-            : Node(name, options), datasetPath_{std::move(datasetPath)}, cameraIdentifier_{cameraIdentifier},
-              latestTimestampPublished_(0), synchronizationTimestamp_(0) {
+    CameraDataLoader::CameraDataLoader(const std::string& name, const CameraIdentifier& cameraIdentifier, const std::string& topic, const rclcpp::NodeOptions& options)
+            : Node(name, options), cameraIdentifier_{cameraIdentifier}, latestTimestampPublished_(0), synchronizationTimestamp_(0) {
 
         // Publisher that publishes CameraData
         publisher_ = create_publisher<atlas_fusion_interfaces::msg::CameraData>(topic, 1);
@@ -82,7 +78,7 @@ namespace AtlasFusion::DataLoader {
         }
     }
 
-    void CameraDataLoader::onSynchronizationTimestamp(const std_msgs::msg::UInt64 &msg) {
+    void CameraDataLoader::onSynchronizationTimestamp(const std_msgs::msg::UInt64& msg) {
         synchronizationTimestamp_ = msg.data;
     }
 
@@ -106,8 +102,9 @@ namespace AtlasFusion::DataLoader {
                 break;
         }
 
-        auto csvContent = CsvReader::readCsv(datasetPath_ + folder + Files::kTimestampFile);
-        for (const auto &substrings: csvContent) {
+        std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
+        auto csvContent = CsvReader::readCsv(datasetPath + folder + Files::kTimestampFile);
+        for (const auto& substrings: csvContent) {
             switch (cameraIdentifier_) {
                 case CameraIdentifier::kCameraLeftFront:
                 case CameraIdentifier::kCameraLeftSide:
@@ -134,7 +131,7 @@ namespace AtlasFusion::DataLoader {
             }
         }
 
-        auto videoPath = datasetPath_ + folder + Files::kVideoFile;
+        auto videoPath = datasetPath + folder + Files::kVideoFile;
         video_.open(videoPath);
         if (!video_.isOpened()) {
             clear();
@@ -156,7 +153,7 @@ namespace AtlasFusion::DataLoader {
         imageWidthHeight_ = {width, height};
 
         std::string yoloFile = folder.replace(folder.find('/'), std::string("/").length(), ".txt");
-        loadYoloDetections(datasetPath_ + Folders::kYoloFolder + yoloFile);
+        loadYoloDetections(datasetPath + Folders::kYoloFolder + yoloFile);
 
         dataIt_ = data_.begin();
         releaseIt_ = dataIt_;
@@ -172,11 +169,11 @@ namespace AtlasFusion::DataLoader {
         dataIt_ = data_.begin();
     }
 
-    void CameraDataLoader::loadYoloDetections(const std::string &path) {
+    void CameraDataLoader::loadYoloDetections(const std::string& path) {
         auto csvContent = CsvReader::readCsv(std::string(path));
 
         if (!csvContent.empty()) {
-            for (const auto &detection: csvContent) {
+            for (const auto& detection: csvContent) {
                 if (detection.size() != 7) {
                     throw std::runtime_error("Unexpected length of yolo detection in csv");
                 }
@@ -202,9 +199,9 @@ namespace AtlasFusion::DataLoader {
         }
     }
 
-    sensor_msgs::msg::Image CameraDataLoader::toCameraMsg(const cv::Mat &img,
-                                                          const std_msgs::msg::Header &header,
-                                                          const std::string &encoding) {
+    sensor_msgs::msg::Image CameraDataLoader::toCameraMsg(const cv::Mat& img,
+                                                          const std_msgs::msg::Header& header,
+                                                          const std::string& encoding) {
         sensor_msgs::msg::Image ros_image;
         ros_image.header = header;
         ros_image.height = img.rows;
@@ -216,11 +213,11 @@ namespace AtlasFusion::DataLoader {
         ros_image.data.resize(size);
 
         if (img.isContinuous()) {
-            memcpy(reinterpret_cast<char *>(&ros_image.data[0]), img.data, size);
+            memcpy(reinterpret_cast<char*>(&ros_image.data[0]), img.data, size);
         } else {
             // Copy by row
-            auto *ros_data_ptr = reinterpret_cast<uchar *>(&ros_image.data[0]);
-            uchar *cv_data_ptr = img.data;
+            auto* ros_data_ptr = reinterpret_cast<uchar*>(&ros_image.data[0]);
+            uchar* cv_data_ptr = img.data;
             for (int i = 0; i < img.rows; ++i) {
                 memcpy(ros_data_ptr, cv_data_ptr, ros_image.step);
                 ros_data_ptr += ros_image.step;

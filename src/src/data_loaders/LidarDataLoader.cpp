@@ -21,16 +21,12 @@
  */
 
 #include "data_loaders/LidarDataLoader.h"
+#include <EntryPoint.h>
 
 namespace AtlasFusion::DataLoader {
 
-    LidarDataLoader::LidarDataLoader(const std::string &name,
-                                       std::string datasetPath,
-                                       const LidarIdentifier &lidarIdentifier,
-                                       const std::string &topic,
-                                       const rclcpp::NodeOptions &options)
-            : Node(name, options), datasetPath_{std::move(datasetPath)}, lidarIdentifier_{lidarIdentifier},
-              latestTimestampPublished_(0), synchronizationTimestamp_(0) {
+    LidarDataLoader::LidarDataLoader(const std::string& name, const LidarIdentifier& lidarIdentifier, const std::string& topic, const rclcpp::NodeOptions& options)
+            : Node(name, options), lidarIdentifier_{lidarIdentifier}, latestTimestampPublished_(0), synchronizationTimestamp_(0) {
 
         // Publisher that publishes LidarData
         publisher_ = create_publisher<atlas_fusion_interfaces::msg::LidarData>(topic, 1);
@@ -79,7 +75,7 @@ namespace AtlasFusion::DataLoader {
         }
     }
 
-    void LidarDataLoader::onSynchronizationTimestamp(const std_msgs::msg::UInt64 &msg) {
+    void LidarDataLoader::onSynchronizationTimestamp(const std_msgs::msg::UInt64& msg) {
         synchronizationTimestamp_ = msg.data;
     }
 
@@ -97,8 +93,9 @@ namespace AtlasFusion::DataLoader {
                 break;
         }
 
-        auto csvContent = CsvReader::readCsv(datasetPath_ + folder + Files::kTimestampFile);
-        for (const auto &substrings: csvContent) {
+        std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
+        auto csvContent = CsvReader::readCsv(datasetPath + folder + Files::kTimestampFile);
+        for (const auto& substrings: csvContent) {
             size_t timestamp = 0;
             size_t scan_no = 0;
             size_t lidar_timestamp = 0;
@@ -115,8 +112,8 @@ namespace AtlasFusion::DataLoader {
             }
 
             std::stringstream scan_path;
-            scan_path << datasetPath_ << folder << Files::kScanFile << std::setw(6) << std::setfill('0')
-               << scan_no << Files::kPcdExt;
+            scan_path << datasetPath << folder << Files::kScanFile << std::setw(6) << std::setfill('0')
+                      << scan_no << Files::kPcdExt;
 
             data_.emplace_back(timestamp, lidar_timestamp, scan_path.str());
         }

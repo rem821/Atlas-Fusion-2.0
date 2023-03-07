@@ -21,14 +21,13 @@
  */
 
 #include "data_loaders/ImuDataLoader.h"
+#include <EntryPoint.h>
 
 namespace AtlasFusion::DataLoader {
 
-    ImuDataLoader::ImuDataLoader(const std::string &name, std::string datasetPath, const rclcpp::NodeOptions &options)
-            : Node(name, options), datasetPath_{std::move(datasetPath)},
-              latestDQuatTimestampPublished_(0), latestGnssTimestampPublished_(0), latestImuTimestampPublished_(0),
-              latestMagTimestampPublished_(0), latestPressureTimestampPublished_(0), latestTempTimestampPublished_(0),
-              latestTimeTimestampPublished_(0), synchronizationTimestamp_(0) {
+    ImuDataLoader::ImuDataLoader(const std::string& name, const rclcpp::NodeOptions& options)
+            : Node(name, options), latestDQuatTimestampPublished_(0), latestGnssTimestampPublished_(0), latestImuTimestampPublished_(0), latestMagTimestampPublished_(0),
+              latestPressureTimestampPublished_(0), latestTempTimestampPublished_(0), latestTimeTimestampPublished_(0), synchronizationTimestamp_(0) {
 
         // Publisher that publishes ImuData
         kDQuatPublisher_ = create_publisher<atlas_fusion_interfaces::msg::ImuDquatData>(Topics::kImuDquatDataLoader, 1);
@@ -167,7 +166,7 @@ namespace AtlasFusion::DataLoader {
         }
     }
 
-    void ImuDataLoader::onSynchronizationTimestamp(const std_msgs::msg::UInt64 &msg) {
+    void ImuDataLoader::onSynchronizationTimestamp(const std_msgs::msg::UInt64& msg) {
         synchronizationTimestamp_ = msg.data;
     }
 
@@ -182,8 +181,9 @@ namespace AtlasFusion::DataLoader {
     }
 
     void ImuDataLoader::loadImuDquatData() {
-        auto csvContent = CsvReader::readCsv(datasetPath_ + Folders::kImuFolder + Files::kDquatFile);
-        for (const auto &substrings: csvContent) {
+        std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
+        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kImuFolder + Files::kDquatFile);
+        for (const auto& substrings: csvContent) {
             if (substrings.size() == 5) {
                 atlas_fusion_interfaces::msg::ImuDquatData data;
                 data.timestamp = std::stoll(substrings[0]);
@@ -201,8 +201,9 @@ namespace AtlasFusion::DataLoader {
     }
 
     void ImuDataLoader::loadImuGnssData() {
-        auto csvContent = CsvReader::readCsv(datasetPath_ + Folders::kImuFolder + Files::kGnssFile);
-        for (const auto &substrings: csvContent) {
+        std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
+        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kImuFolder + Files::kGnssFile);
+        for (const auto& substrings: csvContent) {
             if (substrings.size() == 4) {
                 atlas_fusion_interfaces::msg::ImuGnssData data;
                 data.timestamp = std::stoll(substrings[0]);
@@ -219,8 +220,9 @@ namespace AtlasFusion::DataLoader {
     }
 
     void ImuDataLoader::loadImuImuData() {
-        auto csvContent = CsvReader::readCsv(datasetPath_ + Folders::kImuFolder + Files::kImuFile);
-        for (const auto &substrings: csvContent) {
+        std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
+        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kImuFolder + Files::kImuFile);
+        for (const auto& substrings: csvContent) {
             if (substrings.size() == 11) {
                 atlas_fusion_interfaces::msg::ImuImuData data;
                 data.timestamp = std::stoll(substrings[0]);
@@ -243,8 +245,9 @@ namespace AtlasFusion::DataLoader {
     }
 
     void ImuDataLoader::loadImuMagData() {
-        auto csvContent = CsvReader::readCsv(datasetPath_ + Folders::kImuFolder + Files::kMagFile);
-        for (const auto &substrings: csvContent) {
+        std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
+        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kImuFolder + Files::kMagFile);
+        for (const auto& substrings: csvContent) {
             if (substrings.size() == 4) {
                 atlas_fusion_interfaces::msg::ImuMagData data;
                 data.timestamp = std::stoll(substrings[0]);
@@ -261,8 +264,9 @@ namespace AtlasFusion::DataLoader {
     }
 
     void ImuDataLoader::loadImuPressureData() {
-        auto csvContent = CsvReader::readCsv(datasetPath_ + Folders::kImuFolder + Files::kPressureFile);
-        for (const auto &substrings: csvContent) {
+        std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
+        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kImuFolder + Files::kPressureFile);
+        for (const auto& substrings: csvContent) {
             if (substrings.size() == 2) {
                 atlas_fusion_interfaces::msg::ImuPressureData data;
                 data.timestamp = std::stoll(substrings[0]);
@@ -277,8 +281,9 @@ namespace AtlasFusion::DataLoader {
     }
 
     void ImuDataLoader::loadImuTempData() {
-        auto csvContent = CsvReader::readCsv(datasetPath_ + Folders::kImuFolder + Files::kTempFile);
-        for (const auto &substrings: csvContent) {
+        std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
+        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kImuFolder + Files::kTempFile);
+        for (const auto& substrings: csvContent) {
             if (substrings.size() == 2) {
                 atlas_fusion_interfaces::msg::ImuTempData data;
                 data.timestamp = std::stoll(substrings[0]);
@@ -293,8 +298,9 @@ namespace AtlasFusion::DataLoader {
     }
 
     void ImuDataLoader::loadImuTimeData() {
-        auto csvContent = CsvReader::readCsv(datasetPath_ + Folders::kImuFolder + Files::kTimeFile);
-        for (const auto &substrings: csvContent) {
+        std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
+        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kImuFolder + Files::kTimeFile);
+        for (const auto& substrings: csvContent) {
             if (substrings.size() == 8) {
                 atlas_fusion_interfaces::msg::ImuTimeData data;
                 data.timestamp = std::stoll(substrings[0]);

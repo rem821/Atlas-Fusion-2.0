@@ -40,7 +40,7 @@ namespace AtlasFusion::DataLoader {
              * @param numberOfDetections number of detections
              * @param radarDetections vector of radarDetections
              */
-            RadarFrame(uint64_t ts, uint16_t numberOfDetections, std::vector<RadarDetection> &radarDetections)
+            RadarFrame(uint64_t ts, uint16_t numberOfDetections, std::vector<RadarDetection>& radarDetections)
                     : timestamp_(ts), numberOfDetections_{numberOfDetections}, radarDetections_(std::move(radarDetections)) {}
 
             uint64_t timestamp_;
@@ -49,23 +49,18 @@ namespace AtlasFusion::DataLoader {
         };
 
     public:
-        RadarDataLoader(const std::string &name,
-                        std::string datasetPath,
-                        const std::string &topic,
-                        const rclcpp::NodeOptions &options);
+        RadarDataLoader(const std::string& name, const std::string& topic, const rclcpp::NodeOptions& options);
 
     private:
         void onDataLoaderTimer();
 
-        void onSynchronizationTimestamp(const std_msgs::msg::UInt64 &msg);
+        void onSynchronizationTimestamp(const std_msgs::msg::UInt64& msg);
 
         void initialize();
 
         bool isOnEnd() const;
 
         void clear();
-
-        std::string datasetPath_;
 
         rclcpp::TimerBase::SharedPtr timer_;
         rclcpp::Publisher<atlas_fusion_interfaces::msg::RadarData>::SharedPtr publisher_;

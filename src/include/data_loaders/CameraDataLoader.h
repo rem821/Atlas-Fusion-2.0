@@ -50,7 +50,6 @@ namespace AtlasFusion::DataLoader {
 
     public:
         CameraDataLoader(const std::string &name,
-                         std::string datasetPath,
                          const CameraIdentifier &cameraIdentifier,
                          const std::string &topic,
                          const rclcpp::NodeOptions &options);
@@ -72,7 +71,6 @@ namespace AtlasFusion::DataLoader {
                                                    const std_msgs::msg::Header &header,
                                                    const std::string &encoding);
 
-        std::string datasetPath_;
         CameraIdentifier cameraIdentifier_;
 
         rclcpp::TimerBase::SharedPtr timer_;

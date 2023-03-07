@@ -28,12 +28,12 @@ namespace AtlasFusion::DataLoader {
     class ImuDataLoader : public rclcpp::Node {
 
     public:
-        ImuDataLoader(const std::string &name, std::string datasetPath, const rclcpp::NodeOptions &options);
+        ImuDataLoader(const std::string& name, const rclcpp::NodeOptions& options);
 
     private:
         void onDataLoaderTimer();
 
-        void onSynchronizationTimestamp(const std_msgs::msg::UInt64 &msg);
+        void onSynchronizationTimestamp(const std_msgs::msg::UInt64& msg);
 
         void initialize();
 
@@ -52,8 +52,6 @@ namespace AtlasFusion::DataLoader {
         void loadImuTimeData();
 
         void clear();
-
-        std::string datasetPath_;
 
         rclcpp::TimerBase::SharedPtr timer_;
         rclcpp::Publisher<atlas_fusion_interfaces::msg::ImuDquatData>::SharedPtr kDQuatPublisher_;

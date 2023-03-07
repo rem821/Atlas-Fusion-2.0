@@ -21,14 +21,12 @@
  */
 
 #include "data_loaders/RadarDataLoader.h"
+#include <EntryPoint.h>
 
 namespace AtlasFusion::DataLoader {
 
-    RadarDataLoader::RadarDataLoader(const std::string &name,
-                                     std::string datasetPath,
-                                     const std::string &topic,
-                                     const rclcpp::NodeOptions &options)
-            : Node(name, options), datasetPath_{std::move(datasetPath)}, latestTimestampPublished_(0), synchronizationTimestamp_(0) {
+    RadarDataLoader::RadarDataLoader(const std::string& name, const std::string& topic, const rclcpp::NodeOptions& options)
+            : Node(name, options), latestTimestampPublished_(0), synchronizationTimestamp_(0) {
 
         // Publisher that publishes RadarData
         publisher_ = create_publisher<atlas_fusion_interfaces::msg::RadarData>(topic, 1);
@@ -59,7 +57,7 @@ namespace AtlasFusion::DataLoader {
 
         if (!isOnEnd() && dataFrame_ == nullptr) {
             std::vector<atlas_fusion_interfaces::msg::RadarDetection> detections;
-            for (auto &det: dataIt_->radarDetections_) {
+            for (auto& det: dataIt_->radarDetections_) {
                 geometry_msgs::msg::Point32 point;
                 point.x = det.pose_.x();
                 point.y = det.pose_.y();
@@ -81,13 +79,14 @@ namespace AtlasFusion::DataLoader {
         }
     }
 
-    void RadarDataLoader::onSynchronizationTimestamp(const std_msgs::msg::UInt64 &msg) {
+    void RadarDataLoader::onSynchronizationTimestamp(const std_msgs::msg::UInt64& msg) {
         synchronizationTimestamp_ = msg.data;
     }
 
     void RadarDataLoader::initialize() {
-        auto csvContent = CsvReader::readCsv(datasetPath_ + Folders::kRadarTi + Files::kRadarTiScan);
-        for (const auto &substrings: csvContent) {
+        std::string datasetPath = EntryPoint::GetContext().GetDatasetPath();
+        auto csvContent = CsvReader::readCsv(datasetPath + Folders::kRadarTi + Files::kRadarTiScan);
+        for (const auto& substrings: csvContent) {
             if (substrings.size() >= 2) {
 
                 size_t timestamp = std::stoull(substrings.at(0));

@@ -24,7 +24,7 @@
 
 namespace AtlasFusion::DataLoader {
 
-    DataLoaderController::DataLoaderController(const std::string &name, const uint8_t noDataLoaders, const rclcpp::NodeOptions &options)
+    DataLoaderController::DataLoaderController(const std::string& name, const uint8_t noDataLoaders, const rclcpp::NodeOptions& options)
             : Node(name, options), noDataLoaders_(noDataLoaders), latestTimestampPublished_(0) {
 
         initializePublishers();
@@ -37,13 +37,13 @@ namespace AtlasFusion::DataLoader {
         // Find the index of the earliest msg in cache
         auto min = std::min_element(
                 std::begin(dataCache_), std::end(dataCache_),
-                [](const auto &l, const auto &r) {
+                [](const auto& l, const auto& r) {
                     return getDataTimestamp(l) < getDataTimestamp(r);
                 }
         );
         auto max = std::max_element(
                 std::begin(dataCache_), std::end(dataCache_),
-                [](const auto &l, const auto &r) {
+                [](const auto& l, const auto& r) {
                     return getDataTimestamp(l) < getDataTimestamp(r);
                 }
         );
@@ -293,7 +293,7 @@ namespace AtlasFusion::DataLoader {
         radarPublisher_ = create_publisher<atlas_fusion_interfaces::msg::RadarData>(Topics::kRadarTi, 1);
     }
 
-    uint64_t DataLoaderController::getDataTimestamp(const std::pair<DataIdentifier, DataMsg> &d) {
+    uint64_t DataLoaderController::getDataTimestamp(const std::pair<DataIdentifier, DataMsg>& d) {
         auto d_i = d.second.index();
         if (d_i == 0) {
             return std::get<atlas_fusion_interfaces::msg::CameraData::UniquePtr>(d.second)->timestamp;
@@ -335,67 +335,67 @@ namespace AtlasFusion::DataLoader {
         throw std::runtime_error("Unexpected variant type when comparing timestamps!");
     }
 
-    void DataLoaderController::retransmitMsg(const std::pair<DataIdentifier, DataMsg> &d) {
+    void DataLoaderController::retransmitMsg(const std::pair<DataIdentifier, DataMsg>& d) {
         auto d_i = d.second.index();
         if (d_i == 0) {
             auto cameraIdentifier = std::get<CameraIdentifier>(d.first);
-            auto &msg = std::get<atlas_fusion_interfaces::msg::CameraData::UniquePtr>(d.second);
+            auto& msg = std::get<atlas_fusion_interfaces::msg::CameraData::UniquePtr>(d.second);
             cameraPublishers_[cameraIdentifier]->publish(*msg);
             return;
         }
         if (d_i == 1) {
             auto lidarIdentifier = std::get<LidarIdentifier>(d.first);
-            auto &msg = std::get<atlas_fusion_interfaces::msg::LidarData::UniquePtr>(d.second);
+            auto& msg = std::get<atlas_fusion_interfaces::msg::LidarData::UniquePtr>(d.second);
             lidarPublishers_[lidarIdentifier]->publish(*msg);
             return;
         }
         if (d_i == 2) {
-            auto &msg = std::get<atlas_fusion_interfaces::msg::ImuDquatData::UniquePtr>(d.second);
+            auto& msg = std::get<atlas_fusion_interfaces::msg::ImuDquatData::UniquePtr>(d.second);
             imuDquatPublisher_->publish(*msg);
             return;
         }
         if (d_i == 3) {
-            auto &msg = std::get<atlas_fusion_interfaces::msg::ImuGnssData::UniquePtr>(d.second);
+            auto& msg = std::get<atlas_fusion_interfaces::msg::ImuGnssData::UniquePtr>(d.second);
             imuGnssPublisher_->publish(*msg);
             return;
         }
         if (d_i == 4) {
-            auto &msg = std::get<atlas_fusion_interfaces::msg::ImuImuData ::UniquePtr>(d.second);
+            auto& msg = std::get<atlas_fusion_interfaces::msg::ImuImuData::UniquePtr>(d.second);
             imuImuPublisher_->publish(*msg);
             return;
         }
         if (d_i == 5) {
-            auto &msg = std::get<atlas_fusion_interfaces::msg::ImuMagData::UniquePtr>(d.second);
+            auto& msg = std::get<atlas_fusion_interfaces::msg::ImuMagData::UniquePtr>(d.second);
             imuMagPublisher_->publish(*msg);
             return;
         }
         if (d_i == 6) {
-            auto &msg = std::get<atlas_fusion_interfaces::msg::ImuPressureData::UniquePtr>(d.second);
+            auto& msg = std::get<atlas_fusion_interfaces::msg::ImuPressureData::UniquePtr>(d.second);
             imuPressurePublisher_->publish(*msg);
             return;
         }
         if (d_i == 7) {
-            auto &msg = std::get<atlas_fusion_interfaces::msg::ImuTempData::UniquePtr>(d.second);
+            auto& msg = std::get<atlas_fusion_interfaces::msg::ImuTempData::UniquePtr>(d.second);
             imuTempPublisher_->publish(*msg);
             return;
         }
         if (d_i == 8) {
-            auto &msg = std::get<atlas_fusion_interfaces::msg::ImuTimeData::UniquePtr>(d.second);
+            auto& msg = std::get<atlas_fusion_interfaces::msg::ImuTimeData::UniquePtr>(d.second);
             imuTimePublisher_->publish(*msg);
             return;
         }
         if (d_i == 9) {
-            auto &msg = std::get<atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr>(d.second);
+            auto& msg = std::get<atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr>(d.second);
             gnssPositionPublisher_->publish(*msg);
             return;
         }
         if (d_i == 10) {
-            auto &msg = std::get<atlas_fusion_interfaces::msg::GnssTimeData::UniquePtr>(d.second);
+            auto& msg = std::get<atlas_fusion_interfaces::msg::GnssTimeData::UniquePtr>(d.second);
             gnssTimePublisher_->publish(*msg);
             return;
         }
         if (d_i == 11) {
-            auto &msg = std::get<atlas_fusion_interfaces::msg::RadarData::UniquePtr>(d.second);
+            auto& msg = std::get<atlas_fusion_interfaces::msg::RadarData::UniquePtr>(d.second);
             radarPublisher_->publish(*msg);
             return;
         }
