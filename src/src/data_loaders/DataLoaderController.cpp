@@ -68,7 +68,7 @@ namespace AtlasFusion::DataLoader {
     void DataLoaderController::OnCameraData(atlas_fusion_interfaces::msg::CameraData::UniquePtr msg) {
         LOG_TRACE("DataLoaderController: Camera data of frame {} arrived: ({}, {})", msg->camera_identifier, this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
 
-        auto id = static_cast<CameraIdentifier>(msg->camera_identifier);
+        auto id = CameraIdentifierFromFrameType(NameToFrameType(msg->image.header.frame_id));
 
         dataCache_.emplace_back(id, std::move(msg));
         OnDataLoaderControllerTimer();
@@ -275,6 +275,12 @@ namespace AtlasFusion::DataLoader {
         cameraPublishers_[CameraIdentifier::kCameraRightSide] = create_publisher<atlas_fusion_interfaces::msg::CameraData>(Topics::kCameraRightSide, 1);
         cameraPublishers_[CameraIdentifier::kCameraIr] = create_publisher<atlas_fusion_interfaces::msg::CameraData>(Topics::kCameraIr, 1);
 
+        cameraImagePublishers_[CameraIdentifier::kCameraLeftSide] = image_transport::create_publisher(this, Topics::kCameraLeftSideImage);
+        cameraImagePublishers_[CameraIdentifier::kCameraLeftFront] = image_transport::create_publisher(this, Topics::kCameraLeftFrontImage);
+        cameraImagePublishers_[CameraIdentifier::kCameraRightFront] = image_transport::create_publisher(this, Topics::kCameraRightFrontImage);
+        cameraImagePublishers_[CameraIdentifier::kCameraRightSide] = image_transport::create_publisher(this, Topics::kCameraRightSideImage);
+        cameraImagePublishers_[CameraIdentifier::kCameraIr] = image_transport::create_publisher(this, Topics::kCameraIrImage);
+
         lidarPublishers_[LidarIdentifier::kLeftLidar] = create_publisher<sensor_msgs::msg::PointCloud2>(Topics::kLidarLeft, 1);
         lidarPublishers_[LidarIdentifier::kCenterLidar] = create_publisher<sensor_msgs::msg::PointCloud2>(Topics::kLidarCenter, 1);
         lidarPublishers_[LidarIdentifier::kRightLidar] = create_publisher<sensor_msgs::msg::PointCloud2>(Topics::kLidarRight, 1);
@@ -296,7 +302,7 @@ namespace AtlasFusion::DataLoader {
     uint64_t DataLoaderController::GetDataTimestamp(const std::pair<DataIdentifier, DataMsg>& d) {
         auto d_i = d.second.index();
         if (d_i == 0) {
-            return std::get<atlas_fusion_interfaces::msg::CameraData::UniquePtr>(d.second)->timestamp;
+            return STAMP_TO_NANOSEC(std::get<atlas_fusion_interfaces::msg::CameraData::UniquePtr>(d.second)->image.header.stamp);
         }
         if (d_i == 1) {
             return STAMP_TO_NANOSEC(std::get<sensor_msgs::msg::PointCloud2::UniquePtr>(d.second)->header.stamp);
@@ -341,6 +347,9 @@ namespace AtlasFusion::DataLoader {
             auto cameraIdentifier = std::get<CameraIdentifier>(d.first);
             auto& msg = std::get<atlas_fusion_interfaces::msg::CameraData::UniquePtr>(d.second);
             cameraPublishers_[cameraIdentifier]->publish(*msg);
+
+            std_msgs::msg::Header header;
+            cameraImagePublishers_[cameraIdentifier].publish(msg->image);
             return;
         }
         if (d_i == 1) {

@@ -45,11 +45,19 @@ namespace AtlasFusion::Topics {
 
         const std::string kDataLoaderSynchronization = "/atlasfusion/data_loader/synchronization";
 
-        const std::string kCameraLeftFront = "/atlasfusion/data/cameras/camera_left_front/camera";
-        const std::string kCameraLeftSide = "/atlasfusion/data/cameras/camera_left_side/camera";
-        const std::string kCameraRightFront = "/atlasfusion/data/cameras/camera_right_front/camera";
-        const std::string kCameraRightSide = "/atlasfusion/data/cameras/camera_right_side/camera";
-        const std::string kCameraIr = "/atlasfusion/data/cameras/camera_ir/camera";
+        const std::string kCameraLeftFront = "/atlasfusion/data/camera_left_front/camera";
+        const std::string kCameraLeftSide = "/atlasfusion/data/camera_left_side/camera";
+        const std::string kCameraRightFront = "/atlasfusion/data/camera_right_front/camera";
+        const std::string kCameraRightSide = "/atlasfusion/data/camera_right_side/camera";
+        const std::string kCameraIr = "/atlasfusion/data/camera_ir/camera";
+
+        const std::string kCameraLeftFrontImage = "/atlasfusion/data/camera_left_front/camera/image";
+        const std::string kCameraLeftSideImage = "/atlasfusion/data/camera_left_side/camera/image";
+        const std::string kCameraRightFrontImage = "/atlasfusion/data/camera_right_front/camera/image";
+        const std::string kCameraRightSideImage = "/atlasfusion/data/camera_right_side/camera/image";
+        const std::string kCameraIrImage = "/atlasfusion/data/camera_ir/camera/image";
+
+
         const std::string kLidarLeft = "/atlasfusion/data/lidar_left/points";
         const std::string kLidarRight = "/atlasfusion/data/lidar_right/points";
         const std::string kLidarCenter = "/atlasfusion/data/lidar_center/points";

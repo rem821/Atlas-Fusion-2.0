@@ -7,4 +7,4 @@
 
 #define STAMP_TO_NANOSEC(stamp) (((uint64_t)stamp.sec * 1000000000) + stamp.nanosec)
 #define NANOSEC_TO_STAMP_SEC(nanosec) (std::floor((double) nanosec / 1000000000.0f))
-#define NANOSEC_TO_STAMP_NANOSECSEC(nanosec) (nanosec - (NANOSEC_TO_STAMP_SEC(nanosec) * 1000000000))
+#define NANOSEC_TO_STAMP_NANOSEC(nanosec) (nanosec - (NANOSEC_TO_STAMP_SEC(nanosec) * 1000000000))

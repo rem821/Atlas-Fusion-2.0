@@ -63,7 +63,7 @@ namespace AtlasFusion::DataLoader {
             sensor_msgs::msg::PointCloud2 msg;
             pcl::toROSMsg(*scan, msg);
             msg.header.stamp.sec = NANOSEC_TO_STAMP_SEC(dataIt_->timestamp_);
-            msg.header.stamp.nanosec = NANOSEC_TO_STAMP_NANOSECSEC(dataIt_->timestamp_);
+            msg.header.stamp.nanosec = NANOSEC_TO_STAMP_NANOSEC(dataIt_->timestamp_);
             msg.header.frame_id = FrameTypeName(FrameTypeFromIdentifier(lidarIdentifier_));
 
             dataFrame_ = std::make_unique<sensor_msgs::msg::PointCloud2>(msg);

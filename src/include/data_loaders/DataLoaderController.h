@@ -22,6 +22,7 @@
 #pragma once
 
 #include <precompiled_headers/PCH.h>
+#include <image_transport/image_transport.hpp>
 
 namespace AtlasFusion::DataLoader {
 
@@ -80,6 +81,8 @@ namespace AtlasFusion::DataLoader {
         rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr publisher_;
 
         std::map<CameraIdentifier, rclcpp::Publisher<atlas_fusion_interfaces::msg::CameraData>::SharedPtr> cameraPublishers_;
+        std::map<CameraIdentifier, image_transport::Publisher> cameraImagePublishers_;
+
         std::map<LidarIdentifier, rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr> lidarPublishers_;
         rclcpp::Publisher<atlas_fusion_interfaces::msg::ImuDquatData>::SharedPtr imuDquatPublisher_;
         rclcpp::Publisher<atlas_fusion_interfaces::msg::ImuGnssData>::SharedPtr imuGnssPublisher_;

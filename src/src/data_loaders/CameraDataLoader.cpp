@@ -48,7 +48,7 @@ namespace AtlasFusion::DataLoader {
 
     void CameraDataLoader::OnDataLoaderTimer() {
         if (dataFrame_ != nullptr && latestTimestampPublished_ <= synchronizationTimestamp_) {
-            latestTimestampPublished_ = dataFrame_->timestamp;
+            latestTimestampPublished_ = STAMP_TO_NANOSEC(dataFrame_->image.header.stamp);
 
             LOG_TRACE("Camera data of frame {} sent: ({}, 0x{})", dataFrame_->camera_identifier, this->get_clock()->now().nanoseconds(), HEX_ADDR(dataFrame_.get()));
 
@@ -60,14 +60,12 @@ namespace AtlasFusion::DataLoader {
             video_.read(frame);
 
             std_msgs::msg::Header header;
-            header.stamp = this->get_clock()->now();
-            header.frame_id = std::to_string(dataIt_->frameId_);
+            header.stamp.sec = NANOSEC_TO_STAMP_SEC(dataIt_->timestamp_);
+            header.stamp.nanosec = NANOSEC_TO_STAMP_NANOSEC(dataIt_->timestamp_);
+            header.frame_id = FrameTypeName(FrameTypeFromIdentifier(cameraIdentifier_));
 
             atlas_fusion_interfaces::msg::CameraData cameraData;
             cameraData.image = ToCameraMsg(frame, header, cameraIdentifier_ == CameraIdentifier::kCameraIr ? "mono8" : "bgr8");
-            cameraData.camera_identifier = static_cast<int8_t>(cameraIdentifier_);
-            cameraData.timestamp = dataIt_->timestamp_;
-            cameraData.inner_timestamp = dataIt_->innerTimestamp_;
             cameraData.min_temperature = static_cast<float>(dataIt_->tempMin_);
             cameraData.max_temperature = static_cast<float>(dataIt_->tempMax_);
             cameraData.yolo_detections = dataIt_->detections_;
