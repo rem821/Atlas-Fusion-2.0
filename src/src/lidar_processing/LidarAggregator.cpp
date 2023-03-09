@@ -22,6 +22,7 @@
 
 #include <lidar_processing/LidarAggregator.h>
 #include <algorithms/PointCloudExtrapolator.h>
+#include <algorithms/LidarFilter.h>
 
 namespace AtlasFusion::LocalMap {
 
@@ -64,9 +65,11 @@ namespace AtlasFusion::LocalMap {
         if (latestLidarScanTimestamp_[lidarIdentifier] > 0) {
             auto [poseBefore, poseNow] = EstimatePositionInTime(latestLidarScanTimestamp_[lidarIdentifier]);
             if (!poseBefore.GetPosition().hasNaN()) {
-                pcl::PointCloud<pcl::PointXYZ> pc;
-                pcl::fromROSMsg(*msg.get(), pc);
-                auto scanBatches = Algorithms::PointCloudExtrapolator::SplitPointCloudToBatches(pc.makeShared(), poseBefore, poseNow, lidarTF);
+                pcl::PointCloud<pcl::PointXYZ>::Ptr pc(new pcl::PointCloud<pcl::PointXYZ>);
+                pcl::fromROSMsg(*msg.get(), *pc.get());
+                Algorithms::LidarFilter::FillterNearObjects(pc);
+
+                auto scanBatches = Algorithms::PointCloudExtrapolator::SplitPointCloudToBatches(pc, poseBefore, poseNow, lidarTF);
                 pointCloudAggregator_.AddLidarScan(lidarIdentifier, scanBatches);
                 pointCloudAggregator_.FilterOutBatches(timestamp);
                 pointCloudAggregator_.AddPointCloudBatches(scanBatches);
