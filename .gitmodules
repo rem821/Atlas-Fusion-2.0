@@ -7,3 +7,6 @@
 [submodule "src/calibrations"]
 	path = src/calibrations
 	url = https://github.com/Robotics-BUT/Brno-Urban-Dataset-Calibrations.git
+[submodule "src/libs/thread-pool"]
+	path = src/libs/thread-pool
+	url = https://github.com/bshoshany/thread-pool

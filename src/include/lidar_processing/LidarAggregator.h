@@ -22,6 +22,8 @@
 #pragma once
 
 #include <precompiled_headers/PCH.h>
+#include <data_models/LocalPosition.h>
+#include <algorithms/PointCloudAggregator.h>
 
 namespace AtlasFusion::LocalMap {
 
@@ -32,8 +34,16 @@ namespace AtlasFusion::LocalMap {
     private:
         void OnLidarData(sensor_msgs::msg::PointCloud2::UniquePtr msg);
 
+        std::pair<DataModels::LocalPosition, DataModels::LocalPosition> EstimatePositionInTime(uint64_t timestamp);
 
+        std::shared_ptr<rclcpp::Node> clientNode_;
+        rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr aggregatedPointCloudPublisher_;
         std::map<DataLoader::LidarIdentifier, rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr> lidarSubscribers_;
+        rclcpp::Client<atlas_fusion_interfaces::srv::EstimatePositionInTime>::SharedPtr positionEstimateClient_;
+
+        Algorithms::PointCloudAggregator pointCloudAggregator_{};
+
+        std::map<DataLoader::LidarIdentifier, uint64_t> latestLidarScanTimestamp_{};
     };
 }
 

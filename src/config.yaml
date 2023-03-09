@@ -16,7 +16,7 @@ laser_aggregator:
   points_per_laser: 50000
 
 lidar_aggregator:
-  leaf_size: 0.12
+  leaf_size: 0.15
   global_leaf_size: 1.0
   no_of_batches_per_scan: 100
   aggregation_time: 0.15

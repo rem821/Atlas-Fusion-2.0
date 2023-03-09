@@ -40,6 +40,11 @@ namespace AtlasFusion::LocalMap {
         selfGlobalPublisher_ = create_publisher<visualization_msgs::msg::Marker>(Topics::kSelfGlobal, 1);
         filteredTrajectoryPublisher_ = create_publisher<visualization_msgs::msg::Marker>(Topics::kFilteredTrajectory, 1);
 
+        positionEstimationService_ = create_service<atlas_fusion_interfaces::srv::EstimatePositionInTime>(
+                "estimate_pose",
+                std::bind(&SelfModel::EstimatePositionInTime, this, std::placeholders::_1, std::placeholders::_2)
+        );
+
         using namespace std::chrono_literals;
         timer_ = create_wall_timer(20ms, [this] { OnPublishPoseAndTrajectory(); });
 
@@ -63,6 +68,7 @@ namespace AtlasFusion::LocalMap {
 
         PublishStaticTransforms();
     }
+
 
     void SelfModel::OnGnssPose(atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr msg) {
         LOG_TRACE("SelfModel: GNSS Pose data arrived: ({}, {})", this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
@@ -234,6 +240,103 @@ namespace AtlasFusion::LocalMap {
         return cube;
     }
 
+    void SelfModel::EstimatePositionInTime(const std::shared_ptr<atlas_fusion_interfaces::srv::EstimatePositionInTime::Request> request,
+                                           std::shared_ptr<atlas_fusion_interfaces::srv::EstimatePositionInTime::Response> response) {
+        for (long i = long(positionHistory_.size()) - 1; i >= 0; i--) {
+            if (positionHistory_.at(i).GetTimestamp() < request->timestamp) {
+                if (i == 0) {
+                    auto pos = positionHistory_.at(i).GetPosition();
+                    auto ori = positionHistory_.at(i).GetOrientation();
+
+                    geometry_msgs::msg::Vector3 posBefore;
+                    posBefore.x = pos.x();
+                    posBefore.y = pos.y();
+                    posBefore.z = pos.z();
+
+                    geometry_msgs::msg::Quaternion oriBefore;
+                    oriBefore.x = ori.x();
+                    oriBefore.y = ori.y();
+                    oriBefore.z = ori.z();
+                    oriBefore.w = ori.w();
+
+                    pos = positionHistory_.back().GetPosition();
+                    ori = positionHistory_.back().GetOrientation();
+
+                    geometry_msgs::msg::Vector3 posNow;
+                    posNow.x = pos.x();
+                    posNow.y = pos.y();
+                    posNow.z = pos.z();
+
+                    geometry_msgs::msg::Quaternion oriNow;
+                    oriNow.x = ori.x();
+                    oriNow.y = ori.y();
+                    oriNow.z = ori.z();
+                    oriNow.w = ori.w();
+
+                    response->position_before = posBefore;
+                    response->orientation_before = oriBefore;
+                    response->timestamp_before = positionHistory_.at(i).GetTimestamp();
+                    response->position_now = posNow;
+                    response->orientation_now = oriNow;
+                    response->timestamp_now = positionHistory_.back().GetTimestamp();
+                    return;
+                } else {
+                    auto poseBefore = &positionHistory_.at(std::min(static_cast<size_t>(i), positionHistory_.size() - 2));
+                    auto poseAfter = &positionHistory_.at(std::min(static_cast<size_t>(i + 1), positionHistory_.size() - 1));
+
+                    auto numerator = static_cast<float>(poseAfter->GetTimestamp() - request->timestamp);
+                    auto denominator = static_cast<float>(poseAfter->GetTimestamp() - poseBefore->GetTimestamp());
+                    float ratio = numerator / denominator;
+
+                    geometry_msgs::msg::Vector3 interpolatedPose;
+                    interpolatedPose.x = poseBefore->GetPosition().x() + (poseAfter->GetPosition().x() - poseBefore->GetPosition().x()) * ratio;
+                    interpolatedPose.y = poseBefore->GetPosition().y() + (poseAfter->GetPosition().y() - poseBefore->GetPosition().y()) * ratio;
+                    interpolatedPose.z = poseBefore->GetPosition().z() + (poseAfter->GetPosition().z() - poseBefore->GetPosition().z()) * ratio;
+
+                    auto newOri = poseBefore->GetOrientation().slerp(poseAfter->GetOrientation(), ratio);
+                    geometry_msgs::msg::Quaternion newOrientation;
+                    newOrientation.x = newOri.x();
+                    newOrientation.y = newOri.y();
+                    newOrientation.z = newOri.z();
+                    newOrientation.w = newOri.w();
+
+                    uint64_t duration = poseAfter->GetTimestamp() - poseBefore->GetTimestamp();
+                    uint64_t ts = poseBefore->GetTimestamp() + static_cast<uint64_t>(duration * ratio);
+
+                    auto pos = positionHistory_.back().GetPosition();
+                    auto ori = positionHistory_.back().GetOrientation();
+
+                    geometry_msgs::msg::Vector3 posNow;
+                    posNow.x = pos.x();
+                    posNow.y = pos.y();
+                    posNow.z = pos.z();
+
+                    geometry_msgs::msg::Quaternion oriNow;
+                    oriNow.x = ori.x();
+                    oriNow.y = ori.y();
+                    oriNow.z = ori.z();
+                    oriNow.w = ori.w();
+
+                    response->position_before = interpolatedPose;
+                    response->orientation_before = newOrientation;
+                    response->timestamp_before = ts;
+                    response->position_now = posNow;
+                    response->orientation_now = oriNow;
+                    response->timestamp_now = positionHistory_.back().GetTimestamp();
+                    return;
+                }
+            }
+        }
+
+        LOG_WARN("Unable to estimate position in time! Missing time point in history.");
+        response->position_before = geometry_msgs::msg::Vector3();
+        response->orientation_before = geometry_msgs::msg::Quaternion();
+        response->timestamp_before = request->timestamp;
+        response->position_now = geometry_msgs::msg::Vector3();
+        response->orientation_now = geometry_msgs::msg::Quaternion();
+        response->timestamp_now = request->timestamp;
+    }
+
     DataModels::LocalPosition SelfModel::GetPosition() const {
         if (positionHistory_.empty()) {
             return DataModels::LocalPosition{{}, {}, 0};
@@ -312,7 +415,6 @@ namespace AtlasFusion::LocalMap {
         b += 0.001;
         return a / (a + b);
     }
-
 
     void SelfModel::UpdateOrientation(double heading) {
         double r, p, y;

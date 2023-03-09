@@ -81,6 +81,9 @@
 #include <rtl/Transformation.h>
 #include <rtl/Core.h>
 
+// Thread Pool
+#include <BS_thread_pool.hpp>
+
 // Interfaces
 #include <atlas_fusion_interfaces/msg/camera_data.hpp>
 #include <atlas_fusion_interfaces/msg/lidar_data.hpp>
@@ -94,6 +97,7 @@
 #include <atlas_fusion_interfaces/msg/gnss_position_data.hpp>
 #include <atlas_fusion_interfaces/msg/gnss_time_data.hpp>
 #include <atlas_fusion_interfaces/msg/radar_data.hpp>
+#include <atlas_fusion_interfaces/srv/estimate_position_in_time.hpp>
 #include <std_msgs/msg/u_int64.hpp>
 
 // Misc

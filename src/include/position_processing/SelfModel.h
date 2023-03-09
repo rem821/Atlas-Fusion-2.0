@@ -36,50 +36,77 @@ namespace AtlasFusion::LocalMap {
 
     class SelfModel : public rclcpp::Node {
     public:
-        SelfModel(const std::string& name, const rclcpp::NodeOptions &options);
+        SelfModel(const std::string& name, const rclcpp::NodeOptions& options);
 
     private:
         /* Subscribers */
         void OnGnssPose(atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr msg);
+
         void OnImuImu(atlas_fusion_interfaces::msg::ImuImuData::UniquePtr msg);
+
         void OnImuDquat(atlas_fusion_interfaces::msg::ImuDquatData::UniquePtr msg);
+
         rclcpp::Subscription<atlas_fusion_interfaces::msg::GnssPositionData>::SharedPtr gnssSubscriber_;
         rclcpp::Subscription<atlas_fusion_interfaces::msg::ImuImuData>::SharedPtr imuImuSubscriber_;
         rclcpp::Subscription<atlas_fusion_interfaces::msg::ImuDquatData>::SharedPtr imuDquatSubscriber_;
 
         /* Transforms */
         void PublishStaticTransforms();
+
         void UpdateOriginToRootTf();
+
         std::shared_ptr<tf2_ros::StaticTransformBroadcaster> staticTransformBroadcaster_;
         std::shared_ptr<tf2_ros::TransformBroadcaster> rootToOriginTransformBroadcaster_;
         rclcpp::Publisher<geometry_msgs::msg::TransformStamped>::SharedPtr originTransformationPublisher_;
 
         /* Publishers */
         void OnPublishPoseAndTrajectory();
+
         visualization_msgs::msg::Marker GetSelfGlobalCube();
+
         rclcpp::TimerBase::SharedPtr timer_;
         rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr selfGlobalPublisher_;
         rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr filteredTrajectoryPublisher_;
 
+        /* Services */
+        rclcpp::CallbackGroup::SharedPtr callbackGroup_;
+        rclcpp::Service<atlas_fusion_interfaces::srv::EstimatePositionInTime>::SharedPtr positionEstimationService_;
+        void EstimatePositionInTime(const std::shared_ptr<atlas_fusion_interfaces::srv::EstimatePositionInTime::Request> request,
+                               std::shared_ptr<atlas_fusion_interfaces::srv::EstimatePositionInTime::Response> response);
+
         [[nodiscard]] DataModels::LocalPosition GetPosition() const;
+
         std::deque<DataModels::LocalPosition> GetPositionHistory() const { return positionHistory_; };
+
         [[nodiscard]] double GetSpeedScalar() const;
+
         [[nodiscard]] rtl::Vector3D<double> GetSpeedVector() const;
+
         [[nodiscard]] double GetAvgAccScalar() const;
+
         [[nodiscard]] rtl::Vector3D<double> GetAvgAcceleration() const;
+
         [[nodiscard]] rtl::Quaternion<double> GetOrientation() const { return orientation_; }
+
         [[nodiscard]] double GetHeading() const;
 
 
-        std::pair<double, float> ValidHeading(const atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr &data);
+        std::pair<double, float> ValidHeading(const atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr& data);
+
         std::pair<double, float> SpeedHeading();
-        std::pair<double, float> FuseHeadings(const atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr &data);
+
+        std::pair<double, float> FuseHeadings(const atlas_fusion_interfaces::msg::GnssPositionData::UniquePtr& data);
+
         float EstimateSlerpFactor(float, float);
+
         void UpdateOrientation(double heading);
 
         [[nodiscard]] DataModels::GlobalPosition GnssPoseToRootFrame(const DataModels::GlobalPosition& gnssPose) const;
-        [[nodiscard]] rtl::Vector3D<double> RemoveGravitationalForceFromLinAcc(const atlas_fusion_interfaces::msg::ImuImuData::UniquePtr &data) const;
+
+        [[nodiscard]] rtl::Vector3D<double> RemoveGravitationalForceFromLinAcc(const atlas_fusion_interfaces::msg::ImuImuData::UniquePtr& data) const;
+
         [[nodiscard]] uint64_t GetCurrentTime() const;
+
         [[nodiscard]] static double AzimuthToHeading(double azimuth) { return -azimuth * M_PI / 180.0f; }
 
         std::unique_ptr<Algorithms::Kalman1D> kalmanX_;

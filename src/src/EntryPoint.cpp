@@ -22,6 +22,7 @@ namespace AtlasFusion {
 
         configService_ = std::make_unique<ConfigService>(datasetPath);
         datasetPath_ = configService_->GetStringValue({"data_folder"});
+        threadPool_ = std::make_unique<BS::thread_pool>(std::thread::hardware_concurrency() - 1);
 
         InitTFTree();
         InitROS();
@@ -181,7 +182,7 @@ namespace AtlasFusion {
         std::string lidarAggregator = "LidarAggregator";
         nodes_[lidarAggregator] = std::make_shared<LocalMap::LidarAggregator>(
                 lidarAggregator,
-                Topics::kRadarTiDataLoader,
+                Topics::kLidarAggregatedGlobal,
                 nodeOptions_
         );
         rosExecutor_.add_node(nodes_[lidarAggregator]);

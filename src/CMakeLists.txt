@@ -60,6 +60,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         ${OpenCV_INCLUDE_DIRS}
         ${Qt5_INCLUDE_DIRS}
         libs/robotic-template-library/include
+        libs/thread-pool
         )
 
 target_link_directories(${PROJECT_NAME} PRIVATE ${PCL_LIBRARY_DIRS})

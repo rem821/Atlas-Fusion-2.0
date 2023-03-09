@@ -5,6 +5,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include <ConfigService.h>
+#include <BS_thread_pool.hpp>
 
 namespace AtlasFusion {
 
@@ -29,6 +30,8 @@ namespace AtlasFusion {
 
         ConfigService& GetConfigService() const { return *configService_; }
 
+        BS::thread_pool& GetThreadPool() const { return *threadPool_; }
+
     private:
         void InitTFTree();
 
@@ -49,6 +52,9 @@ namespace AtlasFusion {
         rclcpp::NodeOptions nodeOptions_;
 
         std::map<std::string, rclcpp::Node::SharedPtr> nodes_;
+
+        /* Thread pool */
+        std::unique_ptr<BS::thread_pool> threadPool_;
 
         static EntryPoint* context_;
     };
