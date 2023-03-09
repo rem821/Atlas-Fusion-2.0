@@ -55,7 +55,7 @@ namespace AtlasFusion::Algorithms {
 
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr
     PointCloudAggregator::GetLatestScanEgoCentric(const rtl::RigidTf3D<double>& egoTf) {
-        // Timer t("Get ego centric point cloud");
+        //Timer t("Get ego centric point cloud");
 
         if (latestScanEgoValid_) return latestScanEgoPoints_;
 
@@ -68,7 +68,7 @@ namespace AtlasFusion::Algorithms {
 
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr
     PointCloudAggregator::GetLatestScanCutout(const rtl::RigidTf3D<double>& egoTf, const FrameType& frame) {
-        //Timer t("Get latest scan cutout for frame: " + frameTypeName(frame), 0);
+        //Timer t("Get latest scan cutout for frame: " + FrameTypeName(frame), 0);
         if (!latestScanValid_) GetLatestScanEgoCentric(egoTf);
 
         std::string f = FrameTypeName(frame);
@@ -106,7 +106,7 @@ namespace AtlasFusion::Algorithms {
     }
 
     void PointCloudAggregator::FilterOutBatches(uint64_t currentTime) {
-        // Timer t("Filter out lidar aggregated batches");
+        //Timer t("Filter out lidar aggregated batches");
         if (batchInfo_.empty()) return;
 
         size_t pointsToDelete = 0;
