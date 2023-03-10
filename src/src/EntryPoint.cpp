@@ -12,6 +12,8 @@
 #include <data_loaders/RadarDataLoader.h>
 #include <position_processing/SelfModel.h>
 #include <lidar_processing/LidarAggregator.h>
+#include <camera_processing/YoloDetector.h>
+
 
 namespace AtlasFusion {
     EntryPoint *EntryPoint::context_ = nullptr;
@@ -186,6 +188,15 @@ namespace AtlasFusion {
                 nodeOptions_
         );
         rosExecutor_.add_node(nodes_[lidarAggregator]);
+
+        /* Yolo detector */
+        std::string yoloDetector = "YoloDetector";
+        nodes_[yoloDetector] = std::make_shared<LocalMap::YoloDetector>(
+                yoloDetector,
+                Topics::kYoloDetectionFrustums,
+                nodeOptions_
+        );
+        rosExecutor_.add_node(nodes_[yoloDetector]);
     }
 
     rtl::RigidTf3D<double> EntryPoint::GetTFFrameFromConfig(ConfigService &service, const FrameType &type) {
@@ -203,5 +214,38 @@ namespace AtlasFusion {
             tfTree.AddFrame(frame, frameType);
         }
         return tfTree;
+    }
+
+    DataModels::CameraCalibrationParams EntryPoint::CreateCameraCalibrationParams(DataLoader::CameraIdentifier cameraIdentifier) {
+        auto path = configService_->GetStringValue({"calibrations_folder"});
+        switch(cameraIdentifier) {
+            case DataLoader::CameraIdentifier::kCameraLeftSide: {
+                path += Files::kCameraLeftSideCalibYaml;
+                break;
+            }
+            case DataLoader::CameraIdentifier::kCameraLeftFront: {
+                path += Files::kCameraLeftFrontCalibYaml;
+                break;
+            }
+            case DataLoader::CameraIdentifier::kCameraRightFront: {
+                path += Files::kCameraRightFrontCalibYaml;
+                break;
+            }
+            case DataLoader::CameraIdentifier::kCameraRightSide: {
+                path += Files::kCameraRightSideCalibYaml;
+                break;
+            }
+            case DataLoader::CameraIdentifier::kCameraIr: {
+                path += Files::kCameraIrCalibYaml;
+                break;
+            }
+        }
+        auto cs = ConfigService(path);
+
+        auto width = (size_t) cs.GetDoubleValue({"width"});
+        auto height = (size_t) cs.GetDoubleValue({"height"});
+        auto intrinsic = cs.GetMatValue<double>({"intrinsic"});
+        auto dist = cs.GetArrayValue<double>({"dist"});
+        return {width, height, intrinsic, dist};
     }
 }

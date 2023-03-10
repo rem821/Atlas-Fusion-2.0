@@ -156,20 +156,11 @@ namespace AtlasFusion::DataLoader {
     }
 
     void DataLoaderController::InitializeCameraCalibrationParams() {
-        std::string calibsFolder = EntryPoint::GetContext().GetConfigService().GetStringValue({"calibrations_folder"});
-        cameraCalibrationParams_[CameraIdentifier::kCameraLeftSide] = CreateCalibrationParams(ConfigService(calibsFolder + Files::kCameraLeftFrontCalibYaml));
-        cameraCalibrationParams_[CameraIdentifier::kCameraLeftFront] = CreateCalibrationParams(ConfigService(calibsFolder + Files::kCameraLeftFrontCalibYaml));
-        cameraCalibrationParams_[CameraIdentifier::kCameraRightFront] = CreateCalibrationParams(ConfigService(calibsFolder + Files::kCameraRightFrontCalibYaml));
-        cameraCalibrationParams_[CameraIdentifier::kCameraRightSide] = CreateCalibrationParams(ConfigService(calibsFolder + Files::kCameraRightSideCalibYaml));
-        cameraCalibrationParams_[CameraIdentifier::kCameraIr] = CreateCalibrationParams(ConfigService(calibsFolder + Files::kCameraIrCalibYaml));
-    }
-
-    DataModels::CameraCalibrationParams DataLoaderController::CreateCalibrationParams(ConfigService configService) {
-        auto width = (size_t) configService.GetDoubleValue({"width"});
-        auto height = (size_t) configService.GetDoubleValue({"height"});
-        auto intrinsic = configService.GetMatValue<double>({"intrinsic"});
-        auto dist = configService.GetArrayValue<double>({"dist"});
-        return {width, height, intrinsic, dist};
+        cameraCalibrationParams_[CameraIdentifier::kCameraLeftSide] = EntryPoint::GetContext().CreateCameraCalibrationParams(CameraIdentifier::kCameraLeftSide);
+        cameraCalibrationParams_[CameraIdentifier::kCameraLeftFront] = EntryPoint::GetContext().CreateCameraCalibrationParams(CameraIdentifier::kCameraLeftFront);
+        cameraCalibrationParams_[CameraIdentifier::kCameraRightFront] = EntryPoint::GetContext().CreateCameraCalibrationParams(CameraIdentifier::kCameraRightFront);
+        cameraCalibrationParams_[CameraIdentifier::kCameraRightSide] = EntryPoint::GetContext().CreateCameraCalibrationParams(CameraIdentifier::kCameraRightSide);
+        cameraCalibrationParams_[CameraIdentifier::kCameraIr] = EntryPoint::GetContext().CreateCameraCalibrationParams(CameraIdentifier::kCameraIr);
     }
 
     void DataLoaderController::InitializeSubscribers() {

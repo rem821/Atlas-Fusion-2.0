@@ -6,6 +6,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include <ConfigService.h>
 #include <BS_thread_pool.hpp>
+#include <data_models/CameraCalibrationParams.h>
 
 namespace AtlasFusion {
 
@@ -31,6 +32,8 @@ namespace AtlasFusion {
         ConfigService& GetConfigService() const { return *configService_; }
 
         BS::thread_pool& GetThreadPool() const { return *threadPool_; }
+
+        DataModels::CameraCalibrationParams CreateCameraCalibrationParams(DataLoader::CameraIdentifier cameraIdentifier);
 
     private:
         void InitTFTree();

@@ -68,7 +68,6 @@ namespace AtlasFusion::DataLoader {
         void OnRadarData(atlas_fusion_interfaces::msg::RadarData::UniquePtr msg);
 
         void InitializeCameraCalibrationParams();
-        DataModels::CameraCalibrationParams CreateCalibrationParams(ConfigService configService);
         void InitializeSubscribers();
         void InitializePublishers();
 

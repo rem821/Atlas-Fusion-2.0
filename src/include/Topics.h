@@ -86,6 +86,8 @@ namespace AtlasFusion::Topics {
 
     const std::string kLidarAggregatedGlobal = "/atlasfusion/local_map/lidar/aggregated/global";
 
+    const std::string kYoloDetectionFrustums = "/atlasfusion/local_map/camera/yolo_frustums";
+
     /*
 
     const std::string kLidarLeftStatus = "/atlasfusion/local_map/lidar_left/status";
