@@ -21,12 +21,14 @@
  */
 
 #include "data_loaders/DataLoaderController.h"
+#include <sensor_msgs/distortion_models.hpp>
 
 namespace AtlasFusion::DataLoader {
 
     DataLoaderController::DataLoaderController(const std::string& name, const uint8_t noDataLoaders, const rclcpp::NodeOptions& options)
             : Node(name, options), noDataLoaders_(noDataLoaders), latestTimestampPublished_(0) {
 
+        InitializeCameraCalibrationParams();
         InitializePublishers();
         InitializeSubscribers();
     }
@@ -151,6 +153,23 @@ namespace AtlasFusion::DataLoader {
 
         dataCache_.emplace_back(RadarIdentifier::kRadarTi, std::move(msg));
         OnDataLoaderControllerTimer();
+    }
+
+    void DataLoaderController::InitializeCameraCalibrationParams() {
+        std::string calibsFolder = EntryPoint::GetContext().GetConfigService().GetStringValue({"calibrations_folder"});
+        cameraCalibrationParams_[CameraIdentifier::kCameraLeftSide] = CreateCalibrationParams(ConfigService(calibsFolder + Files::kCameraLeftFrontCalibYaml));
+        cameraCalibrationParams_[CameraIdentifier::kCameraLeftFront] = CreateCalibrationParams(ConfigService(calibsFolder + Files::kCameraLeftFrontCalibYaml));
+        cameraCalibrationParams_[CameraIdentifier::kCameraRightFront] = CreateCalibrationParams(ConfigService(calibsFolder + Files::kCameraRightFrontCalibYaml));
+        cameraCalibrationParams_[CameraIdentifier::kCameraRightSide] = CreateCalibrationParams(ConfigService(calibsFolder + Files::kCameraRightSideCalibYaml));
+        cameraCalibrationParams_[CameraIdentifier::kCameraIr] = CreateCalibrationParams(ConfigService(calibsFolder + Files::kCameraIrCalibYaml));
+    }
+
+    DataModels::CameraCalibrationParams DataLoaderController::CreateCalibrationParams(ConfigService configService) {
+        auto width = (size_t) configService.GetDoubleValue({"width"});
+        auto height = (size_t) configService.GetDoubleValue({"height"});
+        auto intrinsic = configService.GetMatValue<double>({"intrinsic"});
+        auto dist = configService.GetArrayValue<double>({"dist"});
+        return {width, height, intrinsic, dist};
     }
 
     void DataLoaderController::InitializeSubscribers() {
@@ -281,6 +300,12 @@ namespace AtlasFusion::DataLoader {
         cameraImagePublishers_[CameraIdentifier::kCameraRightSide] = image_transport::create_publisher(this, Topics::kCameraRightSideImage);
         cameraImagePublishers_[CameraIdentifier::kCameraIr] = image_transport::create_publisher(this, Topics::kCameraIrImage);
 
+        cameraInfoPublishers_[CameraIdentifier::kCameraLeftSide] = create_publisher<sensor_msgs::msg::CameraInfo>(Topics::kCameraLeftSideInfo, 1);
+        cameraInfoPublishers_[CameraIdentifier::kCameraLeftFront] = create_publisher<sensor_msgs::msg::CameraInfo>(Topics::kCameraLeftFrontInfo, 1);
+        cameraInfoPublishers_[CameraIdentifier::kCameraRightFront] = create_publisher<sensor_msgs::msg::CameraInfo>(Topics::kCameraRightFrontInfo, 1);
+        cameraInfoPublishers_[CameraIdentifier::kCameraRightSide] = create_publisher<sensor_msgs::msg::CameraInfo>(Topics::kCameraRightSideInfo, 1);
+        cameraInfoPublishers_[CameraIdentifier::kCameraIr] = create_publisher<sensor_msgs::msg::CameraInfo>(Topics::kCameraIrInfo, 1);
+
         lidarPublishers_[LidarIdentifier::kLeftLidar] = create_publisher<sensor_msgs::msg::PointCloud2>(Topics::kLidarLeft, 1);
         lidarPublishers_[LidarIdentifier::kCenterLidar] = create_publisher<sensor_msgs::msg::PointCloud2>(Topics::kLidarCenter, 1);
         lidarPublishers_[LidarIdentifier::kRightLidar] = create_publisher<sensor_msgs::msg::PointCloud2>(Topics::kLidarRight, 1);
@@ -347,9 +372,9 @@ namespace AtlasFusion::DataLoader {
             auto cameraIdentifier = std::get<CameraIdentifier>(d.first);
             auto& msg = std::get<atlas_fusion_interfaces::msg::CameraData::UniquePtr>(d.second);
             cameraPublishers_[cameraIdentifier]->publish(*msg);
-
             std_msgs::msg::Header header;
             cameraImagePublishers_[cameraIdentifier].publish(msg->image);
+            PublishCameraInfo(cameraIdentifier);
             return;
         }
         if (d_i == 1) {
@@ -410,5 +435,37 @@ namespace AtlasFusion::DataLoader {
         }
 
         throw std::runtime_error("Unexpected variant type when comparing timestamps!");
+    }
+
+    void DataLoaderController::PublishCameraInfo(CameraIdentifier cameraIdentifier) {
+        sensor_msgs::msg::CameraInfo msg;
+
+        msg.header.stamp = get_clock()->now();
+        msg.header.frame_id = FrameTypeName(FrameTypeFromIdentifier(cameraIdentifier));
+
+        auto params = cameraCalibrationParams_[cameraIdentifier];
+        msg.width = params.GetWidth();
+        msg.height = params.GetHeight();
+
+        msg.distortion_model = sensor_msgs::distortion_models::PLUMB_BOB;
+
+        auto dist = params.GetDistortionParams();
+        msg.d = {dist[0], dist[1], dist[2], dist[3], dist[4]};
+
+        auto intrinsic = params.GetIntrinsicParams();
+        msg.k = {intrinsic[0][0], intrinsic[0][1], intrinsic[0][2],
+                 intrinsic[1][0], intrinsic[1][1], intrinsic[1][2],
+                 intrinsic[2][0], intrinsic[2][1], intrinsic[2][2],};
+
+        msg.r = {1, 0, 0,
+                 0, 1, 0,
+                 0, 0, 1};
+
+
+        msg.p = {intrinsic[0][0], intrinsic[0][1], intrinsic[0][2], 0,
+                 intrinsic[1][0], intrinsic[1][1], intrinsic[1][2], 0,
+                 intrinsic[2][0], intrinsic[2][1], intrinsic[2][2], 0};
+
+        cameraInfoPublishers_[cameraIdentifier]->publish(msg);
     }
 }

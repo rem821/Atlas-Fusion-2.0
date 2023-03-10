@@ -36,6 +36,7 @@
 #include <atlas_fusion_interfaces/msg/gnss_time_data.hpp>
 #include <atlas_fusion_interfaces/msg/radar_data.hpp>
 #include <image_transport/image_transport.hpp>
+#include <data_models/CameraCalibrationParams.h>
 
 namespace AtlasFusion::DataLoader {
 
@@ -66,11 +67,15 @@ namespace AtlasFusion::DataLoader {
 
         void OnRadarData(atlas_fusion_interfaces::msg::RadarData::UniquePtr msg);
 
+        void InitializeCameraCalibrationParams();
+        DataModels::CameraCalibrationParams CreateCalibrationParams(ConfigService configService);
         void InitializeSubscribers();
         void InitializePublishers();
 
         static uint64_t GetDataTimestamp(const std::pair<DataIdentifier, DataMsg> &d);
         void RetransmitMsg(const std::pair<DataIdentifier, DataMsg> &d);
+
+        void PublishCameraInfo(CameraIdentifier cameraIdentifier);
 
         std::string datasetPath_;
         uint8_t noDataLoaders_;        // Keep this size the same as number of dataloaders
@@ -95,6 +100,7 @@ namespace AtlasFusion::DataLoader {
 
         std::map<CameraIdentifier, rclcpp::Publisher<atlas_fusion_interfaces::msg::CameraData>::SharedPtr> cameraPublishers_;
         std::map<CameraIdentifier, image_transport::Publisher> cameraImagePublishers_;
+        std::map<CameraIdentifier, rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr> cameraInfoPublishers_;
 
         std::map<LidarIdentifier, rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr> lidarPublishers_;
         rclcpp::Publisher<atlas_fusion_interfaces::msg::ImuDquatData>::SharedPtr imuDquatPublisher_;
@@ -110,6 +116,7 @@ namespace AtlasFusion::DataLoader {
 
         /* Data cache */
         std::vector<std::pair<DataIdentifier, DataMsg>> dataCache_;
+        std::map<CameraIdentifier, DataModels::CameraCalibrationParams> cameraCalibrationParams_;
 
         uint64_t latestTimestampPublished_;
     };
