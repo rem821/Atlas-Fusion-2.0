@@ -2,6 +2,8 @@
 // Created by standa on 8.3.23.
 //
 #include <algorithms/PointCloudProcessor.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/common/transforms.h>
 
 namespace AtlasFusion::Algorithms {
 

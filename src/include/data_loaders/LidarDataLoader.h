@@ -22,6 +22,8 @@
 #pragma once
 
 #include <precompiled_headers/PCH.h>
+#include <std_msgs/msg/u_int64.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
 namespace AtlasFusion::DataLoader {
 

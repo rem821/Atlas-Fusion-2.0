@@ -22,6 +22,11 @@
 #pragma once
 
 #include <precompiled_headers/PCH.h>
+#include <opencv2/opencv.hpp>
+#include <std_msgs/msg/u_int64.hpp>
+#include <sensor_msgs/msg/image.hpp>
+#include <atlas_fusion_interfaces/msg/yolo_detection.hpp>
+#include <atlas_fusion_interfaces/msg/camera_data.hpp>
 
 namespace AtlasFusion::DataLoader {
 

@@ -24,6 +24,8 @@
 #include <precompiled_headers/PCH.h>
 #include <data_models/LocalPosition.h>
 #include <algorithms/PointCloudAggregator.h>
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <atlas_fusion_interfaces/srv/estimate_position_in_time.hpp>
 
 namespace AtlasFusion::LocalMap {
 

@@ -22,6 +22,8 @@
 #pragma once
 
 #include <precompiled_headers/PCH.h>
+#include <std_msgs/msg/u_int64.hpp>
+#include <atlas_fusion_interfaces/msg/radar_data.hpp>
 
 namespace AtlasFusion::DataLoader {
 

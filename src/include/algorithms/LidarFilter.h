@@ -23,6 +23,7 @@
 #pragma once
 
 #include <precompiled_headers/PCH.h>
+#include <pcl/filters/statistical_outlier_removal.h>
 
 namespace AtlasFusion::Algorithms {
 

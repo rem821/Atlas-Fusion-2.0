@@ -2,6 +2,7 @@
 // Created by standa on 9.3.23.
 //
 #include <algorithms/PointCloudAggregator.h>
+#include <pcl_conversions/pcl_conversions.h>
 
 namespace AtlasFusion::Algorithms {
 

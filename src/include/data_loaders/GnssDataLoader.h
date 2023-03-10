@@ -23,6 +23,9 @@
 #pragma once
 
 #include <precompiled_headers/PCH.h>
+#include <std_msgs/msg/u_int64.hpp>
+#include <atlas_fusion_interfaces/msg/gnss_position_data.hpp>
+#include <atlas_fusion_interfaces/msg/gnss_time_data.hpp>
 
 namespace AtlasFusion::DataLoader {
 
@@ -60,6 +63,5 @@ namespace AtlasFusion::DataLoader {
 
         std::vector<atlas_fusion_interfaces::msg::GnssTimeData::UniquePtr> timeData_;
         std::vector<atlas_fusion_interfaces::msg::GnssTimeData::UniquePtr>::iterator timeDataIt_;
-
     };
 }

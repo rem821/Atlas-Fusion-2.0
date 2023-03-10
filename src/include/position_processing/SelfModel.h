@@ -32,6 +32,11 @@
 #include <algorithms/Kalman1D.h>
 #include <data_models/GlobalPosition.h>
 
+#include <atlas_fusion_interfaces/msg/imu_imu_data.hpp>
+#include <atlas_fusion_interfaces/msg/imu_dquat_data.hpp>
+#include <atlas_fusion_interfaces/msg/gnss_position_data.hpp>
+#include <atlas_fusion_interfaces/srv/estimate_position_in_time.hpp>
+
 namespace AtlasFusion::LocalMap {
 
     class SelfModel : public rclcpp::Node {

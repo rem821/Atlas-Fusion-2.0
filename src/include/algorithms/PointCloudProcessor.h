@@ -4,6 +4,8 @@
 #pragma once
 
 #include <precompiled_headers/PCH.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 
 namespace AtlasFusion::Algorithms {
 

@@ -27,8 +27,6 @@
 #include <sstream>
 #include <fstream>
 #include <istream>
-#include <QString>
-#include <QDebug>
 #include <utility>
 #include <vector>
 #include <queue>
@@ -44,35 +42,6 @@
 #include <any>
 #include <variant>
 
-// ROS2
-#include "rclcpp/rclcpp.hpp"
-
-// RTL
-/*
-#include <rtl/Transformation.h>
-#include <rtl/Core.h>
-*/
-
-// OpenCV
-#include <opencv2/opencv.hpp>
-
-// PCL
-#include <pcl/common/common.h>
-#include <pcl/common/transforms.h>
-#include <pcl/point_cloud.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/filters/statistical_outlier_removal.h>
-#include <pcl/filters/extract_indices.h>
-#include <pcl/features/normal_3d.h>
-#include <pcl/ModelCoefficients.h>
-#include <pcl/kdtree/kdtree.h>
-#include <pcl/segmentation/extract_clusters.h>
-#include <pcl/search/impl/search.hpp>
-#include <pcl_conversions/pcl_conversions.h>
-#include <pcl/features/moment_of_inertia_estimation.h>
-
 // Logging
 #include <logging/Log.h>
 #include <fmt/format.h>
@@ -84,22 +53,6 @@
 // Thread Pool
 #include <BS_thread_pool.hpp>
 
-// Interfaces
-#include <atlas_fusion_interfaces/msg/camera_data.hpp>
-#include <atlas_fusion_interfaces/msg/lidar_data.hpp>
-#include <atlas_fusion_interfaces/msg/imu_dquat_data.hpp>
-#include <atlas_fusion_interfaces/msg/imu_gnss_data.hpp>
-#include <atlas_fusion_interfaces/msg/imu_imu_data.hpp>
-#include <atlas_fusion_interfaces/msg/imu_mag_data.hpp>
-#include <atlas_fusion_interfaces/msg/imu_pressure_data.hpp>
-#include <atlas_fusion_interfaces/msg/imu_temp_data.hpp>
-#include <atlas_fusion_interfaces/msg/imu_time_data.hpp>
-#include <atlas_fusion_interfaces/msg/gnss_position_data.hpp>
-#include <atlas_fusion_interfaces/msg/gnss_time_data.hpp>
-#include <atlas_fusion_interfaces/msg/radar_data.hpp>
-#include <atlas_fusion_interfaces/srv/estimate_position_in_time.hpp>
-#include <std_msgs/msg/u_int64.hpp>
-
 // Misc
 #include <Topics.h>
 #include <data_loaders/DataLoaderIdentifiers.h>
@@ -110,12 +63,6 @@
 #include <util/CsvReader.h>
 #include <util/Timer.h>
 #include <IdentifierToFrameConversions.h>
-
-/*
-#include "Context.h"
-#include "Timer.h"
-#include "visualizers/Topics.h"
-*/
 
 // EntryPoint
 #include <EntryPoint.h>

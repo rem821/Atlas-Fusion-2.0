@@ -22,6 +22,19 @@
 #pragma once
 
 #include <precompiled_headers/PCH.h>
+#include <std_msgs/msg/u_int64.hpp>
+#include <atlas_fusion_interfaces/msg/camera_data.hpp>
+#include <atlas_fusion_interfaces/msg/lidar_data.hpp>
+#include <atlas_fusion_interfaces/msg/imu_dquat_data.hpp>
+#include <atlas_fusion_interfaces/msg/imu_gnss_data.hpp>
+#include <atlas_fusion_interfaces/msg/imu_imu_data.hpp>
+#include <atlas_fusion_interfaces/msg/imu_mag_data.hpp>
+#include <atlas_fusion_interfaces/msg/imu_pressure_data.hpp>
+#include <atlas_fusion_interfaces/msg/imu_temp_data.hpp>
+#include <atlas_fusion_interfaces/msg/imu_time_data.hpp>
+#include <atlas_fusion_interfaces/msg/gnss_position_data.hpp>
+#include <atlas_fusion_interfaces/msg/gnss_time_data.hpp>
+#include <atlas_fusion_interfaces/msg/radar_data.hpp>
 #include <image_transport/image_transport.hpp>
 
 namespace AtlasFusion::DataLoader {

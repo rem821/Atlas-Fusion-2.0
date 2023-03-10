@@ -23,6 +23,7 @@
 #include <lidar_processing/LidarAggregator.h>
 #include <algorithms/PointCloudExtrapolator.h>
 #include <algorithms/LidarFilter.h>
+#include <pcl_conversions/pcl_conversions.h>
 
 namespace AtlasFusion::LocalMap {
 
