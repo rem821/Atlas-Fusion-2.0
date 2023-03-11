@@ -79,6 +79,7 @@ namespace AtlasFusion::LocalMap {
     }
 
     void YoloDetector::OnCameraData(atlas_fusion_interfaces::msg::CameraData::UniquePtr msg) {
+        //Timer t("YoloDetector->OnCameraData");
         if (aggregatedPointCloud_->empty()) {
             LOG_WARN("YoloDetector doesn't have point cloud to estimate detections frustums in 3D!");
             return;
@@ -93,8 +94,6 @@ namespace AtlasFusion::LocalMap {
         ProjectAllPointsIntoTheImage(frame, msg->image.width, msg->image.height, valid2DPoints, valid3DPoints);
 
         if (valid2DPoints.empty()) {
-            LOG_WARN("All points {}, valid3D {}", aggregatedPointCloud_->size(), valid3DPoints.size());
-
             LOG_WARN("No valid 2D points to estimate detection frustums in 3D!");
         }
 
@@ -103,8 +102,7 @@ namespace AtlasFusion::LocalMap {
             auto indices = GetPointsInsideDetectionIndices(valid2DPoints, detection);
             float detectionDistance = GetMedianDepthOfPoints(valid3DPoints, indices);
             if(detectionDistance < 0) break;
-            LOG_INFO("YOLO detection from camera {} of class {} is being detected {}m from the vehicle with confidence of {}", msg->image.header.frame_id,
-                     detection.detection_class, detectionDistance, detection.detection_confidence);
+
             frustumDetections.emplace_back(
                     Get3DDetectionFrustum(frame, detection, detectionDistance),
                     detection.detection_confidence,
@@ -115,7 +113,6 @@ namespace AtlasFusion::LocalMap {
     }
 
     void YoloDetector::OnNewLidarData(sensor_msgs::msg::PointCloud2::UniquePtr msg) {
-        LOG_INFO("YoloDetector: Lidar Data");
         pcl::fromROSMsg(*msg.get(), *aggregatedPointCloud_.get());
     }
 
@@ -130,7 +127,6 @@ namespace AtlasFusion::LocalMap {
                                                     std::vector<cv::Point3f>& validPoints3D) {
         auto agg_tf = Algorithms::PointCloudProcessor::TransformPointCloud(aggregatedPointCloud_, egoTf_);
         auto sensorCutoutPc = Algorithms::PointCloudProcessor::GetPointCloudCutoutForFrame(agg_tf, frame);
-        LOG_WARN("Sensor cutout has length {}", sensorCutoutPc->size());
 
         auto transformedPc = Algorithms::PointCloudProcessor::TransformPointCloud(sensorCutoutPc, EntryPoint::GetContext().GetTransformationForFrame(frame).inverted());
 

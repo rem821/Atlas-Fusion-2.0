@@ -63,7 +63,7 @@ namespace AtlasFusion::LocalMap {
     }
 
     void LidarAggregator::OnLidarData(sensor_msgs::msg::PointCloud2::UniquePtr msg) {
-        //Timer t("LidarAggregator->OnLidarData")
+        Timer t("LidarAggregator->OnLidarData");
         LOG_TRACE("LidarAggregator: Lidar data of frame {} arrived: ({}, {})", msg->lidar_identifier, this->get_clock()->now().nanoseconds(), HEX_ADDR(msg.get()));
         const auto sensorFrame = NameToFrameType(msg->header.frame_id);
         const auto lidarTF = EntryPoint::GetContext().GetTransformationForFrame(sensorFrame);
@@ -98,8 +98,6 @@ namespace AtlasFusion::LocalMap {
                 aggregatedPointCloudPublisher_->publish(out_msg);
             }
         }
-
-        //dataCache_.emplace_back(id, std::move(msg));
 
         latestLidarScanTimestamp_[lidarIdentifier] = timestamp;
     }

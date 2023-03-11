@@ -87,20 +87,33 @@ namespace AtlasFusion::Algorithms {
             const std::vector<std::shared_ptr<DataModels::PointCloudBatch>>& batches) {
         //Timer t("Add lidar batches");
 
-        auto downsampledBatches = std::vector<std::shared_ptr<DataModels::PointCloudBatch>>();
-        for (const auto& batch: batches) {
-            auto points = PointCloudProcessor::DownsamplePointCloud(batch->GetPoints());
-            downsampledBatches.emplace_back(
-                    std::make_shared<DataModels::PointCloudBatch>(
-                            DataModels::PointCloudBatch(batch->GetTimestamp(),
-                                                        points,
-                                                        batch->GetFrame(),
-                                                        batch->GetGlobalTf()))
-            );
-            batchInfo_.emplace_back(batch->GetTimestamp(), points->size());
+        auto downsampledBatches = std::deque<std::shared_ptr<DataModels::PointCloudBatch>>();
+        downsampledBatches.resize(batches.size());
+        uint32_t previousBatches = batchInfo_.size();
+        batchInfo_.resize(previousBatches + batches.size());
+
+        std::vector<std::future<void>> outputFutures;
+        outputFutures.resize(batches.size());
+        for (size_t i = 0; i < batches.size(); i++) {
+            outputFutures[i] = EntryPoint::GetContext().GetThreadPool().submit([&, i]() {
+                auto points = PointCloudProcessor::DownsamplePointCloud(batches[i]->GetPoints());
+                downsampledBatches[i] = std::make_shared<DataModels::PointCloudBatch>(
+                        DataModels::PointCloudBatch(
+                                batches[i]->GetTimestamp(),
+                                points,
+                                batches[i]->GetFrame(),
+                                batches[i]->GetGlobalTf()
+                        )
+                );
+                batchInfo_[previousBatches + i] = std::pair(batches[i]->GetTimestamp(), points->size());
+            });
         }
 
-        auto points = GetPointCloudFromBatches(downsampledBatches);
+        for (auto& outputFuture: outputFutures) {
+            outputFuture.wait();
+        }
+
+        auto points = GetPointCloudFromBatches({downsampledBatches.begin(), downsampledBatches.end()});
         pcl::concatenate(*aggregatedPoints_, *points, *aggregatedPoints_);
 
         aggregatedDownsampledPointsValid_ = false;
@@ -144,6 +157,7 @@ namespace AtlasFusion::Algorithms {
     pcl::PointCloud<pcl::PointXYZ>::Ptr
     PointCloudAggregator::GetPointCloudFromBatches(
             const std::vector<std::shared_ptr<DataModels::PointCloudBatch>>& batches) {
+        //Timer t("Get point cloud from batches");
         pcl::PointCloud<pcl::PointXYZ>::Ptr pc(new pcl::PointCloud<pcl::PointXYZ>);
 
         uint32_t totalPoints = 0;
