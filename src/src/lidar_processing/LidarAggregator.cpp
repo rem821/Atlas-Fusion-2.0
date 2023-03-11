@@ -52,6 +52,12 @@ namespace AtlasFusion::LocalMap {
                 std::bind(&LidarAggregator::OnLidarData, this, std::placeholders::_1)
         );
 
+        selfTransformationSubscriber_ = create_subscription<geometry_msgs::msg::TransformStamped>(
+                Topics::kSelfTransformation,
+                1,
+                std::bind(&LidarAggregator::OnSelfTransformation, this, std::placeholders::_1)
+        );
+
         clientNode_ = std::make_shared<rclcpp::Node>("PoseEstimationClient", get_node_options());
         positionEstimateClient_ = clientNode_->create_client<atlas_fusion_interfaces::srv::EstimatePositionInTime>("estimate_pose");
     }
@@ -79,7 +85,12 @@ namespace AtlasFusion::LocalMap {
 
                 sensor_msgs::msg::PointCloud2 out_msg;
 
+                // Sensor cutout visualization
                 auto out_pc = pointCloudAggregator_.GetGlobalCoordinateAggregatedPointCloud();
+//                auto out_tf = Algorithms::PointCloudProcessor::TransformPointCloud(out_pc, egoTf_);
+//                auto out_cut = Algorithms::PointCloudProcessor::GetPointCloudCutoutForFrame(out_tf, FrameType::kCameraLeftSide);
+//                auto out_cut_tf = Algorithms::PointCloudProcessor::TransformPointCloud(out_cut, egoTf_.inverted());
+
                 pcl::toROSMsg(*out_pc.get(), out_msg);
 
                 out_msg.header.stamp = this->get_clock()->now();
@@ -91,6 +102,13 @@ namespace AtlasFusion::LocalMap {
         //dataCache_.emplace_back(id, std::move(msg));
 
         latestLidarScanTimestamp_[lidarIdentifier] = timestamp;
+    }
+
+    void LidarAggregator::OnSelfTransformation(geometry_msgs::msg::TransformStamped::UniquePtr msg) {
+        rtl::Vector3D<double> position = rtl::Vector3D<double>(msg->transform.translation.x, msg->transform.translation.y, msg->transform.translation.z);
+        rtl::Quaternion<double> orientation = rtl::Quaternion<double>(msg->transform.rotation.w, msg->transform.rotation.x, msg->transform.rotation.y, msg->transform.rotation.z);
+        auto lp = DataModels::LocalPosition(position, orientation, 0);
+        egoTf_ = lp.ToTf().inverted();
     }
 
     std::pair<DataModels::LocalPosition, DataModels::LocalPosition> LidarAggregator::EstimatePositionInTime(uint64_t timestamp) {

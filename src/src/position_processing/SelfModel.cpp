@@ -37,6 +37,7 @@ namespace AtlasFusion::LocalMap {
         // Publisher that publishes position data
         staticTransformBroadcaster_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>(this);
         rootToOriginTransformBroadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
+        originTransformationPublisher_ = create_publisher<geometry_msgs::msg::TransformStamped>(Topics::kSelfTransformation, 1);
         selfGlobalPublisher_ = create_publisher<visualization_msgs::msg::Marker>(Topics::kSelfGlobal, 1);
         filteredTrajectoryPublisher_ = create_publisher<visualization_msgs::msg::Marker>(Topics::kFilteredTrajectory, 1);
 
@@ -170,7 +171,7 @@ namespace AtlasFusion::LocalMap {
     }
 
     void SelfModel::UpdateOriginToRootTf() {
-        auto tf = rtl::RigidTf3D<double>{GetPosition().GetOrientation(), GetPosition().GetPosition()};
+        auto tf = GetPosition().ToTf();
         geometry_msgs::msg::TransformStamped tf_msg;
 
         tf_msg.header.stamp = this->get_clock()->now();
@@ -184,11 +185,12 @@ namespace AtlasFusion::LocalMap {
         tf_msg.transform.rotation.z = tf.rotQuaternion().z();
         tf_msg.transform.rotation.w = tf.rotQuaternion().w();
         rootToOriginTransformBroadcaster_->sendTransform(tf_msg);
+        originTransformationPublisher_->publish(tf_msg);
     }
 
     void SelfModel::OnPublishPoseAndTrajectory() {
         UpdateOriginToRootTf();
-
+        //LOG_INFO("Current position: {}, {}, {}", GetPosition().GetPosition().x(), GetPosition().GetPosition().y(), GetPosition().GetPosition().z());
         visualization_msgs::msg::Marker msg;
         msg.header.stamp = this->get_clock()->now();
         msg.header.frame_id = FrameTypeName(FrameType::kOrigin);
@@ -240,8 +242,8 @@ namespace AtlasFusion::LocalMap {
         return cube;
     }
 
-    void SelfModel::EstimatePositionInTime(const std::shared_ptr<atlas_fusion_interfaces::srv::EstimatePositionInTime::Request> request,
-                                           std::shared_ptr<atlas_fusion_interfaces::srv::EstimatePositionInTime::Response> response) {
+    void SelfModel::EstimatePositionInTime(const std::shared_ptr<atlas_fusion_interfaces::srv::EstimatePositionInTime::Request>& request,
+                                           const std::shared_ptr<atlas_fusion_interfaces::srv::EstimatePositionInTime::Response>& response) {
         for (long i = long(positionHistory_.size()) - 1; i >= 0; i--) {
             if (positionHistory_.at(i).GetTimestamp() < request->timestamp) {
                 if (i == 0) {

@@ -193,7 +193,6 @@ namespace AtlasFusion {
         std::string yoloDetector = "YoloDetector";
         nodes_[yoloDetector] = std::make_shared<LocalMap::YoloDetector>(
                 yoloDetector,
-                Topics::kYoloDetectionFrustums,
                 nodeOptions_
         );
         rosExecutor_.add_node(nodes_[yoloDetector]);

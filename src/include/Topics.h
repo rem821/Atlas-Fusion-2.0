@@ -81,12 +81,16 @@ namespace AtlasFusion::Topics {
     const std::string kFilteredTrajectory = "/atlasfusion/local_map/trajectory/filtered";
     const std::string kImuGpsTrajectory = "/atlasfusion/local_map/trajectory/imu_gps";
 
+    const std::string kSelfTransformation = "/atlasfusion/local_map/self/transformation";
     const std::string kSelfGlobal = "/atlasfusion/local_map/self/global";
     const std::string kSelfEgo = "/atlasfusion/local_map/self/ego";
 
     const std::string kLidarAggregatedGlobal = "/atlasfusion/local_map/lidar/aggregated/global";
 
-    const std::string kYoloDetectionFrustums = "/atlasfusion/local_map/camera/yolo_frustums";
+    const std::string kCameraLeftSideYolo = "/atlasfusion/local_map/camera_left_side/yolo_frustums";
+    const std::string kCameraLeftFrontYolo = "/atlasfusion/local_map/camera_left_front/yolo_frustums";
+    const std::string kCameraRightFrontYolo = "/atlasfusion/local_map/camera_right_front/yolo_frustums";
+    const std::string kCameraRightSideYolo = "/atlasfusion/local_map/camera_right_side/yolo_frustums";
 
     /*
 

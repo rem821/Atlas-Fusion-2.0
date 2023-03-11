@@ -76,8 +76,8 @@ namespace AtlasFusion::LocalMap {
         /* Services */
         rclcpp::CallbackGroup::SharedPtr callbackGroup_;
         rclcpp::Service<atlas_fusion_interfaces::srv::EstimatePositionInTime>::SharedPtr positionEstimationService_;
-        void EstimatePositionInTime(const std::shared_ptr<atlas_fusion_interfaces::srv::EstimatePositionInTime::Request> request,
-                               std::shared_ptr<atlas_fusion_interfaces::srv::EstimatePositionInTime::Response> response);
+        void EstimatePositionInTime(const std::shared_ptr<atlas_fusion_interfaces::srv::EstimatePositionInTime::Request>& request,
+                               const std::shared_ptr<atlas_fusion_interfaces::srv::EstimatePositionInTime::Response>& response);
 
         [[nodiscard]] DataModels::LocalPosition GetPosition() const;
 

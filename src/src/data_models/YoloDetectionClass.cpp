@@ -24,7 +24,7 @@
 
 namespace AtlasFusion::DataModels {
 
-    ReducedYoloDetectionClasses getReducedDetectionClass(const YoloDetectionClass& cls) {
+    ReducedYoloDetectionClasses GetReducedDetectionClass(const YoloDetectionClass& cls) {
 
         auto detectionClass = ReducedYoloDetectionClasses::kOther;
         switch(cls) {
@@ -58,4 +58,45 @@ namespace AtlasFusion::DataModels {
         }
         return detectionClass;
     }
+
+    std_msgs::msg::ColorRGBA GetColorByClass(const YoloDetectionClass cls) {
+        std_msgs::msg::ColorRGBA output;
+        output.a = 1.0;
+
+        switch (GetReducedDetectionClass(cls)) {
+            case DataModels::ReducedYoloDetectionClasses::kPedestrian:  // red
+                output.r = 1.0;
+                output.g = 0.0;
+                output.b = 0.0;
+                break;
+            case DataModels::ReducedYoloDetectionClasses::kBike:    // purple
+                output.r = 1.0;
+                output.g = 0.0;
+                output.b = 1.0;
+                break;
+            case DataModels::ReducedYoloDetectionClasses::kVehicle: // blue
+                output.r = 0.0;
+                output.g = 0.0;
+                output.b = 1.0;
+                break;
+            case DataModels::ReducedYoloDetectionClasses::kAnimal:  // green
+                output.r = 0.0;
+                output.g = 1.0;
+                output.b = 0.0;
+                break;
+            case DataModels::ReducedYoloDetectionClasses::kTraffic:  // aqua
+                output.r = 0.0;
+                output.g = 1.0;
+                output.b = 1.0;
+                break;
+            case DataModels::ReducedYoloDetectionClasses::kOther:   //yellow
+                output.r = 1.0;
+                output.g = 1.0;
+                output.b = 0.0;
+                break;
+        }
+
+        return output;
+    }
+
 }

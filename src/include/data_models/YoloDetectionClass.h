@@ -3,6 +3,8 @@
 //
 #pragma once
 
+#include <std_msgs/msg/color_rgba.hpp>
+
 namespace AtlasFusion::DataModels {
 
     /**
@@ -104,5 +106,8 @@ namespace AtlasFusion::DataModels {
         kOther = 5,
     };
 
-    ReducedYoloDetectionClasses getReducedDetectionClass(const YoloDetectionClass& cls);
+    ReducedYoloDetectionClasses GetReducedDetectionClass(const YoloDetectionClass& cls);
+
+    std_msgs::msg::ColorRGBA GetColorByClass(DataModels::YoloDetectionClass cls);
+
 }

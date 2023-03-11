@@ -26,6 +26,7 @@
 #include <algorithms/PointCloudAggregator.h>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <atlas_fusion_interfaces/srv/estimate_position_in_time.hpp>
+#include <geometry_msgs/msg/transform_stamped.hpp>
 
 namespace AtlasFusion::LocalMap {
 
@@ -35,17 +36,20 @@ namespace AtlasFusion::LocalMap {
 
     private:
         void OnLidarData(sensor_msgs::msg::PointCloud2::UniquePtr msg);
+        void OnSelfTransformation(geometry_msgs::msg::TransformStamped::UniquePtr msg);
 
         std::pair<DataModels::LocalPosition, DataModels::LocalPosition> EstimatePositionInTime(uint64_t timestamp);
 
         std::shared_ptr<rclcpp::Node> clientNode_;
         rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr aggregatedPointCloudPublisher_;
         std::map<DataLoader::LidarIdentifier, rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr> lidarSubscribers_;
+        rclcpp::Subscription<geometry_msgs::msg::TransformStamped>::SharedPtr selfTransformationSubscriber_;
         rclcpp::Client<atlas_fusion_interfaces::srv::EstimatePositionInTime>::SharedPtr positionEstimateClient_;
 
         Algorithms::PointCloudAggregator pointCloudAggregator_{};
 
         std::map<DataLoader::LidarIdentifier, uint64_t> latestLidarScanTimestamp_{};
+        rtl::RigidTf3D<double> egoTf_;
     };
 }
 
