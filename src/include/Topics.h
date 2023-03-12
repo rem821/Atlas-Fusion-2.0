@@ -92,6 +92,8 @@ namespace AtlasFusion::Topics {
     const std::string kCameraRightFrontYolo = "/atlasfusion/local_map/camera_right_front/yolo_frustums";
     const std::string kCameraRightSideYolo = "/atlasfusion/local_map/camera_right_side/yolo_frustums";
 
+    const std::string kLidarAggregatedDetections = "/atlasfusion/local_map/lidar/aggregated/detections";
+
     /*
 
     const std::string kLidarLeftStatus = "/atlasfusion/local_map/lidar_left/status";

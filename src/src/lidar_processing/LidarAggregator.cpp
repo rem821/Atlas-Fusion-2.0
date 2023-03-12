@@ -87,9 +87,10 @@ namespace AtlasFusion::LocalMap {
 
                 // Sensor cutout visualization
                 auto out_pc = pointCloudAggregator_.GetGlobalCoordinateAggregatedPointCloud();
-//                auto out_tf = Algorithms::PointCloudProcessor::TransformPointCloud(out_pc, egoTf_);
-//                auto out_cut = Algorithms::PointCloudProcessor::GetPointCloudCutoutForFrame(out_tf, FrameType::kCameraLeftSide);
-//                auto out_cut_tf = Algorithms::PointCloudProcessor::TransformPointCloud(out_cut, egoTf_.inverted());
+                //auto out_tf = Algorithms::PointCloudProcessor::TransformPointCloud(out_pc, egoTf_);
+                //auto out_cut = Algorithms::PointCloudProcessor::GetPointCloudCutout(out_tf, {{-40.f, -5.f, -.95f},
+                //                                                                             {40.f,  12.f, 1.2f}});
+                //auto out_cut_tf = Algorithms::PointCloudProcessor::TransformPointCloud(out_cut, egoTf_.inverted());
 
                 pcl::toROSMsg(*out_pc.get(), out_msg);
 

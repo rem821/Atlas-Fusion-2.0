@@ -12,11 +12,11 @@
 #include <data_loaders/RadarDataLoader.h>
 #include <position_processing/SelfModel.h>
 #include <lidar_processing/LidarAggregator.h>
+#include <lidar_processing/LidarDetector.h>
 #include <camera_processing/YoloDetector.h>
 
-
 namespace AtlasFusion {
-    EntryPoint *EntryPoint::context_ = nullptr;
+    EntryPoint* EntryPoint::context_ = nullptr;
 
     EntryPoint::EntryPoint(std::string datasetPath) {
         context_ = this;
@@ -171,7 +171,7 @@ namespace AtlasFusion {
         rosExecutor_.add_node(nodes_[dataLoaderController]);
 
 
-        /* Self model */
+        /* Self Model */
         std::string selfModel = "SelfModel";
         nodes_[selfModel] = std::make_shared<LocalMap::SelfModel>(
                 selfModel,
@@ -189,26 +189,36 @@ namespace AtlasFusion {
         );
         rosExecutor_.add_node(nodes_[lidarAggregator]);
 
-        /* Yolo detector */
+        /* Yolo Detector */
         std::string yoloDetector = "YoloDetector";
         nodes_[yoloDetector] = std::make_shared<LocalMap::YoloDetector>(
                 yoloDetector,
                 nodeOptions_
         );
         rosExecutor_.add_node(nodes_[yoloDetector]);
+
+        /* Lidar Detector */
+        std::string lidarDetector = "LidarDetector";
+        nodes_[lidarDetector] = std::make_shared<LocalMap::LidarDetector>(
+                lidarDetector,
+                Topics::kLidarAggregatedDetections,
+                nodeOptions_
+        );
+        rosExecutor_.add_node(nodes_[lidarDetector]);
+
     }
 
-    rtl::RigidTf3D<double> EntryPoint::GetTFFrameFromConfig(ConfigService &service, const FrameType &type) {
+    rtl::RigidTf3D<double> EntryPoint::GetTFFrameFromConfig(ConfigService& service, const FrameType& type) {
         auto translation = service.GetVector3DValue<double>({FrameTypeName(type), "trans"});
         auto rotation = service.GetQuaternionValue<double>({FrameTypeName(type), "rot"});
         rtl::RigidTf3D<double> frame{rotation, translation};
         return frame;
     }
 
-    TFTree EntryPoint::BuildTFTree(FrameType rootFrame, const std::vector<FrameType> &frames, const std::string &tfFilePath) {
+    TFTree EntryPoint::BuildTFTree(FrameType rootFrame, const std::vector<FrameType>& frames, const std::string& tfFilePath) {
         ConfigService TFConfigService(tfFilePath);
         TFTree tfTree(rootFrame);
-        for (const auto &frameType: frames) {
+        for (const auto& frameType: frames) {
             auto frame = GetTFFrameFromConfig(TFConfigService, frameType);
             tfTree.AddFrame(frame, frameType);
         }
@@ -217,7 +227,7 @@ namespace AtlasFusion {
 
     DataModels::CameraCalibrationParams EntryPoint::CreateCameraCalibrationParams(DataLoader::CameraIdentifier cameraIdentifier) {
         auto path = configService_->GetStringValue({"calibrations_folder"});
-        switch(cameraIdentifier) {
+        switch (cameraIdentifier) {
             case DataLoader::CameraIdentifier::kCameraLeftSide: {
                 path += Files::kCameraLeftSideCalibYaml;
                 break;
